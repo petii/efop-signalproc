@@ -4,7 +4,7 @@
 #include <iostream>
 #include "windowhandler.h"
 #include "vulkanframe.h"
-// #include "vulkancompute.h"
+#include "vulkancompute.h"
 // #include "vulkangraphics.h"
 
 class VisualizationApplication {
@@ -15,17 +15,27 @@ public:
     const std::string name;
 private:
     WindowHandler wh;
+    VulkanFrame vf;
+    VulkanCompute vc;
+    // VulkanGraphics vg;
 
 public:
     VisualizationApplication(const std::string& appName):
             name(appName),
-            wh(
+            wh( //WindowHandler
                 name,
                 WIDTH,
                 HEIGHT,
                 this,
                 VisualizationApplication::onWindowResized
-            ) {
+            ),
+            vf( //VulkanFrame
+                name,
+                wh.getGLFWExtensions()
+            ),
+            vc( //VulkanCompute
+            )
+    {
         std::cout << "constructing\n";
         // wh.initWindow();
     }
@@ -48,6 +58,13 @@ public:
     }
 
     void mainLoop() {
+        // Basic idea:
+        //     get audio data
+        //     feed data to computeDevice
+        //     compute vertices
+        //     create graphics from vertices
+        // Sounds easy enough
+
         // while (!glfwWindowShouldClose(wh.window)) {
         //     glfwPollEvents();
         // }

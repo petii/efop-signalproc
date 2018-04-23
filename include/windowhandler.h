@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 struct WindowHandler {
 
@@ -39,5 +40,15 @@ struct WindowHandler {
         std::cout << "window destructor\n";
         glfwDestroyWindow(window);
         glfwTerminate();
+    }
+
+    std::vector<const char*> getGLFWExtensions() {
+        uint32_t glfwExtensionCount = 0;
+        const char** glfwExtensions;
+        glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+        std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+        return extensions;
     }
 };
