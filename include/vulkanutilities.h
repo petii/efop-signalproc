@@ -122,11 +122,69 @@ VkPhysicalDevice pickPhysicalDevice(VkInstance instance) {
 
 VkDevice createGraphicsLogicalDevice(VkPhysicalDevice physicalDevice) {
     //TODO: this function
+    return VK_NULL_HANDLE;
 }
 
-VkDevice createComputeLogicalDevice(VkPhysicalDevice physicalDevice) {
+uint32_t getComputeQueueFamilyIndex(VkPhysicalDevice physicalDevice) {
+    uint32_t queueFamilyCount;
+    vkGetPhysicalDeviceQueueFamilyProperties(
+        physicalDevice,
+        &queueFamilyCount,
+        nullptr
+    );
 
+    // Retrieve all queue families.
+    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(
+        physicalDevice,
+        &queueFamilyCount,
+        queueFamilies.data()
+    );
+
+    // Now find a family that supports compute.
+    uint32_t index = 0;
+    for (const VkQueueFamilyProperties& properties : queueFamilies ) {
+        if (properties.queueCount > 0 &&
+            (properties.queueFlags & VK_QUEUE_COMPUTE_BIT)) {
+            return index;
+        }
+        ++index;
+    }
+    throw std::runtime_error(
+        "Could not find a queue family that supports compute operations"
+    );
 }
+
+VkDevice createComputeLogicalDevice(
+        VkPhysicalDevice physicalDevice,
+        const std::vector<const char*>& enabledLayers
+) {
+    VkDeviceQueueCreateInfo queueCreateInfo = {};
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo.queueFamilyIndex = getComputeQueueFamilyIndex(physicalDevice);
+    queueCreateInfo.queueCount = 1; // create one queue in this family. We don't need more.
+    float queuePriorities = 1.0;  // we only have one queue, so this is not that imporant.
+    queueCreateInfo.pQueuePriorities = &queuePriorities;
+
+    VkDeviceCreateInfo deviceCreateInfo = {};
+
+    //TODO: extend this if needed
+    VkPhysicalDeviceFeatures deviceFeatures = {};
+
+    deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    deviceCreateInfo.enabledLayerCount = enabledLayers.size();  // need to specify validation layers here as well.
+    deviceCreateInfo.ppEnabledLayerNames = enabledLayers.data();
+    deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo; // when creating the logical device, we also specify what queues it has.
+    deviceCreateInfo.queueCreateInfoCount = 1;
+    deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
+
+    VkDevice device;
+    if (vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create logical compute device!");
+    }
+    return device;
+}
+
 
 
 }

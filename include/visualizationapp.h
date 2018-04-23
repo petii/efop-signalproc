@@ -33,8 +33,7 @@ public:
                 name,
                 wh.getGLFWExtensions()
             ),
-            vc( //VulkanCompute
-            )
+            vc(vf) //VulkanCompute
     {
         std::cout << "constructing\n";
         // wh.initWindow();
