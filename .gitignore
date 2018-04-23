@@ -30,3 +30,23 @@
 *.exe
 *.out
 *.app
+bin/*
+
+# Ignore build and library directiories
+build
+lib/*
+
+# Misc files for documentation
+*.jpg
+*.aux
+*.toc
+*.pdf
+*.doc
+*.log
+*.ldf
+
+# Compiled Vulkan shaders
+*.spv
+
+# Linter info for Atom
+.clang_complete
