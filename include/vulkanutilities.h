@@ -185,6 +185,67 @@ VkDevice createComputeLogicalDevice(
     return device;
 }
 
+VkBuffer createBuffer(VkDevice device,VkDeviceSize size) {
+    VkBufferCreateInfo bufferCreateInfo = {};
+    bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferCreateInfo.size = size;
+    //TODO: figure out buffer usage
+    bufferCreateInfo.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+    bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VkBuffer buffer;
+    if (vkCreateBuffer(device,&bufferCreateInfo,nullptr,&buffer) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create buffer!");
+    }
+    return buffer;
+}
+
+uint32_t findMemoryTypeIndex(
+    const VkPhysicalDevice& physicalDevice,
+    const VkMemoryRequirements& memoryRequirements,
+    const VkMemoryPropertyFlags& properties
+) {
+    VkPhysicalDeviceMemoryProperties memoryProperties;
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
+
+    uint32_t index;
+    for (const auto& type : memoryProperties.memoryTypes) {
+        if (
+            (memoryRequirements.memoryTypeBits & (1 << index)) &&
+            ((type.propertyFlags & properties) == properties )
+        ) {
+            return index;
+        }
+        ++index;
+    }
+    throw std::runtime_error("Suitable memory type not found!");
+    // return -1;
+}
+
+VkDeviceMemory allocateBufferMemory(
+    VkPhysicalDevice physicalDevice,
+    VkDevice device,
+    VkBuffer buffer
+) {
+    VkMemoryRequirements memoryRequirements;
+    vkGetBufferMemoryRequirements(device,buffer, &memoryRequirements);
+
+    VkMemoryAllocateInfo memoryAllocateInfo = {};
+    memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    memoryAllocateInfo.allocationSize = memoryRequirements.size;
+    memoryAllocateInfo.memoryTypeIndex = findMemoryTypeIndex(
+        physicalDevice,
+        memoryRequirements,
+        VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+    );
+
+    VkDeviceMemory deviceMemory;
+    if (vkAllocateMemory(device, &memoryAllocateInfo, nullptr, &deviceMemory)
+            != VK_SUCCESS) {
+        throw std::runtime_error("Failed to allocate device memory!");
+    }
+    return deviceMemory;
+}
 
 
 }
