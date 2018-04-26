@@ -18,6 +18,7 @@ struct WindowHandler {
         void* userPointer,
         GLFWwindowsizefun resizeFunction
     ) {
+        std::cout << "window constructor\n";
         glfwInit();
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);

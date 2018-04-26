@@ -12,7 +12,7 @@
 #include "vulkanutilities.h"
 
 struct VulkanFrame {
-
+// private:
     #ifdef NDEBUG
     const bool enableValidationLayers = false;
     #else
@@ -33,7 +33,7 @@ struct VulkanFrame {
 
     // this is only used in debug
     VkDebugReportCallbackEXT callback;
-
+public:
     VulkanFrame(const std::string& appName,std::vector<const char*> extensions):
             // callback(setupDebugCallback()),
             instance (createInstance(appName,extensions)),
@@ -41,13 +41,14 @@ struct VulkanFrame {
             //TODO: creating logical devices should be the subsystem's job
             // device(utility::createLogicalDevice(physicalDevice))
     {
+        std::cout << "vulkanframe constructing\n";
         if (enableValidationLayers) {
             callback = utility::setupDebugCallback(instance);
         }
     }
 
     ~VulkanFrame(){
-
+        std::cout << "vulkanframe destructing\n";
     }
 
 private:
