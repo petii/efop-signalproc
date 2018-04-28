@@ -2,7 +2,8 @@
 
 //https://github.com/Erkaman/vulkan_minimal_compute/blob/master/src/main.cpp
 
-#include "vulkan/vulkan.h"
+// #include "vulkan/vulkan.h"
+// #include "vulkan/vulkan.hpp"
 #include "vulkanframe.h"
 #include "vulkanutilities.h"
 
