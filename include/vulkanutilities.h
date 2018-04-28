@@ -24,6 +24,14 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     std::cerr << "validation layer: " << msg << std::endl;
     return VK_FALSE;
 }
+
+void DestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT callback, const VkAllocationCallbacks* pAllocator) {
+    auto func = (PFN_vkDestroyDebugReportCallbackEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugReportCallbackEXT");
+    if (func != nullptr) {
+        func(instance, callback, pAllocator);
+    }
+}
+
 VkResult CreateDebugReportCallbackEXT(
         VkInstance instance,
         const VkDebugReportCallbackCreateInfoEXT* pCreateInfo,

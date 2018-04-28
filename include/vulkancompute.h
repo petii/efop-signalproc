@@ -70,6 +70,19 @@ struct VulkanCompute {
         recordCommands();
     }
 
+    ~VulkanCompute() {
+        std::cout << "compute destructing\n";
+        vkFreeMemory(computeDevice, bufferMemory,nullptr);
+        vkDestroyBuffer(computeDevice,buffer,nullptr);
+        vkDestroyShaderModule(computeDevice, computeShader,nullptr);
+        vkDestroyDescriptorSetLayout(computeDevice,descriptorSetLayout,nullptr);
+        vkDestroyDescriptorPool(computeDevice,descriptorPool,nullptr);
+        vkDestroyPipeline(computeDevice, computePipeline,nullptr);
+        vkDestroyPipelineLayout(computeDevice,pipelineLayout,nullptr);
+        vkDestroyCommandPool(computeDevice,commandPool,nullptr);
+        vkDestroyDevice(computeDevice,nullptr);
+    }
+
     void runCommandBuffer() {
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -96,6 +109,7 @@ struct VulkanCompute {
         if (vkBeginCommandBuffer(commandBuffer,&beginInfo) != VK_SUCCESS) {
             throw std::runtime_error("Failed to begin recording to command buffer!");
         }
+        //TODO: error handling
         vkCmdBindPipeline(
             commandBuffer,
             VK_PIPELINE_BIND_POINT_COMPUTE,

@@ -11,7 +11,7 @@ LDFLAGS := -L${VULKAN_SDK}/lib `pkg-config --static --libs glfw3` -lvulkan
 INCLUDE := -Iinclude -I${VULKAN_SDK}/include
 
 compute:
-	$(COMPILER) -o compute.out $(SRCDIR)/main.cpp $(CFLAGS) $(INCLUDE) $(LDFLAGS)
+	$(COMPILER) -o compute.out $(SRCDIR)/main.cpp $(CFLAGS) $(INCLUDE) $(LDFLAGS) -DDEBUG
 
 shaders:
 	cd src/shaders/ ; glslangValidator -V shader.*

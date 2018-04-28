@@ -47,8 +47,15 @@ public:
         }
     }
 
+
+
     ~VulkanFrame(){
         std::cout << "vulkanframe destructing\n";
+        if (enableValidationLayers) {
+            utility::DestroyDebugReportCallbackEXT(instance,callback,nullptr);
+        }
+
+        vkDestroyInstance(instance,nullptr);
     }
 
 private:
