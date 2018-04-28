@@ -1,20 +1,31 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-#define WIDTH 3200
-#define HEIGHT 2400
-#define WORKGROUP_SIZE 32
-layout (local_size_x = WORKGROUP_SIZE) in;
+#define M_PI 3.14159265358979323846
 
-struct Pixel{
-  vec4 value;
+layout (constant_id = 20) const int WORKGROUP_SIZE = 128;
+layout (constant_id = 21) const int BUFFER_SIZE = 128;
+
+layout (local_size_x_id = 20,local_size_y=1,local_size_z=1) in;
+
+layout (binding = 0) uniform AudioData{
+    float value[BUFFER_SIZE];
+} audio;
+
+struct Complex {
+    float real;
+    float imag;
 };
 
-layout(std140, binding = 0) buffer buf
+layout(std140, binding = 1) buffer buf
 {
-   Pixel imageData[];
+   Complex result[];
 };
 
 void main() {
-
+    for (int i = 0; i<BUFFER_SIZE; ++i) {
+        float place = 2*M_PI*gl_GlobalInvocationID.x*i/BUFFER_SIZE;
+        result[i].real += audio.value[i] * cos(place);
+        result[i].imag += audio.value[i] * sin(place);
+    }
 }

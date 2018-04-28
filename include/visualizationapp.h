@@ -6,6 +6,7 @@
 #include "vulkanframe.h"
 #include "vulkancompute.h"
 // #include "vulkangraphics.h"
+#include "audiohandler.h"
 
 class VisualizationApplication {
 public:
@@ -18,6 +19,7 @@ private:
     VulkanFrame vf;
     VulkanCompute vc;
     // VulkanGraphics vg;
+    AudioHandler ah;
 
 public:
     VisualizationApplication(const std::string& appName):
@@ -33,7 +35,8 @@ public:
                 name,
                 wh.getGLFWExtensions()
             ),
-            vc(vf) //VulkanCompute
+            vc(vf), //VulkanCompute
+            ah(vc.bufferSize) //audiohandler
     {
         std::cout << "constructing\n";
         // wh.initWindow();
@@ -65,6 +68,7 @@ public:
         // Sounds easy enough
         while (!glfwWindowShouldClose(wh.window)) {
             glfwPollEvents();
+            vc.copyData(ah.getNormalizedMockAudio());
             vc.runCommandBuffer();
         }
     }

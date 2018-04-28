@@ -52,7 +52,8 @@ struct VulkanCompute {
             computePipeline(utility::createComputePipeline(
                 computeDevice,
                 computeShader,
-                pipelineLayout
+                pipelineLayout,
+                bufferSize,bufferSize
             )),
             commandPool(utility::createCommandPool(computeDevice,queueFamilyIndex)),
             commandBuffer(utility::allocateCommandBuffer(computeDevice, commandPool))
@@ -81,6 +82,10 @@ struct VulkanCompute {
         vkDestroyPipelineLayout(computeDevice,pipelineLayout,nullptr);
         vkDestroyCommandPool(computeDevice,commandPool,nullptr);
         vkDestroyDevice(computeDevice,nullptr);
+    }
+
+    void copyData(const std::vector<float>& data) {
+
     }
 
     void runCommandBuffer() {

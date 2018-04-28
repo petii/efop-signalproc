@@ -259,7 +259,7 @@ VkDeviceMemory allocateBufferMemory(
 VkDescriptorSetLayout createDescriptorSetLayout(VkDevice device) {
     VkDescriptorSetLayoutBinding descriptorSetLayoutBinding = {};
         descriptorSetLayoutBinding.binding = 0; // binding = 0
-        descriptorSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        descriptorSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         descriptorSetLayoutBinding.descriptorCount = 1;
         descriptorSetLayoutBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 
@@ -277,7 +277,7 @@ VkDescriptorSetLayout createDescriptorSetLayout(VkDevice device) {
 
 VkDescriptorPool createDescriptorPool(VkDevice device) {
     VkDescriptorPoolSize descriptorPoolSize = {};
-    descriptorPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    descriptorPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     descriptorPoolSize.descriptorCount = 1;
 
     VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = {};
@@ -329,7 +329,7 @@ void bindBufferToDescriptor(
     writeDescriptorSet.dstSet = descriptorSet; // write to this descriptor set.
     writeDescriptorSet.dstBinding = 0; // write to the first, and only binding.
     writeDescriptorSet.descriptorCount = 1; // update a single descriptor.
-    writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER; // storage buffer.
+    writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     writeDescriptorSet.pBufferInfo = &descriptorBufferInfo;
 
     // perform the update of the descriptor set.
@@ -364,12 +364,43 @@ VkShaderModule createShaderModule(VkDevice device, const std::string& file) {
     return shaderModule;
 }
 
-VkPipelineShaderStageCreateInfo getComputeShaderStageCreateInfo(VkShaderModule shaderModule) {
+//TODO:remove hardcoded values
+VkSpecializationInfo getSpecializationInfoForSpecializationConstants(
+    size_t bufferSize, size_t workgroupSize
+) {
+    VkSpecializationMapEntry specMapEntry[2];
+    specMapEntry[0] = {};
+    specMapEntry[0].constantID = 0;
+    specMapEntry[0].offset = 0;
+    specMapEntry[0].size = sizeof(bufferSize);
+    specMapEntry[1] = {};
+    specMapEntry[1].constantID = 1;
+    specMapEntry[1].offset = sizeof(bufferSize);
+    specMapEntry[1].size = sizeof(workgroupSize);
+
+    size_t data[2] = {bufferSize,workgroupSize};
+
+    VkSpecializationInfo specInfo = {};
+    specInfo.mapEntryCount = 2;
+    specInfo.pMapEntries = specMapEntry;
+    specInfo.dataSize = sizeof(data) * sizeof(data[0]);
+    specInfo.pData = data;
+
+    return specInfo;
+}
+
+VkPipelineShaderStageCreateInfo getComputePipelineShaderStageCreateInfo(
+    VkShaderModule shaderModule,
+    size_t bufferSize, size_t workgroupSize
+) {
+
     VkPipelineShaderStageCreateInfo shaderStageCreateInfo = {};
     shaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     shaderStageCreateInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
     shaderStageCreateInfo.module = shaderModule;
     shaderStageCreateInfo.pName = "main";
+    VkSpecializationInfo specInfo = getSpecializationInfoForSpecializationConstants(bufferSize,workgroupSize);
+    shaderStageCreateInfo.pSpecializationInfo = &specInfo;
 
     return shaderStageCreateInfo;
 }
@@ -398,8 +429,11 @@ VkPipelineLayout createPipelineLayout(
 VkPipeline createComputePipeline(
     VkDevice device,
     VkShaderModule shaderModule,
-    VkPipelineLayout pipelineLayout
+    VkPipelineLayout pipelineLayout,
+    size_t bufferSize, size_t workgroupSize
 ) {
+    // VkPipelineShaderStageCreateInfo shaderStageCreateInfo =
+    //     getComputePipelineShaderStageCreateInfo(shaderModule,bufferSize,workgroupSize);
     VkPipelineShaderStageCreateInfo shaderStageCreateInfo = {};
     shaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     shaderStageCreateInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
