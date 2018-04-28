@@ -8,6 +8,8 @@
 #include "vulkanutilities.h"
 
 struct VulkanCompute {
+    static const uint32_t bufferSize = 1024; //play around with this
+
     VkDevice computeDevice;
     uint32_t queueFamilyIndex;
     VkQueue computeQueue;
@@ -16,13 +18,14 @@ struct VulkanCompute {
     VkDeviceMemory bufferMemory;
 
     VkDescriptorPool descriptorPool;
-    VkDescriptorSet descriptorSet;
     VkDescriptorSetLayout descriptorSetLayout;
+    VkDescriptorSet descriptorSet;
 
-    VkPipeline computePipeline;
-    VkPipelineLayout pipelineLayout;
     VkShaderModule computeShader;
+    VkPipelineLayout pipelineLayout;
+    VkPipeline computePipeline;
 
+    VkCommandPool commandPool;
     VkCommandBuffer commandBuffer;
 
     VulkanCompute(const VulkanFrame& vf):
@@ -31,12 +34,28 @@ struct VulkanCompute {
                 vf.validationLayers
             )),
             queueFamilyIndex(utility::getComputeQueueFamilyIndex(vf.physicalDevice)),
-            buffer(utility::createBuffer(computeDevice, 1024/*buffer size*/)),
+            buffer(utility::createBuffer(computeDevice, bufferSize)),
             bufferMemory(utility::allocateBufferMemory(
                 vf.physicalDevice,
                 computeDevice,
                 buffer
-            ))
+            )),
+            descriptorPool(utility::createDescriptorPool(computeDevice)),
+            descriptorSetLayout(utility::createDescriptorSetLayout(computeDevice)),
+            descriptorSet(utility::createDescriptorSet(
+                computeDevice,
+                descriptorPool,
+                descriptorSetLayout)
+            ),
+            computeShader(utility::createShaderModule(computeDevice,"src/shaders/comp.spv")),
+            pipelineLayout(utility::createPipelineLayout(computeDevice,computeShader,descriptorSetLayout)),
+            computePipeline(utility::createComputePipeline(
+                computeDevice,
+                computeShader,
+                pipelineLayout
+            )),
+            commandPool(utility::createCommandPool(computeDevice,queueFamilyIndex)),
+            commandBuffer(utility::allocateCommandBuffer(computeDevice, commandPool))
     {
         // Get a handle to the only member of the queue family.
         vkGetDeviceQueue(computeDevice, queueFamilyIndex, 0, &computeQueue);
@@ -46,9 +65,53 @@ struct VulkanCompute {
         ) {
             throw std::runtime_error("Failed to bind memory to buffer!");
         }
-        // createDescriptorSetLayout();
-        // createDescriptorSet();
-        // createComputePipeline();
-        // createCommandBuffer();
+        utility::bindBufferToDescriptor(computeDevice,buffer,bufferSize,descriptorSet);
+
+        recordCommands();
+    }
+
+    void runCommandBuffer() {
+        VkSubmitInfo submitInfo = {};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &commandBuffer;
+
+        VkFence fence;
+        VkFenceCreateInfo fenceCreateInfo = {};
+        fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fenceCreateInfo.flags = 0;
+        vkCreateFence(computeDevice,&fenceCreateInfo, nullptr, &fence);
+
+        vkQueueSubmit(computeQueue, 1, &submitInfo, fence);
+
+        vkWaitForFences(computeDevice, 1, &fence, VK_TRUE, 1000000000); //timeout in nanoseconds
+        vkDestroyFence(computeDevice, fence, nullptr);
+    }
+
+    void recordCommands() {
+        VkCommandBufferBeginInfo beginInfo = {};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+
+        if (vkBeginCommandBuffer(commandBuffer,&beginInfo) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to begin recording to command buffer!");
+        }
+        vkCmdBindPipeline(
+            commandBuffer,
+            VK_PIPELINE_BIND_POINT_COMPUTE,
+            computePipeline
+        );
+        vkCmdBindDescriptorSets(
+            commandBuffer,
+            VK_PIPELINE_BIND_POINT_COMPUTE,
+            pipelineLayout,
+            0,1, //firstset, descriptorsetcount
+            &descriptorSet,
+            0,nullptr //dynamic offset
+        );
+        vkCmdDispatch(commandBuffer, bufferSize,1,1);
+        if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to end recording to command buffer!");
+        }
     }
 };

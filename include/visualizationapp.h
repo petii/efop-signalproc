@@ -63,9 +63,9 @@ public:
         //     compute vertices
         //     create graphics from vertices
         // Sounds easy enough
-
-        // while (!glfwWindowShouldClose(wh.window)) {
-        //     glfwPollEvents();
-        // }
+        while (!glfwWindowShouldClose(wh.window)) {
+            glfwPollEvents();
+            vc.runCommandBuffer();
+        }
     }
 };

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "vulkan/vulkan.h"
-// #include "vulkan/vulkan.hpp"
 
 #include <string>
 #include <vector>
 #include <iostream>
+#include <fstream>
 #include <stdexcept>
 
 
@@ -248,5 +248,199 @@ VkDeviceMemory allocateBufferMemory(
     return deviceMemory;
 }
 
+VkDescriptorSetLayout createDescriptorSetLayout(VkDevice device) {
+    VkDescriptorSetLayoutBinding descriptorSetLayoutBinding = {};
+        descriptorSetLayoutBinding.binding = 0; // binding = 0
+        descriptorSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        descriptorSetLayoutBinding.descriptorCount = 1;
+        descriptorSetLayoutBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+
+        VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = {};
+        descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        descriptorSetLayoutCreateInfo.bindingCount = 1; // only a single binding in this descriptor set layout.
+        descriptorSetLayoutCreateInfo.pBindings = &descriptorSetLayoutBinding;
+
+        VkDescriptorSetLayout dsl;
+        if (vkCreateDescriptorSetLayout(device, &descriptorSetLayoutCreateInfo,nullptr, &dsl) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to create descriptor set layout!");
+        }
+        return dsl;
+}
+
+VkDescriptorPool createDescriptorPool(VkDevice device) {
+    VkDescriptorPoolSize descriptorPoolSize = {};
+    descriptorPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    descriptorPoolSize.descriptorCount = 1;
+
+    VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = {};
+    descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    descriptorPoolCreateInfo.maxSets = 1; // we only need to allocate one descriptor set from the pool.
+    descriptorPoolCreateInfo.poolSizeCount = 1;
+    descriptorPoolCreateInfo.pPoolSizes = &descriptorPoolSize;
+
+    // create descriptor pool.
+    VkDescriptorPool descriptorPool;
+    if (vkCreateDescriptorPool(device, &descriptorPoolCreateInfo, NULL, &descriptorPool) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create descriptor pool!");
+    }
+    return descriptorPool;
+}
+
+VkDescriptorSet createDescriptorSet(
+    VkDevice device,
+    VkDescriptorPool descriptorPool,
+    VkDescriptorSetLayout descriptorSetLayout
+) {
+    VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
+    descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    descriptorSetAllocateInfo.descriptorPool = descriptorPool; // pool to allocate from.
+    descriptorSetAllocateInfo.descriptorSetCount = 1; // allocate a single descriptor set.
+    descriptorSetAllocateInfo.pSetLayouts = &descriptorSetLayout;
+
+    VkDescriptorSet descriptorSet;
+    // allocate descriptor set.
+    if (vkAllocateDescriptorSets(device, &descriptorSetAllocateInfo, &descriptorSet) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create descriptor set!");
+    }
+    return descriptorSet;
+}
+
+void bindBufferToDescriptor(
+    VkDevice device,
+    VkBuffer buffer,
+    uint32_t bufferSize,
+    VkDescriptorSet descriptorSet
+) {
+    VkDescriptorBufferInfo descriptorBufferInfo = {};
+    descriptorBufferInfo.buffer = buffer;
+    descriptorBufferInfo.offset = 0;
+    descriptorBufferInfo.range = bufferSize;
+
+    VkWriteDescriptorSet writeDescriptorSet = {};
+    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSet.dstSet = descriptorSet; // write to this descriptor set.
+    writeDescriptorSet.dstBinding = 0; // write to the first, and only binding.
+    writeDescriptorSet.descriptorCount = 1; // update a single descriptor.
+    writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER; // storage buffer.
+    writeDescriptorSet.pBufferInfo = &descriptorBufferInfo;
+
+    // perform the update of the descriptor set.
+    vkUpdateDescriptorSets(device, 1, &writeDescriptorSet, 0, NULL);
+}
+
+//used to read in spir-v shaders
+std::vector<char> readFile(const std::string& filename) {
+    std::ifstream file(filename, std::ios::ate | std::ios::binary);
+    if (!file.is_open()) {
+        throw std::runtime_error("failed to open file: "+filename);
+    }
+    size_t fileSize = (size_t) file.tellg();
+    std::vector<char> buffer(fileSize);
+    file.seekg(0);
+    file.read(buffer.data(), fileSize);
+    file.close();
+    return buffer;
+}
+
+VkShaderModule createShaderModule(VkDevice device, const std::string& file) {
+    auto shaderCode = readFile(file);
+    VkShaderModuleCreateInfo shaderModuleCreateInfo = {};
+    shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    shaderModuleCreateInfo.pCode = reinterpret_cast<uint32_t*>(shaderCode.data());
+    shaderModuleCreateInfo.codeSize = shaderCode.size();
+
+    VkShaderModule shaderModule;
+    if (vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create shader module!");
+    }
+    return shaderModule;
+}
+
+VkPipelineShaderStageCreateInfo getComputeShaderStageCreateInfo(VkShaderModule shaderModule) {
+    VkPipelineShaderStageCreateInfo shaderStageCreateInfo = {};
+    shaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    shaderStageCreateInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+    shaderStageCreateInfo.module = shaderModule;
+    shaderStageCreateInfo.pName = "main";
+
+    return shaderStageCreateInfo;
+}
+
+VkPipelineLayout createPipelineLayout(
+    VkDevice device,
+    VkShaderModule shaderModule,
+    VkDescriptorSetLayout descriptorSetLayout
+) {
+    /*
+    The pipeline layout allows the pipeline to access descriptor sets.
+    So we just specify the descriptor set layout we created earlier.
+    */
+    VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
+    pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutCreateInfo.setLayoutCount = 1;
+    pipelineLayoutCreateInfo.pSetLayouts = &descriptorSetLayout;
+
+    VkPipelineLayout pipelineLayout;
+    if (vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create pipeline layout!");
+    }
+    return pipelineLayout;
+}
+
+VkPipeline createComputePipeline(
+    VkDevice device,
+    VkShaderModule shaderModule,
+    VkPipelineLayout pipelineLayout
+) {
+    VkPipelineShaderStageCreateInfo shaderStageCreateInfo = {};
+    shaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    shaderStageCreateInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+    shaderStageCreateInfo.module = shaderModule;
+    shaderStageCreateInfo.pName = "main";
+
+    VkComputePipelineCreateInfo pipelineCreateInfo = {};
+    pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+    pipelineCreateInfo.stage = shaderStageCreateInfo;
+    pipelineCreateInfo.layout = pipelineLayout;
+
+    VkPipeline pipeline;
+    if ( vkCreateComputePipelines(
+        device,
+        VK_NULL_HANDLE,
+        1,
+        &pipelineCreateInfo,
+        nullptr,
+        &pipeline) != VK_SUCCESS
+    ) {
+        throw std::runtime_error("Failed to create compute pipeline!");
+    }
+    return pipeline;
+}
+
+VkCommandPool createCommandPool(VkDevice device,uint32_t queueFamilyIndex) {
+    VkCommandPoolCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    createInfo.flags = 0;
+    createInfo.queueFamilyIndex = queueFamilyIndex;
+
+    VkCommandPool commandPool;
+    if (vkCreateCommandPool(device, &createInfo, nullptr,&commandPool) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create command pool!");
+    }
+    return commandPool;
+}
+
+VkCommandBuffer allocateCommandBuffer(VkDevice device, VkCommandPool commandPool) {
+    VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
+    commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    commandBufferAllocateInfo.commandPool = commandPool;
+    commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    commandBufferAllocateInfo.commandBufferCount = 1;
+    VkCommandBuffer commandBuffer;
+    if (vkAllocateCommandBuffers(device, &commandBufferAllocateInfo, &commandBuffer)!=VK_SUCCESS){
+        throw std::runtime_error("Failed to allocate command buffer!");
+    }
+    return commandBuffer;
+}
 
 }
