@@ -209,7 +209,7 @@ uint32_t findMemoryTypeIndex(
     VkPhysicalDeviceMemoryProperties memoryProperties;
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
 
-    uint32_t index;
+    uint32_t index = 0;
     for (const auto& type : memoryProperties.memoryTypes) {
         if (
             (memoryRequirements.memoryTypeBits & (1 << index)) &&

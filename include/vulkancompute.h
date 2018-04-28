@@ -2,7 +2,7 @@
 
 //https://github.com/Erkaman/vulkan_minimal_compute/blob/master/src/main.cpp
 
-// #include "vulkan/vulkan.h"
+#include "vulkan/vulkan.h"
 // #include "vulkan/vulkan.hpp"
 #include "vulkanframe.h"
 #include "vulkanutilities.h"
@@ -11,8 +11,19 @@ struct VulkanCompute {
     VkDevice computeDevice;
     uint32_t queueFamilyIndex;
     VkQueue computeQueue;
+
     VkBuffer buffer;
     VkDeviceMemory bufferMemory;
+
+    VkDescriptorPool descriptorPool;
+    VkDescriptorSet descriptorSet;
+    VkDescriptorSetLayout descriptorSetLayout;
+
+    VkPipeline computePipeline;
+    VkPipelineLayout pipelineLayout;
+    VkShaderModule computeShader;
+
+    VkCommandBuffer commandBuffer;
 
     VulkanCompute(const VulkanFrame& vf):
             computeDevice(utility::createComputeLogicalDevice(
