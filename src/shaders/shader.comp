@@ -3,8 +3,8 @@
 
 #define M_PI 3.14159265358979323846
 
-#define WORKGROUP_SIZE 128
-#define BUFFER_SIZE 128
+#define BUFFER_SIZE 256
+#define WORKGROUP_SIZE 1
 
 // layout (constant_id = 20) const int WORKGROUP_SIZE = 128;
 // layout (constant_id = 21) const int BUFFER_SIZE = 128;
@@ -12,24 +12,52 @@
 // layout (local_size_x_id = 20,local_size_y=1,local_size_z=1) in;
 layout (local_size_x = WORKGROUP_SIZE,local_size_y=1,local_size_z=1) in;
 
-layout (binding = 0) uniform AudioData{
+layout (std430,binding = 0) buffer AudioData{
     float value[BUFFER_SIZE];
 } audio;
 
-struct Complex {
+struct Comlex {
     float real;
     float imag;
 };
 
-layout(std140, binding = 1) buffer buf
-{
-   Complex result[BUFFER_SIZE];
+layout(std430, binding = 1) buffer buf {
+    // Complex result[BUFFER_SIZE];
+    float result[2*BUFFER_SIZE];
 };
 
 void main() {
+    // result[2*gl_GlobalInvocationID.x] = gl_GlobalInvocationID.x ;
+    // result[2*gl_GlobalInvocationID.x+1] = gl_GlobalInvocationID.x ;
+    // result[gl_GlobalInvocationID.x] = gl_LocalInvocationIndex+1 ;
+
+    float real = 0.0;
+    float im = 0.0;
     for (int i = 0; i<BUFFER_SIZE; ++i) {
         float place = 2*M_PI*gl_GlobalInvocationID.x*i/BUFFER_SIZE;
-        result[i].real += audio.value[i] * cos(place);
-        result[i].imag += audio.value[i] * sin(place);
+        //real
+        real += audio.value[gl_GlobalInvocationID.x] * cos(place);
+        //imaginary
+        im += audio.value[gl_GlobalInvocationID.x] * -sin(place);
     }
+    result[2*gl_GlobalInvocationID.x] = real;
+    result[2*gl_GlobalInvocationID.x+1] = im;
+        // result[i] += audio.value[i] * cos(place);
+        // result[i+1] += audio.value[i] * sin(place);
+        // result[gl_GlobalInvocationID.x] = 1.0f;
+        // result[gl_GlobalInvocationID.x] = gl_GlobalInvocationID.x;
+        // result[gl_LocalInvocationID.x] = gl_LocalInvocationID.x;
+        // result[0] = gl_NumWorkGroups.x;
+        // result[1] = gl_NumWorkGroups.y;
+        // result[2] = gl_NumWorkGroups.z;
+        // result[3] = gl_WorkGroupSize.x;
+        // result[4] = gl_WorkGroupSize.y;
+        // result[5] = gl_WorkGroupSize.z;
+        // result[gl_WorkGroupID.x] = -23;
+        // result[gl_LocalInvocationIndex] = result[gl_LocalInvocationIndex]+1;
+        // result[2*gl_GlobalInvocationID.x+1] = audio.value[gl_GlobalInvocationID.x] ;
+        // result[6+gl_GlobalInvocationID.y] = gl_GlobalInvocationID.y;
+        // result[6+gl_GlobalInvocationID.z] = gl_GlobalInvocationID.z;
+    // }
+    // result[gl_LocalInvocationIndex] = gl_LocalInvocationIndex;
 }

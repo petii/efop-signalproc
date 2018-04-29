@@ -9,9 +9,11 @@
 #include <stdexcept>
 #include <iostream>
 #include "vulkan/vulkan.h"
-#include "vulkanutilities.h"
 
 struct VulkanFrame {
+    //used to read in spir-v shaders
+    static std::vector<char> readFile(const std::string& filename);
+
 // private:
     #ifdef NDEBUG
     const bool enableValidationLayers = false;
@@ -34,16 +36,15 @@ struct VulkanFrame {
     // this is only used in debug
     VkDebugReportCallbackEXT callback;
 public:
-    VulkanFrame(const std::string& appName,std::vector<const char*> extensions):
-            // callback(setupDebugCallback()),
-            instance (createInstance(appName,extensions)),
-            physicalDevice(utility::pickPhysicalDevice(instance))
-            //TODO: creating logical devices should be the subsystem's job
-            // device(utility::createLogicalDevice(physicalDevice))
-    {
+    VulkanFrame(
+        const std::string& appName,
+        std::vector<const char*> extensions
+    ) {
         std::cout << "vulkanframe constructing\n";
+        createInstance(appName,extensions);
+        pickPhysicalDevice();
         if (enableValidationLayers) {
-            callback = utility::setupDebugCallback(instance);
+            setupDebugCallback(instance);
         }
     }
 
@@ -52,52 +53,58 @@ public:
     ~VulkanFrame(){
         std::cout << "vulkanframe destructing\n";
         if (enableValidationLayers) {
-            utility::DestroyDebugReportCallbackEXT(instance,callback,nullptr);
+            DestroyDebugReportCallbackEXT(instance,callback,nullptr);
         }
-
         vkDestroyInstance(instance,nullptr);
     }
 
 private:
-    VkInstance createInstance(
+    void pickPhysicalDevice();
+    void createInstance(
             const std::string& appName,
             std::vector<const char*> extensions
             //TODO: include version as parameter
-    ) {
-        if (enableValidationLayers &&
-            !utility::checkValidationLayerSupport(validationLayers)
-        ) {
-            throw std::runtime_error("Validation layers requested, but not available!");
-        }
+    );
+    void DestroyDebugReportCallbackEXT(
+        VkInstance instance,
+        VkDebugReportCallbackEXT callback,
+        const VkAllocationCallbacks* pAllocator
+    );
 
-        VkApplicationInfo appInfo = {};
-        appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = appName.c_str();
-        appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.pEngineName = "No Engine";
-        appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.apiVersion = VK_API_VERSION_1_0;
+    VkResult CreateDebugReportCallbackEXT(
+            VkInstance instance,
+            const VkDebugReportCallbackCreateInfoEXT* pCreateInfo,
+            const VkAllocationCallbacks* pAllocator,
+            VkDebugReportCallbackEXT* pCallback
+    );
 
-        VkInstanceCreateInfo createInfo = {};
-        createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-        createInfo.pApplicationInfo = &appInfo;
+    void setupDebugCallback(VkInstance instance);
 
-        if (enableValidationLayers) {
-            extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-        }
-        createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-        createInfo.ppEnabledExtensionNames = extensions.data();
+    bool checkValidationLayerSupport(
+        const std::vector<const char*>& validationLayers
+    );
 
-        if (enableValidationLayers) {
-            createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-            createInfo.ppEnabledLayerNames = validationLayers.data();
-        } else {
-            createInfo.enabledLayerCount = 0;
-        }
-        VkInstance instance;
-        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
-            throw std::runtime_error("Failed to create instance!");
-        }
-        return instance;
+    //TODO: set up this function according to the apps needs
+    bool isDeviceSuitable(VkPhysicalDevice device) {
+        VkPhysicalDeviceProperties properties;
+        vkGetPhysicalDeviceProperties(device,&properties);
+        VkPhysicalDeviceFeatures features;
+        vkGetPhysicalDeviceFeatures(device,&features);
+        return true;
     }
+
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+        VkDebugReportFlagsEXT falags,
+        VkDebugReportObjectTypeEXT objType,
+        uint64_t obj,
+        size_t location,
+        int32_t code,
+        const char* layerPrefix,
+        const char* msg,
+        void* userData
+    ) {
+        std::cerr << "validation layer: " << msg << std::endl;
+        return VK_FALSE;
+    }
+
 };
