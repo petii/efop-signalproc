@@ -3,10 +3,14 @@
 
 #define M_PI 3.14159265358979323846
 
-layout (constant_id = 20) const int WORKGROUP_SIZE = 128;
-layout (constant_id = 21) const int BUFFER_SIZE = 128;
+#define WORKGROUP_SIZE 128
+#define BUFFER_SIZE 128
 
-layout (local_size_x_id = 20,local_size_y=1,local_size_z=1) in;
+// layout (constant_id = 20) const int WORKGROUP_SIZE = 128;
+// layout (constant_id = 21) const int BUFFER_SIZE = 128;
+
+// layout (local_size_x_id = 20,local_size_y=1,local_size_z=1) in;
+layout (local_size_x = WORKGROUP_SIZE,local_size_y=1,local_size_z=1) in;
 
 layout (binding = 0) uniform AudioData{
     float value[BUFFER_SIZE];
@@ -19,7 +23,7 @@ struct Complex {
 
 layout(std140, binding = 1) buffer buf
 {
-   Complex result[];
+   Complex result[BUFFER_SIZE];
 };
 
 void main() {

@@ -66,10 +66,10 @@ public:
         //     compute vertices
         //     create graphics from vertices
         // Sounds easy enough
-        while (!glfwWindowShouldClose(wh.window)) {
-            glfwPollEvents();
-            vc.copyData(ah.getNormalizedMockAudio());
-            vc.runCommandBuffer();
-        }
+        // while (!glfwWindowShouldClose(wh.window)) {
+        //     glfwPollEvents();
+        // }
+        vc.copyData(ah.getNormalizedMockAudio());
+        vc.runCommandBuffer();
     }
 };

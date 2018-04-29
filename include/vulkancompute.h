@@ -3,25 +3,28 @@
 //https://github.com/Erkaman/vulkan_minimal_compute/blob/master/src/main.cpp
 
 #include "vulkan/vulkan.h"
-// #include "vulkan/vulkan.hpp"
 #include "vulkanframe.h"
 #include "vulkanutilities.h"
+#include <cstring>
 
 struct VulkanCompute {
-    static const uint32_t bufferSize = 1024; //play around with this
+    static const uint32_t bufferSize = 128; //play around with this
 
     VkDevice computeDevice;
     uint32_t queueFamilyIndex;
     VkQueue computeQueue;
 
-    VkBuffer buffer;
-    VkDeviceMemory bufferMemory;
-
-    VkDescriptorPool descriptorPool;
-    VkDescriptorSetLayout descriptorSetLayout;
-    VkDescriptorSet descriptorSet;
+    VkBuffer inputBuffer;
+    VkDeviceMemory inputBufferMemory;
+    VkBuffer resultBuffer;
+    VkDeviceMemory resultBufferMemory;
 
     VkShaderModule computeShader;
+
+    VkDescriptorPool descriptorPool;
+    std::vector<VkDescriptorSetLayout> descriptorSetLayout;
+    VkDescriptorSet descriptorSet;
+
     VkPipelineLayout pipelineLayout;
     VkPipeline computePipeline;
 
@@ -29,54 +32,80 @@ struct VulkanCompute {
     VkCommandBuffer commandBuffer;
 
     VulkanCompute(const VulkanFrame& vf):
-            computeDevice(utility::createComputeLogicalDevice(
-                vf.physicalDevice,
-                vf.validationLayers
-            )),
-            queueFamilyIndex(utility::getComputeQueueFamilyIndex(vf.physicalDevice)),
-            buffer(utility::createBuffer(computeDevice, bufferSize)),
-            bufferMemory(utility::allocateBufferMemory(
-                vf.physicalDevice,
-                computeDevice,
-                buffer
-            )),
-            descriptorPool(utility::createDescriptorPool(computeDevice)),
-            descriptorSetLayout(utility::createDescriptorSetLayout(computeDevice)),
-            descriptorSet(utility::createDescriptorSet(
-                computeDevice,
-                descriptorPool,
-                descriptorSetLayout)
-            ),
-            computeShader(utility::createShaderModule(computeDevice,"src/shaders/comp.spv")),
-            pipelineLayout(utility::createPipelineLayout(computeDevice,computeShader,descriptorSetLayout)),
-            computePipeline(utility::createComputePipeline(
-                computeDevice,
-                computeShader,
-                pipelineLayout,
-                bufferSize,bufferSize
-            )),
-            commandPool(utility::createCommandPool(computeDevice,queueFamilyIndex)),
-            commandBuffer(utility::allocateCommandBuffer(computeDevice, commandPool))
+        computeDevice(utility::createComputeLogicalDevice(
+            vf.physicalDevice,
+            vf.validationLayers
+        )),
+        queueFamilyIndex(utility::getComputeQueueFamilyIndex(vf.physicalDevice)),
+        inputBuffer(utility::createBuffer(computeDevice, bufferSize,VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)),
+        resultBuffer(utility::createBuffer(computeDevice,bufferSize,VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)),
+        computeShader(utility::createShaderModule(computeDevice,"src/shaders/comp.spv")),
+        commandPool(utility::createCommandPool(computeDevice,queueFamilyIndex))
     {
+        utility::createDescriptorPool(computeDevice,descriptorPool);
+        utility::createDescriptorSetLayout(computeDevice,descriptorSetLayout);
+        utility::createDescriptorSet(
+            computeDevice,
+            descriptorPool,
+            descriptorSetLayout,
+            descriptorSet
+        );
+        utility::createPipelineLayout(
+            computeDevice,
+            computeShader,
+            descriptorSetLayout,
+            pipelineLayout
+        );
+        utility::createComputePipeline(
+            computeDevice,
+            computeShader,
+            pipelineLayout,
+            bufferSize,bufferSize,
+            computePipeline
+        );
+        utility::allocateBufferMemory(
+            vf.physicalDevice,
+            computeDevice,
+            inputBuffer,
+            inputBufferMemory
+        );
+        utility::allocateBufferMemory(
+            vf.physicalDevice,
+            computeDevice,
+            resultBuffer,
+            resultBufferMemory
+        );
+
+        utility::allocateCommandBuffer(computeDevice, commandPool,commandBuffer);
         // Get a handle to the only member of the queue family.
         vkGetDeviceQueue(computeDevice, queueFamilyIndex, 0, &computeQueue);
         if (vkBindBufferMemory(
-                computeDevice,buffer, bufferMemory, 0 /*offset*/
+                computeDevice,inputBuffer, inputBufferMemory, 0 /*offset*/
             ) != VK_SUCCESS
         ) {
             throw std::runtime_error("Failed to bind memory to buffer!");
         }
-        utility::bindBufferToDescriptor(computeDevice,buffer,bufferSize,descriptorSet);
+        if (vkBindBufferMemory(
+                computeDevice,resultBuffer, resultBufferMemory, 0 /*offset*/
+            ) != VK_SUCCESS
+        ) {
+            throw std::runtime_error("Failed to bind memory to buffer!");
+        }
+        utility::bindBufferToDescriptor(computeDevice,inputBuffer,bufferSize,descriptorSet);
+        utility::bindBufferToDescriptor(computeDevice,resultBuffer,bufferSize,descriptorSet);
 
         recordCommands();
     }
 
     ~VulkanCompute() {
         std::cout << "compute destructing\n";
-        vkFreeMemory(computeDevice, bufferMemory,nullptr);
-        vkDestroyBuffer(computeDevice,buffer,nullptr);
+        vkFreeMemory(computeDevice, inputBufferMemory,nullptr);
+        vkFreeMemory(computeDevice, resultBufferMemory,nullptr);
+        vkDestroyBuffer(computeDevice,inputBuffer,nullptr);
+        vkDestroyBuffer(computeDevice,resultBuffer,nullptr);
         vkDestroyShaderModule(computeDevice, computeShader,nullptr);
-        vkDestroyDescriptorSetLayout(computeDevice,descriptorSetLayout,nullptr);
+        vkDestroyDescriptorSetLayout(computeDevice,descriptorSetLayout[0],nullptr);
+        vkDestroyDescriptorSetLayout(computeDevice,descriptorSetLayout[1],nullptr);
         vkDestroyDescriptorPool(computeDevice,descriptorPool,nullptr);
         vkDestroyPipeline(computeDevice, computePipeline,nullptr);
         vkDestroyPipelineLayout(computeDevice,pipelineLayout,nullptr);
@@ -84,8 +113,20 @@ struct VulkanCompute {
         vkDestroyDevice(computeDevice,nullptr);
     }
 
-    void copyData(const std::vector<float>& data) {
 
+
+    void copyData(const std::vector<float>& data) {
+        void* place = nullptr;
+        vkMapMemory(
+            computeDevice,
+            inputBufferMemory,
+            0,
+            data.size(),
+            0,
+            &place
+        );
+        std::memcpy(place,data.data(),data.size()*sizeof(float));
+        vkUnmapMemory(computeDevice,inputBufferMemory);
     }
 
     void runCommandBuffer() {
