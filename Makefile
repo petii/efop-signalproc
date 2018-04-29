@@ -18,3 +18,4 @@ shaders:
 
 clean:
 	rm *.out
+	rm src/shaders/*.spv

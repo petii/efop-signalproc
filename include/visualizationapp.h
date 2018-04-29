@@ -68,42 +68,20 @@ public:
         //     compute vertices
         //     create graphics from vertices
         // Sounds easy enough
-        // while (!glfwWindowShouldClose(wh.window)) {
-        //     glfwPollEvents();
-        // }
-        auto input = ah.getNormalizedMockAudio();
-        vc.copyDataToGPU(input);
-        vc.runCommandBuffer();
-        // auto cpuDFT = discreteFourierTransformCPU(input);
-        vkQueueWaitIdle(vc.queue);
-        auto result = vc.readDataFromGPU();
-        for (int i = 0 ; i < result.size() ; ++i) {
-            if (result[i] == 0  && result[i+1] == 0) continue;
-            std::cout << i/2 << '\t' << result[i] << '\t';
-            std::cout << result[++i] << std::endl;
-            // std::cout << i << '\t';
-            // std::cout << result[i] << '\t' ;
-            // if (i < input.size()) {
-            //     std::cout << input[i] << '\t'
-            //         << std::abs(result[i]-input[i]);
-            // }
-            // else {
-            //     std::cout << result[++i] << '\t' ;
-            // }
-            // std::cout << std::endl;
+        while (!glfwWindowShouldClose(wh.window)) {
+            glfwPollEvents();
+            // auto input = ah.getNormalizedMockAudio();
+            // vc.copyDataToGPU(input);
+            vc.copyDataToGPU(ah.getNormalizedMockAudio());
+            vc.runCommandBuffer();
+            vkQueueWaitIdle(vc.queue);
+            auto result = vc.readDataFromGPU();
+            for (int i = 0 ; i < result.size() ; ++i) {
+                if (result[i] < 0.001f ) continue;
+                std::cout << i << '\t' << result[i] << '\n';
+            }
+            break;
         }
-        // std::vector<std::complex<float>> gpuDFT(result.size()/2);
-        // for (int i = 0; i<gpuDFT.size(); ++i) {
-        //     gpuDFT[i] = std::complex<float>(result[2*i],result[2*i+1]);
-        //     std::cout << i << '\t' << gpuDFT[i] << '\t' << std::abs(gpuDFT[i]) << std::endl;
-        // }
-        // std::cout << "\tGPU\t\t\tCPU\t\t\tDiff\n";
-        // for (int i = 0, j=0 ; i<cpuDFT.size() && j<gpuDFT.size() ;  ++i , j++) {
-        //     std::cout << i << '\t';
-        //     std::cout << gpuDFT[j] << '\t';
-        //     std::cout << cpuDFT[i] << '\t';
-        //     std::cout << std::endl;
-        // }
     }
 
     std::vector<std::complex<float>> discreteFourierTransformCPU(std::vector<float> input) {

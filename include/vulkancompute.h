@@ -14,7 +14,7 @@ struct Complex {
 struct VulkanCompute {
     static const uint32_t windowSize = 256; //play around with this
     static const uint32_t bufferSize = windowSize*sizeof(float);
-    static const VkDeviceSize memorySize = 3*bufferSize; //dft output
+    static const VkDeviceSize memorySize = 3*windowSize; //dft output
 
     VkDevice device;
     uint32_t queueFamilyIndex;
