@@ -6,7 +6,7 @@
 #include "windowhandler.h"
 #include "vulkanframe.h"
 #include "vulkancompute.h"
-// #include "vulkangraphics.h"
+#include "vulkangraphics.h"
 #include "audiohandler.h"
 
 class VisualizationApplication {
@@ -19,7 +19,7 @@ private:
     WindowHandler wh;
     VulkanFrame vf;
     VulkanCompute vc;
-    // VulkanGraphics vg;
+    VulkanGraphics vg;
     AudioHandler ah;
 
 public:
@@ -37,6 +37,7 @@ public:
                 wh.getGLFWExtensions()
             ),
             vc(vf), //VulkanCompute
+            vg(vf), //VulkanGraphics
             ah(vc.windowSize) //audiohandler
     {
         std::cout << "constructing\n";
