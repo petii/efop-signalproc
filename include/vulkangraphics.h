@@ -4,8 +4,23 @@
 #include <vulkan/vulkan.h>
 
 #include "vulkanframe.h"
+#include "windowhandler.h"
 
 struct VulkanGraphics {
+    struct QueueFamilyIndices {
+        int graphicsFamily = -1;
+        int presentFamily = -1;
+
+        bool isComplete() {
+            return graphicsFamily >= 0 && presentFamily >= 0;
+        }
+        QueueFamilyIndices(
+            VkPhysicalDevice device,
+            const VkSurfaceKHR& surface
+        );
+    };
+    QueueFamilyIndices qfi;
+
     VkSurfaceKHR surface;
 
     VkDevice device;
@@ -43,12 +58,43 @@ struct VulkanGraphics {
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
 
-    VulkanGraphics(VulkanFrame vf)
+    VulkanGraphics(const VulkanFrame& vf, const WindowHandler& wh):
+        qfi(vf.physicalDevice, vf.surface) //queue family indices
     {
-
+        createGraphicsLogicalDevice();
+        createSwapChain();
+        createImageViews();
+        createRenderPass();
+        createDescriptorSetLayout();
+        createGraphicsPipeline();
+        createFramebuffers();
+        createCommanPool();
+        createVertexBuffer();
+        createIndexBuffer();
+        createUniformBuffer();
+        createDescriptorPool();
+        createDescriptorSet();
+        createCommandBuffers();
+        createSemaphores();
     }    
 
     ~VulkanGraphics() {
-    
     }
+private:
+    void createSurface();
+    void createGraphicsLogicalDevice();
+    void createSwapChain();
+    void createImageViews();
+    void createRenderPass();
+    void createDescriptorSetLayout();
+    void createGraphicsPipeline();
+    void createFramebuffers();
+    void createCommanPool();
+    void createVertexBuffer();
+    void createIndexBuffer();
+    void createUniformBuffer();
+    void createDescriptorPool();
+    void createDescriptorSet();
+    void createCommandBuffers();
+    void createSemaphores();
 };

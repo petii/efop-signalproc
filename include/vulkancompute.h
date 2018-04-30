@@ -38,7 +38,7 @@ struct VulkanCompute {
 
     VulkanCompute(const VulkanFrame& vf):
         queueFamilyIndex(getComputeQueueFamilyIndex(vf.physicalDevice))
-        ,result(windowSize)
+        //,result(windowSize)
     {
         createComputeLogicalDevice(
             vf.physicalDevice,
@@ -67,7 +67,7 @@ struct VulkanCompute {
 
     void runCommandBuffer();
 private:
-    std::vector<Complex> result;
+    //std::vector<Complex> result;
 
     void createComputeLogicalDevice(
             VkPhysicalDevice physicalDevice,

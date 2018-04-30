@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <iostream>
 #include "vulkan/vulkan.h"
+#include "windowhandler.h"
 
 struct VulkanFrame {
     //used to read in spir-v shaders
@@ -30,6 +31,7 @@ struct VulkanFrame {
     };
 
     VkInstance instance;
+    VkSurfaceKHR surface;
     VkPhysicalDevice physicalDevice;// = VK_NULL_HANDLE;
     // VkDevice device;
 
@@ -38,14 +40,16 @@ struct VulkanFrame {
 public:
     VulkanFrame(
         const std::string& appName,
-        std::vector<const char*> extensions
+        //std::vector<const char*> extensions
+        const WindowHandler& wh
     ) {
         std::cout << "vulkanframe constructing\n";
-        createInstance(appName,extensions);
+        createInstance(appName,wh.getGLFWExtensions());
         pickPhysicalDevice();
         if (enableValidationLayers) {
             setupDebugCallback(instance);
         }
+        createSurface(wh);
     }
 
 
@@ -91,6 +95,16 @@ private:
         VkPhysicalDeviceFeatures features;
         vkGetPhysicalDeviceFeatures(device,&features);
         return true;
+    }
+
+    void createSurface(
+        const WindowHandler& wh
+    ) {
+        if (glfwCreateWindowSurface(
+                instance,wh.window,nullptr,&surface
+        ) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to create window surface!");
+        }
     }
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(

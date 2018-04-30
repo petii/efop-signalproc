@@ -34,10 +34,10 @@ public:
             ),
             vf( //VulkanFrame
                 name,
-                wh.getGLFWExtensions()
+                wh
             ),
             vc(vf), //VulkanCompute
-            vg(vf), //VulkanGraphics
+            vg(vf,wh), //VulkanGraphics
             ah(vc.windowSize) //audiohandler
     {
         std::cout << "constructing\n";

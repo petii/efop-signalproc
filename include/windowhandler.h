@@ -7,6 +7,10 @@
 #include <string>
 #include <vector>
 
+static void glfwErrorCallback(int error, const char* description){
+    std::cout << "GLFW Error: " << error << " : " << description << std::endl;
+}
+
 struct WindowHandler {
 
     GLFWwindow* window;
@@ -19,7 +23,9 @@ struct WindowHandler {
         GLFWwindowsizefun resizeFunction
     ) {
         std::cout << "window constructor\n";
-        glfwInit();
+        if (!glfwInit()) {
+            throw std::runtime_error("Failed to initialize GLFW!");
+        }
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -35,6 +41,8 @@ struct WindowHandler {
 
         glfwSetWindowUserPointer(window,userPointer);
         glfwSetWindowSizeCallback(window,resizeFunction);
+
+        glfwSetErrorCallback(glfwErrorCallback);
     }
 
     ~WindowHandler() {
@@ -43,13 +51,18 @@ struct WindowHandler {
         glfwTerminate();
     }
 
-    std::vector<const char*> getGLFWExtensions() {
+    std::vector<const char*> getGLFWExtensions() const {
         uint32_t glfwExtensionCount = 0;
         const char** glfwExtensions;
         glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
         std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
+        std::cout << "extensions:\n";
+        for (auto a : extensions){
+            std::cout << a << std::endl;
+        }
         return extensions;
     }
+
 };
