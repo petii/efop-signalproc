@@ -8,6 +8,7 @@
 #include <string>
 #include <stdexcept>
 #include <iostream>
+#include <limits>
 #include "vulkan/vulkan.h"
 #include "windowhandler.h"
 
@@ -37,12 +38,14 @@ struct VulkanFrame {
 
     // this is only used in debug
     VkDebugReportCallbackEXT callback;
+
+    const WindowHandler * const pWh;
 public:
     VulkanFrame(
         const std::string& appName,
         //std::vector<const char*> extensions
         const WindowHandler& wh
-    ) {
+    ): pWh(&wh) {
         std::cout << "vulkanframe constructing\n";
         createInstance(appName,wh.getGLFWExtensions());
         pickPhysicalDevice();
@@ -52,14 +55,31 @@ public:
         createSurface(wh);
     }
 
-
-
     ~VulkanFrame(){
         std::cout << "vulkanframe destructing\n";
         if (enableValidationLayers) {
             DestroyDebugReportCallbackEXT(instance,callback,nullptr);
         }
         vkDestroyInstance(instance,nullptr);
+    }
+
+    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const {
+        if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
+            return capabilities.currentExtent;
+        } else {
+            int width, height;
+            glfwGetWindowSize(pWh->window, &width, &height);
+
+            VkExtent2D actualExtent = {
+                static_cast<uint32_t>(width),
+                static_cast<uint32_t>(height)
+            };
+
+            actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
+            actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
+
+            return actualExtent;
+        }
     }
 
 private:

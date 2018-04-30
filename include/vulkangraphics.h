@@ -21,8 +21,6 @@ struct VulkanGraphics {
     };
     QueueFamilyIndices qfi;
 
-    VkSurfaceKHR surface;
-
     VkDevice device;
 
     VkQueue graphicsQueue;
@@ -61,8 +59,8 @@ struct VulkanGraphics {
     VulkanGraphics(const VulkanFrame& vf, const WindowHandler& wh):
         qfi(vf.physicalDevice, vf.surface) //queue family indices
     {
-        createGraphicsLogicalDevice();
-        createSwapChain();
+        createGraphicsLogicalDevice(vf.physicalDevice,vf.deviceExtensions);
+        createSwapChain(vf);
         createImageViews();
         createRenderPass();
         createDescriptorSetLayout();
@@ -76,14 +74,16 @@ struct VulkanGraphics {
         createDescriptorSet();
         createCommandBuffers();
         createSemaphores();
-    }    
+    }
 
     ~VulkanGraphics() {
+
+        vkDestroySwapchainKHR(device,swapChain,nullptr);
+        vkDestroyDevice(device,nullptr);
     }
 private:
-    void createSurface();
-    void createGraphicsLogicalDevice();
-    void createSwapChain();
+    void createGraphicsLogicalDevice(const VkPhysicalDevice&,const std::vector<const char*>&);
+    void createSwapChain(const VulkanFrame&);
     void createImageViews();
     void createRenderPass();
     void createDescriptorSetLayout();
