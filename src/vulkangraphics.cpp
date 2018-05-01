@@ -3,6 +3,9 @@
 #include "utility/swapchainutils.h"
 #include "utility/pipelineutils.h"
 #include "utility/memoryutils.h"
+#include <cstring>
+
+int VulkanGraphics::rowSize = 0;
 
 VulkanGraphics::QueueFamilyIndices::QueueFamilyIndices(
         VkPhysicalDevice device,
@@ -371,6 +374,7 @@ void VulkanGraphics::createCommandPool() {
 
 void VulkanGraphics::createVertexBuffer() {
     //TODO: figure out buffers
+
 }
 
 void VulkanGraphics::createIndexBuffer() {
@@ -452,4 +456,177 @@ void VulkanGraphics::createCommandBuffers() {
     }
 }
 
-void VulkanGraphics::createSemaphores() {}
+void VulkanGraphics::createSemaphores() {
+    VkSemaphoreCreateInfo semaphoreInfo = {};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphore) != VK_SUCCESS ||
+        vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphore) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create semaphores!");
+    }
+}
+
+void VulkanGraphics::drawFrame(){
+    //acquire swapchain image (async)
+    uint32_t imageIndex = 123456;
+    VkResult result = vkAcquireNextImageKHR(device, swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        // recreateSwapChain();
+        std::cout << "should recreate swapchain\n";
+        return;
+    } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        throw std::runtime_error("failed to acquire swap chain image!");
+    }
+    //upload vertex data into memory
+    //TODO: figure out a better way of doing this
+    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+
+    util::memory::createBuffer(
+        vulkanFrame->physicalDevice,
+        device,
+        bufferSize,
+        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        vertexBuffer, vertexBufferMemory
+    );
+    void* data;
+    vkMapMemory(device, vertexBufferMemory, 0, bufferSize, 0, &data);
+    std::memcpy(data, vertices.data(), (size_t) bufferSize);
+    vkUnmapMemory(device, vertexBufferMemory);
+    //upload indices to memory
+    //TODO: same as vertex
+    //generate index vector
+    std::vector<uint16_t> indices;
+    int offset = VulkanGraphics::rowSize;
+    for (int i = 0; i < vertices.size()/offset-1; ++i) {
+        //i : which column
+        for (int j = 0; j < offset-1; ++j) {
+            indices.push_back(i);
+            indices.push_back(i+offset);
+            indices.push_back(i+offset+1);
+            indices.push_back(i);
+            indices.push_back(i+offset+1);
+            indices.push_back(i+1);
+        }
+    }
+    bufferSize = sizeof(indices[0]) * indices.size();
+    util::memory::createBuffer(
+        vulkanFrame->physicalDevice,
+        device,
+        bufferSize,
+        VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        indexBuffer, indexBufferMemory
+    );
+    // void* data;
+    vkMapMemory(device, indexBufferMemory, 0, bufferSize, 0, &data);
+    std::memcpy(data, indices.data(), (size_t) bufferSize);
+    vkUnmapMemory(device, indexBufferMemory);
+    //record commands into command buffer
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+    //TODO: error handling
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    //let's hope the image index is ready
+    std::cout << imageIndex << std::endl ;
+    //
+    VkRenderPassBeginInfo renderPassInfo = {};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass = renderPass;
+    renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
+    renderPassInfo.renderArea.offset = {0, 0};
+    renderPassInfo.renderArea.extent = swapChainExtent;
+
+    VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
+    renderPassInfo.clearValueCount = 1;
+    renderPassInfo.pClearValues = &clearColor;
+    vkCmdBeginRenderPass(
+        commandBuffer,
+        &renderPassInfo,
+        VK_SUBPASS_CONTENTS_INLINE
+    );
+        vkCmdBindPipeline(
+            commandBuffer,
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            graphicsPipeline
+        );
+        
+        VkBuffer vertexBuffers[] = {vertexBuffer};
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(
+            commandBuffer, 0, 1,
+            vertexBuffers, offsets
+        );
+        vkCmdBindIndexBuffer(
+            commandBuffer,
+            indexBuffer, 0,
+            VK_INDEX_TYPE_UINT16
+        );
+        vkCmdBindDescriptorSets(
+            commandBuffer,
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            pipelineLayout, 0, 1,
+            &descriptorSet, 0, nullptr
+        );
+        vkCmdDrawIndexed(
+            commandBuffer, 
+            static_cast<uint32_t>(indices.size()),
+            1, 0, 0, 0
+        );
+    vkCmdEndRenderPass(commandBuffer);
+    //TODO: error handling
+    vkEndCommandBuffer(commandBuffer);
+    //draw command buffer
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    VkSemaphore waitSemaphores[] = {imageAvailableSemaphore};
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    VkSemaphore signalSemaphores[] = {renderFinishedSemaphore};
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+        throw std::runtime_error("failed to submit draw command buffer!");
+    }
+    //present image
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+
+    VkSwapchainKHR swapChains[] = {swapChain};
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+
+    presentInfo.pImageIndices = &imageIndex;
+
+    result = vkQueuePresentKHR(presentQueue, &presentInfo);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+        // recreateSwapChain();
+        std::cout << "should recreate swapchain\n";
+    } else if (result != VK_SUCCESS) {
+        throw std::runtime_error("failed to present swap chain image!");
+    }
+    //delte buffers
+    //TODO: this probably becomes obsolete if buffer usage changes
+    vkDestroyBuffer(device,vertexBuffer,nullptr);
+    vkDestroyBuffer(device,indexBuffer,nullptr);
+    vkFreeMemory(device,vertexBufferMemory,nullptr);
+    vkFreeMemory(device,indexBufferMemory,nullptr);
+    //validation layer requires to be in sync with graphics
+    if (VulkanFrame::enableValidationLayers) {
+        vkQueueWaitIdle(presentQueue);
+    }
+}

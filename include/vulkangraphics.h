@@ -64,6 +64,8 @@ struct VulkanGraphics {
     };
 
     QueueFamilyIndices qfi;
+    // VkPhysicalDevice physicalDevice;
+    const VulkanFrame * vulkanFrame;
     VkDevice device;
 
     VkQueue graphicsQueue;
@@ -102,6 +104,7 @@ struct VulkanGraphics {
     VkSemaphore renderFinishedSemaphore;
 
     VulkanGraphics(const VulkanFrame& vf, const WindowHandler& wh):
+        vulkanFrame(&vf),
         qfi(vf.physicalDevice, vf.surface) //queue family indices
     {
         std::cout << "graphics constuctor\n";
@@ -127,6 +130,9 @@ struct VulkanGraphics {
 
     ~VulkanGraphics() {
         std::cout << "graphics destructor\n";
+        vkDestroySemaphore(device, imageAvailableSemaphore,nullptr);
+        vkDestroySemaphore(device, renderFinishedSemaphore,nullptr);
+
         vkDestroyDescriptorPool(device,descriptorPool,nullptr);
         vkDestroyCommandPool(device,commandPool,nullptr);
 
@@ -148,7 +154,26 @@ struct VulkanGraphics {
         vkDestroyDevice(device,nullptr);
     }
 
+    static int rowSize;
+
+    std::vector<Vertex> vertices;
+    // std::vector<uint16_t> indices;
+
     void recordCommandBuffer();
+
+    void drawFrame();
+
+    void appendVertices(std::vector<float> heights = std::vector<float>(rowSize,0.0f)){
+        int index = 0;
+        for (const float& intensity : heights) {
+            float time = std::floor(vertices.size()/rowSize);
+            float freq = (float)index/rowSize;
+            Vertex v = {};
+            v.position = glm::vec3(time,freq,intensity);
+            vertices.push_back(v);
+            ++index;
+        }
+    }
 private:
     void createGraphicsLogicalDevice(const VkPhysicalDevice&,const std::vector<const char*>&);
     void createSwapChain(const VulkanFrame&);

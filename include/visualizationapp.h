@@ -41,6 +41,7 @@ public:
             ah(vc.windowSize) //audiohandler
     {
         std::cout << "constructing\n";
+        VulkanGraphics::rowSize = vc.windowSize;
         // wh.initWindow();
     }
     ~VisualizationApplication() {
@@ -69,6 +70,7 @@ public:
         //     compute vertices
         //     create graphics from vertices
         // Sounds easy enough
+        vg.appendVertices();
         while (!glfwWindowShouldClose(wh.window)) {
             glfwPollEvents();
             // auto input = ah.getNormalizedMockAudio();
@@ -77,10 +79,12 @@ public:
             vc.runCommandBuffer();
             vkDeviceWaitIdle(vc.device);
             auto result = vc.readDataFromGPU();
-            for (int i = 0 ; i < result.size() ; ++i) {
-                if (result[i] < 0.001f ) continue;
-                std::cout << i << '\t' << result[i] << '\n';
-            }
+            vg.appendVertices(result);
+            vg.drawFrame(); 
+            // for (int i = 0 ; i < result.size() ; ++i) {
+            //     if (result[i] < 0.001f ) continue;
+            //     std::cout << i << '\t' << result[i] << '\n';
+            // }
             break;
         }
     }

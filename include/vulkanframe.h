@@ -18,9 +18,9 @@ struct VulkanFrame {
 
 // private:
     #ifdef NDEBUG
-    const bool enableValidationLayers = false;
+    static const bool enableValidationLayers = false;
     #else
-    const bool enableValidationLayers = true;
+    static const bool enableValidationLayers = true;
     #endif
 
     const std::vector<const char*> validationLayers = {
