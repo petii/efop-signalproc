@@ -94,7 +94,9 @@ struct VulkanGraphics {
     VkDescriptorPool descriptorPool;
     VkDescriptorSet descriptorSet;
 
-    std::vector<VkCommandBuffer> commandBuffers;
+    // std::vector<VkCommandBuffer> commandBuffers;
+    // since I record the commands at runtime probably one command buffer is enough
+    VkCommandBuffer commandBuffer;
 
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
@@ -119,11 +121,15 @@ struct VulkanGraphics {
         createDescriptorPool();
         createDescriptorSet();
         createCommandBuffers();
+        // will need to record the commands at runtime
         createSemaphores();
     }
 
     ~VulkanGraphics() {
         std::cout << "graphics destructor\n";
+        vkDestroyDescriptorPool(device,descriptorPool,nullptr);
+        vkDestroyCommandPool(device,commandPool,nullptr);
+
         vkDestroyBuffer(device,uniformBuffer,nullptr);
         vkFreeMemory(device,uniformBufferMemory,nullptr);
 
@@ -141,6 +147,8 @@ struct VulkanGraphics {
         vkDestroySwapchainKHR(device,swapChain,nullptr);
         vkDestroyDevice(device,nullptr);
     }
+
+    void recordCommandBuffer();
 private:
     void createGraphicsLogicalDevice(const VkPhysicalDevice&,const std::vector<const char*>&);
     void createSwapChain(const VulkanFrame&);

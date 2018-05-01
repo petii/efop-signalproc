@@ -75,7 +75,7 @@ public:
             // vc.copyDataToGPU(input);
             vc.copyDataToGPU(ah.getNormalizedMockAudio());
             vc.runCommandBuffer();
-            vkQueueWaitIdle(vc.queue);
+            vkDeviceWaitIdle(vc.device);
             auto result = vc.readDataFromGPU();
             for (int i = 0 ; i < result.size() ; ++i) {
                 if (result[i] < 0.001f ) continue;
