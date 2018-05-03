@@ -26,6 +26,9 @@ struct VulkanGraphics {
     struct Vertex {
         glm::vec3 position;
         glm::vec3 color;
+        void print() {
+            std::cout << position.x << ',' << position.y << ',' << position.z << std::endl;;
+        }
 
         static VkVertexInputBindingDescription getBindingDescription() {
             VkVertexInputBindingDescription bindingDescription = {};
@@ -103,9 +106,10 @@ struct VulkanGraphics {
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
 
-    VulkanGraphics(const VulkanFrame& vf, const WindowHandler& wh):
+    VulkanGraphics(const VulkanFrame& vf, const WindowHandler& wh, int windowSize):
         vulkanFrame(&vf),
-        qfi(vf.physicalDevice, vf.surface) //queue family indices
+        qfi(vf.physicalDevice, vf.surface),
+        rowSize(windowSize)//queue family indices
     {
         std::cout << "graphics constuctor\n";
         createGraphicsLogicalDevice(vf.physicalDevice,vf.deviceExtensions);
@@ -138,6 +142,11 @@ struct VulkanGraphics {
         vkDestroyDescriptorPool(device,descriptorPool,nullptr);
         vkDestroyCommandPool(device,commandPool,nullptr);
 
+        vkDestroyBuffer(device,vertexBuffer,nullptr);
+        vkDestroyBuffer(device,indexBuffer,nullptr);
+        vkFreeMemory(device,vertexBufferMemory,nullptr);
+        vkFreeMemory(device,indexBufferMemory,nullptr);
+
         vkDestroyBuffer(device,uniformBuffer,nullptr);
         vkFreeMemory(device,uniformBufferMemory,nullptr);
 
@@ -156,7 +165,7 @@ struct VulkanGraphics {
         vkDestroyDevice(device,nullptr);
     }
 
-    static int rowSize;
+    int rowSize;
 
     std::vector<Vertex> vertices;
     std::vector<uint16_t> indices;
@@ -167,20 +176,36 @@ struct VulkanGraphics {
 
     void updateUniformBuffer();
 
-    void appendVertices(std::vector<float> heights = std::vector<float>(rowSize,0.0f)){
+    void appendVertices(std::vector<float> heights){
+        if (vertices.size() == vertices.capacity()){
+            //return;
+            float distance = 
+                std::abs(vertices[0].position.x - vertices[rowSize].position.x);
+            vertices.erase(vertices.begin(),vertices.begin()+rowSize);
+            indices.erase(indices.begin(),indices.begin()+(rowSize-1)*6);
+            for (Vertex& v : vertices) {
+                v.position.x -= distance;
+            }
+            for (uint16_t& index : indices) {
+                index -= rowSize;
+            }
+        } 
         int index = 0;
         int originalSize = vertices.size();
-        for (const float& intensity : heights) {
-            float time = std::floor(originalSize/rowSize) / 12;
+        for (float intensity : heights) {
+            float time = (originalSize/(float)rowSize) / 20;
             float freq = (float)index/rowSize * 2;
             Vertex v = {};
-            v.position = glm::vec3(time,freq,intensity / 100 );
+            if (intensity > 1.0f) intensity /= 100;
+            else intensity *= 100;
+            v.position = glm::vec3(time,freq,intensity);
             //v.position = glm::vec3(time,freq,0.0f);
             vertices.push_back(v);
             ++index;
         }
+        //std::cout << "vertices orig size: " << originalSize << std::endl;
         if (originalSize == 0) return;
-        for (int i = 0; i < rowSize ; ++i) {
+        for (int i = 0; i < rowSize-1 ; ++i) {
             indices.push_back(i+ originalSize );
             indices.push_back(i+ originalSize + 1 );
             indices.push_back(i+ originalSize - rowSize );

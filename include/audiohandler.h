@@ -12,7 +12,7 @@ struct AudioHandler {
     //std::normal_distribution<float> dis;
     int bufferSize;
     std::vector<float> buffer;
-    static const int overlap = 128;
+    static const int overlap = 0;
 
     AudioHandler(int bufferSize):
         gen(rd()),

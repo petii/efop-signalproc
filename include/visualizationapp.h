@@ -38,11 +38,11 @@ public:
                 wh
             ),
             vc(vf), //VulkanCompute
-            vg(vf,wh), //VulkanGraphics
+            vg(vf,wh,vc.windowSize), //VulkanGraphics
             ah(vc.windowSize) //audiohandler
     {
         std::cout << "constructing\n";
-        VulkanGraphics::rowSize = vc.windowSize;
+        //VulkanGraphics::rowSize = vc.windowSize;
         //VulkanGraphics::rowSize = 4;
         // wh.initWindow();
     }
@@ -72,7 +72,7 @@ public:
         //     compute vertices
         //     create graphics from vertices
         // Sounds easy enough
-        vg.appendVertices();
+        vg.appendVertices(std::vector<float>(vc.windowSize,0.0f));
         //vc.copyDataToGPU(ah.getNormalizedMockAudio());
         //vc.runCommandBuffer();
         //vkDeviceWaitIdle(vc.device);
@@ -88,7 +88,7 @@ public:
             vkDeviceWaitIdle(vc.device);
             //auto result = normalizeResults(vc.readDataFromGPU());
             auto result = vc.readDataFromGPU();
-            if (runTimes < 36)
+            //if (runTimes < 36)
                 vg.appendVertices(result);
             vg.updateUniformBuffer();
             //if (runTimes < 200) {

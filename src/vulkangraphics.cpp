@@ -10,8 +10,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
 
-int VulkanGraphics::rowSize = 0;
-
 VulkanGraphics::QueueFamilyIndices::QueueFamilyIndices(
         VkPhysicalDevice device,
         const VkSurfaceKHR& surface
@@ -378,13 +376,39 @@ void VulkanGraphics::createCommandPool() {
     }
 }
 
+const int rowNum = 100;
+
 void VulkanGraphics::createVertexBuffer() {
     //TODO: figure out buffers
+    vertices.reserve(rowNum * rowSize);
+    VkDeviceSize bufferSize = sizeof(Vertex) * vertices.capacity();
+    std::cout << rowNum << ',' << rowSize << std::endl;
+    std::cout << sizeof(Vertex) << ';' << vertices.capacity() << std::endl;
+    std::cout << "vertex buffer:" << bufferSize << std::endl;
 
+    util::memory::createBuffer(
+        vulkanFrame->physicalDevice,
+        device,
+        bufferSize,
+        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        vertexBuffer, vertexBufferMemory
+    );
 }
 
 void VulkanGraphics::createIndexBuffer() {
     //TODO: figure out buffers
+    indices.reserve( rowNum * (rowSize-1) *2 *3);
+    VkDeviceSize bufferSize = sizeof(uint16_t) * indices.capacity();
+    std::cout << "index buffer:" << bufferSize << std::endl;
+    util::memory::createBuffer(
+        vulkanFrame->physicalDevice,
+        device,
+        bufferSize,
+        VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        indexBuffer, indexBufferMemory
+    );
 }
 
 void VulkanGraphics::createUniformBuffer(
@@ -486,16 +510,7 @@ void VulkanGraphics::drawFrame(){
     }
     //upload vertex data into memory
     //TODO: figure out a better way of doing this
-    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-
-    util::memory::createBuffer(
-        vulkanFrame->physicalDevice,
-        device,
-        bufferSize,
-        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        vertexBuffer, vertexBufferMemory
-    );
+    int bufferSize = sizeof(vertices[0]) * vertices.size();
     void* data;
     vkMapMemory(device, vertexBufferMemory, 0, bufferSize, 0, &data);
     std::memcpy(data, vertices.data(), (size_t) bufferSize);
@@ -516,16 +531,8 @@ void VulkanGraphics::drawFrame(){
             //indices.push_back(i+1);
         //}
     //}
-    bufferSize = sizeof(indices[0]) * indices.size();
-    util::memory::createBuffer(
-        vulkanFrame->physicalDevice,
-        device,
-        bufferSize,
-        VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        indexBuffer, indexBufferMemory
-    );
     // void* data;
+    bufferSize = sizeof(indices[0]) * indices.size();
     vkMapMemory(device, indexBufferMemory, 0, bufferSize, 0, &data);
     std::memcpy(data, indices.data(), (size_t) bufferSize);
     vkUnmapMemory(device, indexBufferMemory);
@@ -629,10 +636,10 @@ void VulkanGraphics::drawFrame(){
     //delte buffers
     //TODO: this probably becomes obsolete if buffer usage changes
     vkDeviceWaitIdle(device);
-    vkDestroyBuffer(device,vertexBuffer,nullptr);
-    vkDestroyBuffer(device,indexBuffer,nullptr);
-    vkFreeMemory(device,vertexBufferMemory,nullptr);
-    vkFreeMemory(device,indexBufferMemory,nullptr);
+    //vkDestroyBuffer(device,vertexBuffer,nullptr);
+    //vkDestroyBuffer(device,indexBuffer,nullptr);
+    //vkFreeMemory(device,vertexBufferMemory,nullptr);
+    //vkFreeMemory(device,indexBufferMemory,nullptr);
     //validation layer requires to be in sync with graphics
     if (VulkanFrame::enableValidationLayers) {
         vkQueueWaitIdle(presentQueue);
@@ -646,7 +653,7 @@ void VulkanGraphics::updateUniformBuffer() {
     float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
     VulkanGraphics::UniformBufferObject ubo = {};
-    ubo.model = //glm::mat4();
+    ubo.model = glm::mat4();
         glm::rotate(
             glm::mat4(1.0f), 
             time * glm::radians(60.0f), 
@@ -655,7 +662,7 @@ void VulkanGraphics::updateUniformBuffer() {
     ubo.view = 
         glm::lookAt(
             glm::vec3(5.0f, 5.0f, 5.0f), //from
-            glm::vec3(0.0f, 0.0f, 0.0f), //where
+            glm::vec3(3.0f, 0.0f, 0.0f), //where
             glm::vec3(0.0f, 0.0f, 1.0f)  //up
         );
     ubo.projection = 
