@@ -376,7 +376,7 @@ void VulkanGraphics::createCommandPool() {
     }
 }
 
-const int rowNum = 100;
+const int rowNum = 128;
 
 void VulkanGraphics::createVertexBuffer() {
     //TODO: figure out buffers

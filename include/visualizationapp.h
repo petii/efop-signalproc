@@ -78,12 +78,15 @@ public:
         //vkDeviceWaitIdle(vc.device);
         //auto result = normalizeResults(vc.readDataFromGPU());
         //vg.appendVertices(result);
+        ah.loadTestAudio("test/audio/a2002011001-e02.wav");
         int runTimes=0;
         while (!glfwWindowShouldClose(wh.window)) {
             glfwPollEvents();
             // auto input = ah.getNormalizedMockAudio();
+            //auto input = ah.getNormalizedTestAudio();
             // vc.copyDataToGPU(input);
-            vc.copyDataToGPU(ah.getNormalizedMockAudio());
+            //vc.copyDataToGPU(ah.getNormalizedMockAudio());
+            vc.copyDataToGPU(ah.getNormalizedTestAudio());
             vc.runCommandBuffer();
             vkDeviceWaitIdle(vc.device);
             //auto result = normalizeResults(vc.readDataFromGPU());
@@ -107,6 +110,7 @@ public:
               //  std::cin.get();
                 //break;
             //}
+            if (ah.normData.empty()) break;
         }
     }
 
