@@ -88,24 +88,25 @@ public:
             vkDeviceWaitIdle(vc.device);
             //auto result = normalizeResults(vc.readDataFromGPU());
             auto result = vc.readDataFromGPU();
-            vg.appendVertices(result);
+            if (runTimes < 36)
+                vg.appendVertices(result);
             vg.updateUniformBuffer();
             //if (runTimes < 200) {
             //vg.appendVertices();
             //}
             vg.drawFrame(); 
             //std::cout << runTimes;
-            std::cin.get();
+            //std::cin.get();
             // for (int i = 0 ; i < result.size() ; ++i) {
             //     if (result[i] < 0.001f ) continue;
             //     std::cout << i << '\t' << result[i] << '\n';
             // }
             //break;
             ++runTimes;
-            if (runTimes >= 40) {
-                std::cin.get();
-                break;
-            }
+            //if (runTimes >= 40) {
+              //  std::cin.get();
+                //break;
+            //}
         }
     }
 
