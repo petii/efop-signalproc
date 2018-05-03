@@ -4,6 +4,11 @@
 #include "utility/pipelineutils.h"
 #include "utility/memoryutils.h"
 #include <cstring>
+#include <chrono>
+
+#define GLM_FORCE_RADIANS
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/glm.hpp>
 
 int VulkanGraphics::rowSize = 0;
 
@@ -366,6 +371,7 @@ void VulkanGraphics::createCommandPool() {
     VkCommandPoolCreateInfo poolCreateInfo = {};
     poolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolCreateInfo.queueFamilyIndex = qfi.graphicsFamily;
+    poolCreateInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
     if (vkCreateCommandPool(device,&poolCreateInfo,nullptr,&commandPool) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create graphics command pool!");
@@ -497,19 +503,19 @@ void VulkanGraphics::drawFrame(){
     //upload indices to memory
     //TODO: same as vertex
     //generate index vector
-    std::vector<uint16_t> indices;
-    int offset = VulkanGraphics::rowSize;
-    for (int i = 0; i < vertices.size()/offset-1; ++i) {
-        //i : which column
-        for (int j = 0; j < offset-1; ++j) {
-            indices.push_back(i);
-            indices.push_back(i+offset);
-            indices.push_back(i+offset+1);
-            indices.push_back(i);
-            indices.push_back(i+offset+1);
-            indices.push_back(i+1);
-        }
-    }
+    //std::vector<uint16_t> indices;
+    //int offset = VulkanGraphics::rowSize;
+    //for (int i = 0; i < vertices.size()/offset-1; ++i) {
+        ////i : which column
+        //for (int j = 0; j < offset-1; ++j) {
+            //indices.push_back(i);
+            //indices.push_back(i+offset);
+            //indices.push_back(i+offset+1);
+            //indices.push_back(i);
+            //indices.push_back(i+offset+1);
+            //indices.push_back(i+1);
+        //}
+    //}
     bufferSize = sizeof(indices[0]) * indices.size();
     util::memory::createBuffer(
         vulkanFrame->physicalDevice,
@@ -526,11 +532,12 @@ void VulkanGraphics::drawFrame(){
     //record commands into command buffer
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+    //beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     //TODO: error handling
     vkBeginCommandBuffer(commandBuffer, &beginInfo);
     //let's hope the image index is ready
-    std::cout << imageIndex << std::endl ;
+    //std::cout << imageIndex << std::endl ;
     //
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -621,6 +628,7 @@ void VulkanGraphics::drawFrame(){
     }
     //delte buffers
     //TODO: this probably becomes obsolete if buffer usage changes
+    vkDeviceWaitIdle(device);
     vkDestroyBuffer(device,vertexBuffer,nullptr);
     vkDestroyBuffer(device,indexBuffer,nullptr);
     vkFreeMemory(device,vertexBufferMemory,nullptr);
@@ -630,3 +638,33 @@ void VulkanGraphics::drawFrame(){
         vkQueueWaitIdle(presentQueue);
     }
 }
+
+void VulkanGraphics::updateUniformBuffer() {
+    static auto startTime = std::chrono::high_resolution_clock::now();
+
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+    VulkanGraphics::UniformBufferObject ubo = {};
+    ubo.model = glm::mat4();
+        //glm::rotate(
+            //glm::mat4(1.0f), 
+            //time * glm::radians(60.0f), 
+            //glm::vec3(1.0f, 0.0f, 0.0f)
+        //);
+    ubo.view = 
+        glm::lookAt(
+            glm::vec3(5.0f, 5.0f, 5.0f), //from
+            glm::vec3(0.0f, 0.0f, 0.0f), //where
+            glm::vec3(0.0f, 0.0f, 1.0f)  //up
+        );
+    ubo.projection = 
+        glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 10.0f);
+    ubo.projection[1][1] *= -1;
+
+    void* data;
+    vkMapMemory(device, uniformBufferMemory, 0, sizeof(ubo), 0, &data);
+        memcpy(data, &ubo, sizeof(ubo));
+    vkUnmapMemory(device, uniformBufferMemory);
+}
+

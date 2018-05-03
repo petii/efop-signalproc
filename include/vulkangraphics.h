@@ -109,6 +109,8 @@ struct VulkanGraphics {
     {
         std::cout << "graphics constuctor\n";
         createGraphicsLogicalDevice(vf.physicalDevice,vf.deviceExtensions);
+        vkGetDeviceQueue(device,qfi.graphicsFamily,0,&graphicsQueue);
+        vkGetDeviceQueue(device,qfi.presentFamily,0,&presentQueue);
         createSwapChain(vf);
         createImageViews();
         createRenderPass();
@@ -157,21 +159,35 @@ struct VulkanGraphics {
     static int rowSize;
 
     std::vector<Vertex> vertices;
-    // std::vector<uint16_t> indices;
+    std::vector<uint16_t> indices;
 
     void recordCommandBuffer();
 
     void drawFrame();
 
+    void updateUniformBuffer();
+
     void appendVertices(std::vector<float> heights = std::vector<float>(rowSize,0.0f)){
         int index = 0;
+        int originalSize = vertices.size();
         for (const float& intensity : heights) {
-            float time = std::floor(vertices.size()/rowSize);
-            float freq = (float)index/rowSize;
+            float time = std::floor(originalSize/rowSize) / 12;
+            float freq = (float)index/rowSize * 2;
             Vertex v = {};
-            v.position = glm::vec3(time,freq,intensity);
+            v.position = glm::vec3(time,freq,intensity / 100 );
+            //v.position = glm::vec3(time,freq,0.0f);
             vertices.push_back(v);
             ++index;
+        }
+        if (originalSize == 0) return;
+        for (int i = 0; i < rowSize ; ++i) {
+            indices.push_back(i+ originalSize );
+            indices.push_back(i+ originalSize + 1 );
+            indices.push_back(i+ originalSize - rowSize );
+
+            indices.push_back(i+ originalSize + 1 );
+            indices.push_back(i+ originalSize - rowSize + 1);
+            indices.push_back(i+ originalSize - rowSize );
         }
     }
 private:

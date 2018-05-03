@@ -7,6 +7,7 @@ struct AudioHandler {
     std::random_device rd;
     std::mt19937 gen;
     std::uniform_real_distribution<float> dis;
+    //std::normal_distribution<float> dis;
     int bufferSize;
     std::vector<float> buffer;
 

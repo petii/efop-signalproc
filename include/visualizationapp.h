@@ -1,6 +1,7 @@
 #pragma once
 
 #include <complex>
+#include <algorithm>
 
 #include <iostream>
 #include "windowhandler.h"
@@ -42,6 +43,7 @@ public:
     {
         std::cout << "constructing\n";
         VulkanGraphics::rowSize = vc.windowSize;
+        //VulkanGraphics::rowSize = 4;
         // wh.initWindow();
     }
     ~VisualizationApplication() {
@@ -71,6 +73,12 @@ public:
         //     create graphics from vertices
         // Sounds easy enough
         vg.appendVertices();
+        //vc.copyDataToGPU(ah.getNormalizedMockAudio());
+        //vc.runCommandBuffer();
+        //vkDeviceWaitIdle(vc.device);
+        //auto result = normalizeResults(vc.readDataFromGPU());
+        //vg.appendVertices(result);
+        int runTimes=0;
         while (!glfwWindowShouldClose(wh.window)) {
             glfwPollEvents();
             // auto input = ah.getNormalizedMockAudio();
@@ -78,15 +86,37 @@ public:
             vc.copyDataToGPU(ah.getNormalizedMockAudio());
             vc.runCommandBuffer();
             vkDeviceWaitIdle(vc.device);
+            //auto result = normalizeResults(vc.readDataFromGPU());
             auto result = vc.readDataFromGPU();
             vg.appendVertices(result);
+            vg.updateUniformBuffer();
+            //if (runTimes < 200) {
+            //vg.appendVertices();
+            //}
             vg.drawFrame(); 
+            //std::cout << runTimes;
+            std::cin.get();
             // for (int i = 0 ; i < result.size() ; ++i) {
             //     if (result[i] < 0.001f ) continue;
             //     std::cout << i << '\t' << result[i] << '\n';
             // }
-            break;
+            //break;
+            ++runTimes;
+            if (runTimes >= 40) {
+                std::cin.get();
+                break;
+            }
         }
+    }
+
+    std::vector<float> normalizeResults(const std::vector<float>& input) {
+        auto max = std::max_element(input.begin(),input.end());
+        std::vector<float> result;
+        result.reserve(input.size());
+        for (auto& item : input) {
+            result.push_back(item / *max);
+        } 
+        return result;
     }
 
     std::vector<std::complex<float>> discreteFourierTransformCPU(std::vector<float> input) {
