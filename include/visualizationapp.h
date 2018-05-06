@@ -20,7 +20,7 @@ public:
     //this should be around 40k because it can only detect frequencies 
     //between 0 and windowSize/2 (dft has real input, so the output is
     //"symmetric")
-    const unsigned int windowSize = 4096 * 3 ;
+    const unsigned int windowSize = 4096 * 2 ;
     const unsigned int freqDomainMax = windowSize/2;
 private:
     WindowHandler wh;
@@ -84,16 +84,19 @@ public:
         //vkDeviceWaitIdle(vc.device);
         //auto result = normalizeResults(vc.readDataFromGPU());
         //vg.appendVertices(result);
-        ah.loadTestWAV("test/audio/a2002011001-e02.wav");
+        ah.loadTestWAV("test/audio/a2002011001-e02-mono.wav");
 
         //std::vector<unsigned int> freqs = {static_cast<unsigned>(freqDomainMax)}; 
-        std::vector<unsigned int> freqs = {69}; 
-        std::vector<unsigned int> amps = {20};
+        std::vector<unsigned int> freqs = {freqDomainMax/4}; 
+        std::vector<unsigned int> amps = {1};
         //ah.generateTestAudio( windowSize * 100, freqs, amps );
         int runTimes=0;
         while (!glfwWindowShouldClose(wh.window)) {
             glfwPollEvents();
             auto input = ah.getNormalizedTestAudio();
+            //for (auto i : input) {
+            //    std::cout << i<<std::endl;
+            //}
             vc.copyDataToGPU(input);
             vc.runCommandBuffer();
             vkDeviceWaitIdle(vc.device);

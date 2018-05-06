@@ -33,13 +33,14 @@ void main() {
         uint index = gl_GlobalInvocationID.x + passes * gl_NumWorkGroups.x;
         float real = 0.0;
         float im = 0.0;
-        float p = 2 * M_PI * index / BUFFER_SIZE;
+        //float p = 2 * M_PI * index / BUFFER_SIZE;
         
         for (int i = 0; i<BUFFER_SIZE; ++i) {
+            float p = 2 * M_PI * index * i / BUFFER_SIZE;
             //real
-            real += audio.value[i] * cos(p * i);
+            real += audio.value[i] * cos(p);
             //imaginary
-            im += audio.value[i] * -sin(p * i);
+            im += audio.value[i] * -sin(p );
         }
         //result[gl_GlobalInvocationID.x] = sqrt(real*real+im*im);
         //result[gl_GlobalInvocationID.x] = BUFFER_SIZE/gl_NumWorkGroups.x;

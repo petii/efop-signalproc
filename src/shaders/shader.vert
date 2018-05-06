@@ -22,7 +22,8 @@ void main() {
     fragColor = vec3(
         //rgba
         1.0 * inPosition.z,
-        0.0, //1.0 - (inPosition.z * inPosition.z),
+        //0.0, 
+        0.75*(1.0 - (abs(inPosition.z - 0.5))),
         1.0 * (1-inPosition.z)
     ); //inColor;
 }

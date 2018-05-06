@@ -30,16 +30,12 @@ struct AudioHandler {
         dis(-1.0,1.0),
         bufferSize(bufferSize),
         buffer(bufferSize),
-        overlap(bufferSize/2)
+        overlap(0)
     {
         
         getNormalizedMockAudio();
     }
     
-    void generateTestAudio() {
-        
-    }
-
     void generateTestAudio(
         size_t lenght,
         const std::vector<unsigned int>& frequencies,
