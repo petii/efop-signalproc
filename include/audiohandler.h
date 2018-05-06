@@ -23,13 +23,15 @@ struct AudioHandler {
     std::vector<char> data;
     std::vector<float> normData;
     std::vector<float> buffer;
-    static const int overlap = 0;
+    int overlap;
 
     AudioHandler(int bufferSize):
         gen(rd()),
         dis(-1.0,1.0),
         bufferSize(bufferSize),
-        buffer(bufferSize) {
+        buffer(bufferSize),
+        overlap(bufferSize/2)
+    {
         
         getNormalizedMockAudio();
     }
@@ -61,7 +63,7 @@ struct AudioHandler {
             d /= max;
             //std::cout << d << ",";
         }
-        std::cout << std::endl;
+        //std::cout << std::endl;
     }
 
     void loadTestWAV(const std::string& filename) {

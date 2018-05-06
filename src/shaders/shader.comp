@@ -3,11 +3,13 @@
 
 #define M_PI 3.14159265358979323846
 
-#define BUFFER_SIZE 512
+//#define BUFFER_SIZE 1024
 #define WORKGROUP_SIZE 1
 
 // layout (constant_id = 20) const int WORKGROUP_SIZE = 128;
-// layout (constant_id = 21) const int BUFFER_SIZE = 128;
+layout (constant_id = 21) const int BUFFER_SIZE = 512;
+#define RESULT_SIZE (BUFFER_SIZE/2)
+//layout (constant_id = 22) const int WORKGROUP_SIZE = 2;
 
 // layout (local_size_x_id = 20,local_size_y=1,local_size_z=1) in;
 layout (local_size_x = WORKGROUP_SIZE,local_size_y=1,local_size_z=1) in;
@@ -23,20 +25,28 @@ struct Complex {
 
 layout(std430, binding = 1) buffer buf {
     // Complex result[BUFFER_SIZE];
-    float result[2*BUFFER_SIZE];
+    float result[BUFFER_SIZE / 2];
 };
 
 void main() {
-    float real = 0.0;
-    float im = 0.0;
-    for (int i = 0; i<BUFFER_SIZE; ++i) {
-        float param = 2*M_PI*gl_GlobalInvocationID.x*i/BUFFER_SIZE;
-        //real
-        real += audio.value[i] * cos(param);
-        //imaginary
-        im += audio.value[i] * -sin(param);
+    for (int passes = 0 ; passes < BUFFER_SIZE/2/gl_NumWorkGroups.x ; ++passes){
+        uint index = gl_GlobalInvocationID.x + passes * gl_NumWorkGroups.x;
+        float real = 0.0;
+        float im = 0.0;
+        float p = 2 * M_PI * index / BUFFER_SIZE;
+        
+        for (int i = 0; i<BUFFER_SIZE; ++i) {
+            //real
+            real += audio.value[i] * cos(p * i);
+            //imaginary
+            im += audio.value[i] * -sin(p * i);
+        }
+        //result[gl_GlobalInvocationID.x] = sqrt(real*real+im*im);
+        //result[gl_GlobalInvocationID.x] = BUFFER_SIZE/gl_NumWorkGroups.x;
+        //result[index] = index;
+
+        result[index] = sqrt(real*real + im*im) / 2;
     }
-    result[gl_GlobalInvocationID.x] = sqrt(real*real+im*im);
     //result[gl_GlobalInvocationID.x] = audio.value[gl_GlobalInvocationID.x];
     // result[2*gl_GlobalInvocationID.x] = real;
     // result[2*gl_GlobalInvocationID.x+1] = im;

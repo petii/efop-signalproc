@@ -109,7 +109,8 @@ struct VulkanGraphics {
     VulkanGraphics(const VulkanFrame& vf, const WindowHandler& wh, int windowSize):
         vulkanFrame(&vf),
         qfi(vf.physicalDevice, vf.surface),
-        rowSize(windowSize)//queue family indices
+        rowSize(windowSize), //queue family indices
+        rowNum(128 )
     {
         std::cout << "graphics constuctor\n";
         createGraphicsLogicalDevice(vf.physicalDevice,vf.deviceExtensions);
@@ -166,9 +167,11 @@ struct VulkanGraphics {
     }
 
     int rowSize;
+    //how many rows should the drawing have
+    int rowNum;
 
     std::vector<Vertex> vertices;
-    std::vector<uint16_t> indices;
+    std::vector<uint32_t> indices;
 
     void recordCommandBuffer();
 
@@ -177,6 +180,8 @@ struct VulkanGraphics {
     void updateUniformBuffer();
 
     void appendVertices(std::vector<float> heights){
+        //std::cout << vertices.size() << "/" << vertices.capacity()<<std::endl;
+        //std::cin.get();
         if (vertices.size() == vertices.capacity()){
             //return;
             float distance = 
@@ -186,7 +191,7 @@ struct VulkanGraphics {
             for (Vertex& v : vertices) {
                 v.position.x -= distance;
             }
-            for (uint16_t& index : indices) {
+            for (auto& index : indices) {
                 index -= rowSize;
             }
         } 
@@ -198,7 +203,7 @@ struct VulkanGraphics {
             Vertex v = {};
             //if (intensity > 1.0f) intensity /= 100;
             //else intensity *= 100;
-            v.position = glm::vec3(time,freq,intensity);
+            v.position = glm::vec3(time,freq,intensity );
             //v.position = glm::vec3(time,freq,0.0f);
             vertices.push_back(v);
             ++index;

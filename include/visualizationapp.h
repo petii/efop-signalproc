@@ -16,6 +16,12 @@ public:
     const int HEIGHT = 600;
 
     const std::string name;
+
+    //this should be around 40k because it can only detect frequencies 
+    //between 0 and windowSize/2 (dft has real input, so the output is
+    //"symmetric")
+    const unsigned int windowSize = 4096 * 3 ;
+    const unsigned int freqDomainMax = windowSize/2;
 private:
     WindowHandler wh;
     VulkanFrame vf;
@@ -37,9 +43,9 @@ public:
                 name,
                 wh
             ),
-            vc(vf), //VulkanCompute
-            vg(vf,wh,vc.windowSize), //VulkanGraphics
-            ah(vc.windowSize) //audiohandler
+            vc(vf,windowSize), //VulkanCompute
+            vg(vf,wh,freqDomainMax), //VulkanGraphics
+            ah(windowSize) //audiohandler
     {
         std::cout << "constructing\n";
         //VulkanGraphics::rowSize = vc.windowSize;
@@ -72,7 +78,7 @@ public:
         //     compute vertices
         //     create graphics from vertices
         // Sounds easy enough
-        vg.appendVertices(std::vector<float>(vc.windowSize,0.0f));
+        vg.appendVertices(std::vector<float>(freqDomainMax,0.0f));
         //vc.copyDataToGPU(ah.getNormalizedMockAudio());
         //vc.runCommandBuffer();
         //vkDeviceWaitIdle(vc.device);
@@ -80,69 +86,22 @@ public:
         //vg.appendVertices(result);
         ah.loadTestWAV("test/audio/a2002011001-e02.wav");
 
-        std::vector<unsigned int> freqs = {1,4,45,64,76}; 
-        std::vector<unsigned int> amps = {1,68,10, 18,35};
-        //ah.generateTestAudio(
-            //512,
-            //freqs,
-            //amps
-        //);
+        //std::vector<unsigned int> freqs = {static_cast<unsigned>(freqDomainMax)}; 
+        std::vector<unsigned int> freqs = {69}; 
+        std::vector<unsigned int> amps = {20};
+        //ah.generateTestAudio( windowSize * 100, freqs, amps );
         int runTimes=0;
         while (!glfwWindowShouldClose(wh.window)) {
             glfwPollEvents();
-            // auto input = ah.getNormalizedMockAudio();
             auto input = ah.getNormalizedTestAudio();
             vc.copyDataToGPU(input);
-            //vc.copyDataToGPU(ah.getNormalizedMockAudio());
-            //vc.copyDataToGPU(ah.getNormalizedTestAudio());
             vc.runCommandBuffer();
-            auto dft = discreteFourierTransformCPU(input);
-            std::vector<float> res(dft.size());
-            int i = 0;
-            for (const auto& c : dft) {
-                res[i] = std::abs(c);
-                ++i;
-            }
-            //auto normRes = normalizeResults(res);
-            auto normRes = res;
-            i = 0;
-            //for (auto n : normRes) {
-            for (i = 0; i < normRes.size()/2 ; ++i) {
-                float n = normRes[i];
-                if (n > 0.01) 
-                //std::cout << i << ":\t" << n << std::endl;
-                ++i;
-            }
             vkDeviceWaitIdle(vc.device);
-
-            auto result = normalizeResults(vc.readDataFromGPU());
             //auto result = vc.readDataFromGPU();
-            i=0;
-            for (auto r : result) {
-//                if (r > 1)
-                    //std::cout <<i << ":\t"  << r << std::endl;
-
-                ++i;
-            }
-            //if (runTimes < 36)
-                vg.appendVertices(result);
+            auto result = normalizeResults(vc.readDataFromGPU());
+            vg.appendVertices(result);
             vg.updateUniformBuffer();
-            //if (runTimes < 200) {
-            //vg.appendVertices();
-            //}
             vg.drawFrame(); 
-            //std::cout << runTimes;
-            //std::cin.get();
-            // for (int i = 0 ; i < result.size() ; ++i) {
-            //     if (result[i] < 0.001f ) continue;
-            //     std::cout << i << '\t' << result[i] << '\n';
-            // }
-            //break;
-            ++runTimes;
-            //if (runTimes >= 40) {
-              //  std::cin.get();
-                //break;
-            //}
             if (ah.normData.empty()) break;
         }
     }

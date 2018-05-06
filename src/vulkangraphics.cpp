@@ -295,7 +295,7 @@ void VulkanGraphics::createGraphicsPipeline() {
     //NOTE: requires additional gpu features
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    //rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
     rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
 
@@ -376,7 +376,7 @@ void VulkanGraphics::createCommandPool() {
     }
 }
 
-const int rowNum = 128;
+//const int rowNum = 128;
 
 void VulkanGraphics::createVertexBuffer() {
     //TODO: figure out buffers
@@ -399,7 +399,7 @@ void VulkanGraphics::createVertexBuffer() {
 void VulkanGraphics::createIndexBuffer() {
     //TODO: figure out buffers
     indices.reserve( rowNum * (rowSize-1) *2 *3);
-    VkDeviceSize bufferSize = sizeof(uint16_t) * indices.capacity();
+    VkDeviceSize bufferSize = sizeof(uint32_t) * indices.capacity();
     std::cout << "index buffer:" << bufferSize << std::endl;
     util::memory::createBuffer(
         vulkanFrame->physicalDevice,
@@ -576,7 +576,7 @@ void VulkanGraphics::drawFrame(){
         vkCmdBindIndexBuffer(
             commandBuffer,
             indexBuffer, 0,
-            VK_INDEX_TYPE_UINT16
+            VK_INDEX_TYPE_UINT32
         );
         vkCmdBindDescriptorSets(
             commandBuffer,

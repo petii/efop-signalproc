@@ -43,15 +43,15 @@ void *pData;
         bufferMemory,
         bufferSize,
         // 0,
-        bufferSize,
+        bufferSize/2,
         0,
         &pData
     );
-    std::vector<float> data(windowSize);
+    std::vector<float> data(windowSize/2);
     std::memcpy(
         data.data(),
         pData,
-        bufferSize// * sizeof(float)
+        bufferSize/2 // * sizeof(float)
     );
     vkUnmapMemory(device,bufferMemory);
     return data;
@@ -351,11 +351,26 @@ void VulkanCompute::createComputePipelineLayout() {
 }
 
 void VulkanCompute::createComputePipeline() {
+    //Set compute buffer size as a specialization constant (in shader)
+    uint32_t specData[] = { windowSize };
+
+    VkSpecializationMapEntry specMapEntry = {};
+    specMapEntry.constantID = 21;
+    specMapEntry.offset = 0;
+    specMapEntry.size = sizeof(uint32_t);
+
+    VkSpecializationInfo specInfo = {};
+    specInfo.mapEntryCount = 1;
+    specInfo.pMapEntries = &specMapEntry;
+    specInfo.dataSize = sizeof(uint32_t);
+    specInfo.pData = specData;
+
     VkPipelineShaderStageCreateInfo ssci = {};
     ssci.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     ssci.stage = VK_SHADER_STAGE_COMPUTE_BIT;
     ssci.module = shaderModule;
     ssci.pName = "main";
+    ssci.pSpecializationInfo = &specInfo;
 
     VkComputePipelineCreateInfo cplci = {};
     cplci.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
@@ -411,7 +426,8 @@ void VulkanCompute::recordCommands() {
     );
     vkCmdDispatch(
         commandBuffer,
-        windowSize,// uint32_t groupCountX,
+        //windowSize,// uint32_t groupCountX,
+        workGroupCount,// uint32_t groupCountX,
         1,// uint32_t groupCountY,
         1// uint32_t groupCountZ
     );

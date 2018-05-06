@@ -12,9 +12,9 @@ struct Complex {
 };
 
 struct VulkanCompute {
-    static const uint32_t windowSize = 512; //play around with this
-    static const uint32_t bufferSize = windowSize*sizeof(float);
-    static const VkDeviceSize memorySize = 3*windowSize; //dft output
+    uint32_t windowSize; 
+    uint32_t bufferSize;
+    VkDeviceSize memorySize;
 
     VkDevice device;
     uint32_t queueFamilyIndex;
@@ -36,7 +36,12 @@ struct VulkanCompute {
 
     VkQueue queue;
 
-    VulkanCompute(const VulkanFrame& vf):
+    const int workGroupCount = 1024;
+
+    VulkanCompute(const VulkanFrame& vf, int windowSpan):
+        windowSize(windowSpan),
+        bufferSize(windowSize*sizeof(float)),
+        memorySize(3*windowSize),
         queueFamilyIndex(getComputeQueueFamilyIndex(vf.physicalDevice))
         //,result(windowSize)
     {
