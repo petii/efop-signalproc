@@ -3,7 +3,7 @@
 
 #define M_PI 3.14159265358979323846
 
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 512
 #define WORKGROUP_SIZE 1
 
 // layout (constant_id = 20) const int WORKGROUP_SIZE = 128;
@@ -30,13 +30,14 @@ void main() {
     float real = 0.0;
     float im = 0.0;
     for (int i = 0; i<BUFFER_SIZE; ++i) {
-        float place = 2*M_PI*gl_GlobalInvocationID.x*i/BUFFER_SIZE;
+        float param = 2*M_PI*gl_GlobalInvocationID.x*i/BUFFER_SIZE;
         //real
-        real += audio.value[gl_GlobalInvocationID.x] * cos(place);
+        real += audio.value[i] * cos(param);
         //imaginary
-        im += audio.value[gl_GlobalInvocationID.x] * -sin(place);
+        im += audio.value[i] * -sin(param);
     }
     result[gl_GlobalInvocationID.x] = sqrt(real*real+im*im);
+    //result[gl_GlobalInvocationID.x] = audio.value[gl_GlobalInvocationID.x];
     // result[2*gl_GlobalInvocationID.x] = real;
     // result[2*gl_GlobalInvocationID.x+1] = im;
 }

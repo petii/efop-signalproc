@@ -78,19 +78,52 @@ public:
         //vkDeviceWaitIdle(vc.device);
         //auto result = normalizeResults(vc.readDataFromGPU());
         //vg.appendVertices(result);
-        ah.loadTestAudio("test/audio/a2002011001-e02.wav");
+        ah.loadTestWAV("test/audio/a2002011001-e02.wav");
+
+        std::vector<unsigned int> freqs = {1,4,45,64,76}; 
+        std::vector<unsigned int> amps = {1,68,10, 18,35};
+        //ah.generateTestAudio(
+            //512,
+            //freqs,
+            //amps
+        //);
         int runTimes=0;
         while (!glfwWindowShouldClose(wh.window)) {
             glfwPollEvents();
             // auto input = ah.getNormalizedMockAudio();
-            //auto input = ah.getNormalizedTestAudio();
-            // vc.copyDataToGPU(input);
+            auto input = ah.getNormalizedTestAudio();
+            vc.copyDataToGPU(input);
             //vc.copyDataToGPU(ah.getNormalizedMockAudio());
-            vc.copyDataToGPU(ah.getNormalizedTestAudio());
+            //vc.copyDataToGPU(ah.getNormalizedTestAudio());
             vc.runCommandBuffer();
+            auto dft = discreteFourierTransformCPU(input);
+            std::vector<float> res(dft.size());
+            int i = 0;
+            for (const auto& c : dft) {
+                res[i] = std::abs(c);
+                ++i;
+            }
+            //auto normRes = normalizeResults(res);
+            auto normRes = res;
+            i = 0;
+            //for (auto n : normRes) {
+            for (i = 0; i < normRes.size()/2 ; ++i) {
+                float n = normRes[i];
+                if (n > 0.01) 
+                //std::cout << i << ":\t" << n << std::endl;
+                ++i;
+            }
             vkDeviceWaitIdle(vc.device);
-            //auto result = normalizeResults(vc.readDataFromGPU());
-            auto result = vc.readDataFromGPU();
+
+            auto result = normalizeResults(vc.readDataFromGPU());
+            //auto result = vc.readDataFromGPU();
+            i=0;
+            for (auto r : result) {
+//                if (r > 1)
+                    //std::cout <<i << ":\t"  << r << std::endl;
+
+                ++i;
+            }
             //if (runTimes < 36)
                 vg.appendVertices(result);
             vg.updateUniformBuffer();

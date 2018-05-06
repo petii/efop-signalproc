@@ -196,8 +196,8 @@ struct VulkanGraphics {
             float time = (originalSize/(float)rowSize) / 20;
             float freq = (float)index/rowSize * 2;
             Vertex v = {};
-            if (intensity > 1.0f) intensity /= 100;
-            else intensity *= 100;
+            //if (intensity > 1.0f) intensity /= 100;
+            //else intensity *= 100;
             v.position = glm::vec3(time,freq,intensity);
             //v.position = glm::vec3(time,freq,0.0f);
             vertices.push_back(v);

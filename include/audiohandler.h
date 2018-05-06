@@ -10,6 +10,10 @@
 
 #include <limits>
 
+#include <cassert>
+
+#include <cmath>
+
 struct AudioHandler {
     std::random_device rd;
     std::mt19937 gen;
@@ -29,8 +33,38 @@ struct AudioHandler {
         
         getNormalizedMockAudio();
     }
+    
+    void generateTestAudio() {
+        
+    }
 
-    void loadTestAudio(const std::string& filename) {
+    void generateTestAudio(
+        size_t lenght,
+        const std::vector<unsigned int>& frequencies,
+        const std::vector<unsigned int>& amplitudes
+    ) {
+        assert( frequencies.size() == amplitudes.size() );
+        normData.clear();
+        normData.resize(lenght);
+        for (int i = 0; i<normData.size(); ++i) {
+            float t = (float)i/normData.size();        
+            normData[i] = 0;
+            for (int wave = 0; wave < frequencies.size(); ++wave){
+                normData[i] += 
+                    (float)amplitudes[wave] * 
+                    (std::sin(t * frequencies[wave] * 2 * M_PI));
+            }
+        } 
+        auto maxIt = std::max_element(normData.begin(),normData.end());
+        float max = * maxIt;
+        for (auto& d : normData){
+            d /= max;
+            //std::cout << d << ",";
+        }
+        std::cout << std::endl;
+    }
+
+    void loadTestWAV(const std::string& filename) {
        std::ifstream file(filename, std::ios::ate | std::ios::binary);
         if (!file.is_open()) {
             throw std::runtime_error("failed to open file: "+filename);
