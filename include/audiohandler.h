@@ -30,7 +30,8 @@ struct AudioHandler {
         dis(-1.0,1.0),
         bufferSize(bufferSize),
         buffer(bufferSize),
-        overlap(0)
+        overlap(bufferSize * 0.925)
+        //TODO: implement windowing algorithm somewhere (eg. Hanning)
     {
         
         getNormalizedMockAudio();
@@ -93,4 +94,6 @@ struct AudioHandler {
         }
         return buffer;
     }
+
+    void startRecording();
 };

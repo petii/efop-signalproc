@@ -84,7 +84,7 @@ public:
         //vkDeviceWaitIdle(vc.device);
         //auto result = normalizeResults(vc.readDataFromGPU());
         //vg.appendVertices(result);
-        ah.loadTestWAV("test/audio/a2002011001-e02-mono.wav");
+        ah.loadTestWAV("test/audio/a2002011001-e02-8kHz-mono.wav");
 
         //std::vector<unsigned int> freqs = {static_cast<unsigned>(freqDomainMax)}; 
         std::vector<unsigned int> freqs = {freqDomainMax/4}; 
@@ -105,7 +105,7 @@ public:
             vg.appendVertices(result);
             vg.updateUniformBuffer();
             vg.drawFrame(); 
-            if (ah.normData.empty()) break;
+            if (ah.normData.size() < windowSize) break;
         }
     }
 
