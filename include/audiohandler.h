@@ -14,6 +14,8 @@
 
 #include <cmath>
 
+#include <portaudio.h>
+
 struct AudioHandler {
     std::random_device rd;
     std::mt19937 gen;
@@ -25,7 +27,11 @@ struct AudioHandler {
     std::vector<float> buffer;
     int overlap;
 
-    AudioHandler(int bufferSize):
+    AudioHandler(
+            int bufferSize,
+            int rate = 8000,
+            int channels = 1
+    ):
         gen(rd()),
         dis(-1.0,1.0),
         bufferSize(bufferSize),
@@ -33,8 +39,10 @@ struct AudioHandler {
         overlap(bufferSize * 0.925)
         //TODO: implement windowing algorithm somewhere (eg. Hanning)
     {
-        
-        getNormalizedMockAudio();
+        if (Pa_Initialize() != paNoError) {
+            throw std::runtime_error("Failed to initialize PortAudio!");
+        }
+        //getNormalizedMockAudio();
     }
     
     void generateTestAudio(
