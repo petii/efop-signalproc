@@ -12,6 +12,7 @@ INCLUDE := -Iinclude -I${VULKAN_SDK}/include
 
 all:
 	make shaders
+	echo $(SOURCES)
 	$(COMPILER) -o visualizationapp.out $(SOURCES) $(CFLAGS) $(INCLUDE) $(LDFLAGS) -DDEBUG -g -ggdb
 	./visualizationapp.out
 	make clean

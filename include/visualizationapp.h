@@ -67,6 +67,7 @@ public:
 
     void run() {
         std::cout << "running running\n";
+        ah.startRecording();
         mainLoop();
     }
 
@@ -90,18 +91,22 @@ public:
         std::vector<unsigned int> freqs = {freqDomainMax/4}; 
         std::vector<unsigned int> amps = {1};
         //ah.generateTestAudio( windowSize * 100, freqs, amps );
-        int runTimes=0;
+        //int runTimes=0;
         while (!glfwWindowShouldClose(wh.window)) {
             glfwPollEvents();
-            auto input = ah.getNormalizedTestAudio();
+            //auto input = ah.getNormalizedTestAudio();
+            auto input = ah.getMicrophoneAudio();
+            //auto input = normalizeResults(ah.getMicrophoneAudio());
             //for (auto i : input) {
-            //    std::cout << i<<std::endl;
+            //    std::cout << i;
             //}
+            //std::cin.get();
             vc.copyDataToGPU(input);
             vc.runCommandBuffer();
             vkDeviceWaitIdle(vc.device);
             //auto result = vc.readDataFromGPU();
             auto result = normalizeResults(vc.readDataFromGPU());
+            result[0]=0.0f;
             vg.appendVertices(result);
             vg.updateUniformBuffer();
             vg.drawFrame(); 
@@ -123,7 +128,7 @@ public:
         std::vector<std::complex<float>> dft(input.size());
         for (size_t i = 0; i<dft.size(); ++i) {
             std::complex<float> x;
-            for (int j = 0 ; j< input.size(); ++j) {
+            for (size_t j = 0 ; j< input.size(); ++j) {
                 double param = 2 * M_PI * i * j / (float)dft.size();
                 x += input[j] * std::complex<float>(cos(param),-sin(param) );
             }

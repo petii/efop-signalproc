@@ -15,6 +15,7 @@
 #include <cmath>
 
 #include <portaudio.h>
+#include <mutex>
 
 struct AudioHandler {
     std::random_device rd;
@@ -26,6 +27,12 @@ struct AudioHandler {
     std::vector<float> normData;
     std::vector<float> buffer;
     int overlap;
+    std::vector<float> micInput;
+
+    int sampleRate;
+    const int framesPerBuffer = 512;
+    PaStreamParameters inputParams;
+    PaStream *stream;
 
     AudioHandler(
             int bufferSize,
@@ -36,13 +43,43 @@ struct AudioHandler {
         dis(-1.0,1.0),
         bufferSize(bufferSize),
         buffer(bufferSize),
-        overlap(bufferSize * 0.925)
+        overlap(bufferSize * 0.925),
         //TODO: implement windowing algorithm somewhere (eg. Hanning)
+        //micInput(bufferSize,0.0f),
+        sampleRate(rate)
     {
+        micInput.reserve(2*bufferSize);
         if (Pa_Initialize() != paNoError) {
             throw std::runtime_error("Failed to initialize PortAudio!");
         }
-        //getNormalizedMockAudio();
+
+        if ((inputParams.device = Pa_GetDefaultInputDevice()) == paNoDevice) {
+            throw std::runtime_error("Could not get default input device!");
+        }
+        inputParams.channelCount = channels;
+        inputParams.sampleFormat = paFloat32;
+        inputParams.suggestedLatency = 
+            Pa_GetDeviceInfo(inputParams.device)->defaultLowInputLatency;
+        inputParams.hostApiSpecificStreamInfo = nullptr;
+
+        if (Pa_OpenStream(
+            &stream,
+            &inputParams,
+            nullptr,
+            sampleRate,
+            framesPerBuffer,
+            paClipOff,
+            recordCallback,
+            this
+        ) != paNoError) {
+            throw std::runtime_error("Failed to open stream!");
+        }
+    }
+    ~AudioHandler() {
+        if (Pa_IsStreamActive(stream)) {
+            Pa_CloseStream(stream);
+        }
+        Pa_Terminate();
     }
     
     void generateTestAudio(
@@ -53,10 +90,10 @@ struct AudioHandler {
         assert( frequencies.size() == amplitudes.size() );
         normData.clear();
         normData.resize(lenght);
-        for (int i = 0; i<normData.size(); ++i) {
+        for (size_t i = 0; i<normData.size(); ++i) {
             float t = (float)i/normData.size();        
             normData[i] = 0;
-            for (int wave = 0; wave < frequencies.size(); ++wave){
+            for (size_t wave = 0; wave < frequencies.size(); ++wave){
                 normData[i] += 
                     (float)amplitudes[wave] * 
                     (std::sin(t * frequencies[wave] * 2 * M_PI));
@@ -97,11 +134,56 @@ struct AudioHandler {
         for (int i = 0; i < overlap; ++i) {
             buffer[i] = buffer[i+overlap];
         }
-        for (int i = overlap; i<buffer.size(); ++i) {
+        for (size_t i = overlap; i<buffer.size(); ++i) {
             buffer[i] = dis(gen);
         }
         return buffer;
     }
 
-    void startRecording();
+    void startRecording() {
+        if (Pa_StartStream(stream) != paNoError) {
+            throw std::runtime_error("Failed to start recording audio!");
+        }
+    }
+
+    std::mutex micMutex;
+
+    static int recordCallback(
+        const void* input,
+        void* output,
+        unsigned long frameCount,
+        const PaStreamCallbackTimeInfo* timeInfo,
+        PaStreamCallbackFlags flags,
+        void* data
+    ) {
+        AudioHandler* ah = reinterpret_cast<AudioHandler*>(data); 
+        //std::cout << "recordCallback\t" << frameCount << "\t" << *(const float*)input << " " << ah->micInput.size() << std::endl;
+        const float* fInput = (float*)input;
+        std::lock_guard<std::mutex> lock(ah->micMutex);
+        if (input == nullptr) {
+            ah->micInput.insert(ah->micInput.end(),frameCount,0.0f);
+        }
+        else {
+            std::copy(
+                fInput, fInput+frameCount,
+                std::back_inserter(ah->micInput)
+            );            
+        }
+        return 0;
+    }
+
+    std::vector<float> getMicrophoneAudio() {
+        std::lock_guard<std::mutex> lock(micMutex);
+        if (micInput.size() < bufferSize) {
+            for (auto it = buffer.begin()+(bufferSize-micInput.size()) ;
+                    it != buffer.end(); ++it) {
+                *it = 0;
+            }
+        }
+        else {
+            buffer.assign(micInput.begin(),micInput.begin()+bufferSize);
+            micInput.erase(micInput.begin(),micInput.begin()+(bufferSize-overlap));
+        }
+        return buffer;
+    }
 };
