@@ -67,7 +67,6 @@ public:
 
     void run() {
         std::cout << "running running\n";
-        ah.startRecording();
         mainLoop();
     }
 
@@ -94,8 +93,8 @@ public:
         //int runTimes=0;
         while (!glfwWindowShouldClose(wh.window)) {
             glfwPollEvents();
-            //auto input = ah.getNormalizedTestAudio();
-            auto input = ah.getMicrophoneAudio();
+            auto input = ah.getNormalizedTestAudio();
+            //auto input = ah.getMicrophoneAudio();
             //auto input = normalizeResults(ah.getMicrophoneAudio());
             //for (auto i : input) {
             //    std::cout << i;
