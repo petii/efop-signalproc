@@ -110,8 +110,8 @@ struct VulkanGraphics {
         vulkanFrame(&vf),
         qfi(vf.physicalDevice, vf.surface),
         rowSize(windowSize), //queue family indices
-        //rowNum(128 )
-        rowNum(100 ) //using this value does not reveal the lack of depth buffering...
+        rowNum(128 )
+        //rowNum(100 ) //using this value does not reveal the lack of depth buffering...
     {
         std::cout << "graphics constuctor\n";
         createGraphicsLogicalDevice(vf.physicalDevice,vf.deviceExtensions);
