@@ -653,7 +653,7 @@ void VulkanGraphics::updateUniformBuffer() {
     float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
     VulkanGraphics::UniformBufferObject ubo = {};
-    ubo.model = //glm::mat4();
+    ubo.model = glm::mat4();
         glm::rotate(
             glm::mat4(1.0f), 
             time * glm::radians(60.0f), 

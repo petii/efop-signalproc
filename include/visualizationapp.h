@@ -60,7 +60,7 @@ public:
     static void onWindowResized(GLFWwindow *window, int width, int height) {
         VisualizationApplication* app =
             reinterpret_cast<VisualizationApplication*>(glfwGetWindowUserPointer(window));
-        app->recreateSwapChain();
+        //app->recreateSwapChain();
         int w,h;
         glfwGetWindowSize(app->wh.window, &w, &h);
         std::cout << app << ':' << w << 'x' << h << std::endl;
