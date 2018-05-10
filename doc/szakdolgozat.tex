@@ -1,11 +1,17 @@
 \documentclass[twoside, a4paper, 12pt]{article}
 \usepackage{thesis-style}
 
+\usepackage{hyperref}
+\usepackage{xcolor}
+
 \input{tex/adatok}
 
 \title{\CIM}
 \author{\SZERZO}
 \date{\VEDESEVE}
+
+\definecolor{light-gray}{gray}{0.95}
+\newcommand{\code}[1]{\colorbox{light-gray}{\texttt{#1}}}
 
 \begin{document}
 \pagestyle{empty}
