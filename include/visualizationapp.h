@@ -100,7 +100,8 @@ public:
             //std::cin.get();
             vc.copyDataToGPU(input);
             vc.runCommandBuffer();
-            vkDeviceWaitIdle(vc.device);
+            //VkDeviceWaitIdle(vc.device);
+            vkQueueWaitIdle(vc.queue);
             //auto result = vc.readDataFromGPU();
             auto result = normalizeResults(vc.readDataFromGPU());
             //result[0]=0.0f;

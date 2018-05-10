@@ -66,7 +66,7 @@ void VulkanCompute::runCommandBuffer() {
     vkQueueSubmit(queue,1,&submitInfo,VK_NULL_HANDLE);
 
     //TODO:do something instead of waiting
-    vkQueueWaitIdle(queue);
+    //vkQueueWaitIdle(queue);
 }
 
 void VulkanCompute::createComputeLogicalDevice(
