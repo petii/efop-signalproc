@@ -16,6 +16,12 @@ public:
     const int HEIGHT = 600;
 
     const std::string name;
+//triple buffering megnezese
+//osszehasonlitas
+
+//teszteles helyett meresek
+//tablazatok
+//laptop, asztali gep osszehasonlitasa
 
     //this should be around 40k because it can only detect frequencies 
     //between 0 and windowSize/2 (dft has real input, so the output is
@@ -86,7 +92,7 @@ public:
         //std::vector<unsigned int> amps(freqs.size(),1);
         std::vector<unsigned int> freqs = {100,200,400,800,2080}; 
         std::vector<unsigned int> amps = {5,4,3,2,1};
-        //ah.generateTestAudio( windowSize , 16, freqs, amps );
+        ah.generateTestAudio( windowSize , 16, freqs, amps );
         int runTimes=0;
         while (!glfwWindowShouldClose(wh.window)) {
             //std::cout << "Round " << runTimes << std::endl;
@@ -105,14 +111,14 @@ public:
             //auto result = vc.readDataFromGPU();
             auto result = normalizeResults(vc.readDataFromGPU());
             //result[0]=0.0f;
-            /*for (int i = 0 ; i < result.size() ; ++i) {
+            for (int i = 0 ; i < result.size() ; ++i) {
                 if (result[i] > 0.6f)
                 std::cout << i << '/' << result.size() << ":\t" << result[i] << std::endl;
             }
             std::cout 
                 << "min: " << *(std::min_element(result.begin(),result.end()))<< "\t"
                 << "max: " << *(std::max_element(result.begin(),result.end())) << std::endl;
-            */
+            //*/
             vg.appendVertices(result);
             vg.updateUniformBuffer();
             vg.drawFrame(); 
