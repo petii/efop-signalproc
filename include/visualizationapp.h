@@ -90,9 +90,9 @@ public:
 
         //std::vector<unsigned int> freqs = {100,200}; 
         //std::vector<unsigned int> amps(freqs.size(),1);
-        std::vector<unsigned int> freqs = {100,200,400,800,2080}; 
-        std::vector<unsigned int> amps = {5,4,3,2,1};
-        ah.generateTestAudio( windowSize , 16, freqs, amps );
+        std::vector<unsigned int> freqs = {100,2000,5436}; 
+        std::vector<unsigned int> amps = {1,1,2};
+        //ah.generateTestAudio( windowSize , 16, freqs, amps );
         int runTimes=0;
         while (!glfwWindowShouldClose(wh.window)) {
             //std::cout << "Round " << runTimes << std::endl;
@@ -108,8 +108,8 @@ public:
             vc.runCommandBuffer();
             //VkDeviceWaitIdle(vc.device);
             vkQueueWaitIdle(vc.queue);
-            //auto result = vc.readDataFromGPU();
-            auto result = normalizeResults(vc.readDataFromGPU());
+            auto result = vc.readDataFromGPU();
+            //auto result = normalizeResults(vc.readDataFromGPU());
             //result[0]=0.0f;
             for (int i = 0 ; i < result.size() ; ++i) {
                 if (result[i] > 0.6f)
