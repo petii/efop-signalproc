@@ -38,7 +38,7 @@ struct AudioHandler {
     AudioHandler(
             int bufferSize,
             int rate = 44100,
-            int channels = 2
+            int channels = 1
     ):
         gen(rd()),
         dis(-1.0,1.0),
@@ -167,8 +167,6 @@ struct AudioHandler {
         }
         else {
             for (int i = 0; i < frameCount; ++i) {
-                ah->micInput.push_back(*fInput);
-                ++fInput;
                 ah->micInput.push_back(*fInput);
                 ++fInput;
             }
