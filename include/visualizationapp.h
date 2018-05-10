@@ -68,6 +68,7 @@ public:
 
     void run() {
         std::cout << "running running\n";
+        ah.startRecording();
         mainLoop();
     }
 
@@ -80,51 +81,45 @@ public:
         //     create graphics from vertices
         // Sounds easy enough
         vg.appendVertices(std::vector<float>(freqDomainMax,0.0f));
-        ah.loadTestWAV("test/audio/a2002011001-e02-8kHz-mono.wav");
+        //ah.loadTestWAV("test/audio/a2002011001-e02-8kHz-mono.wav");
 
         //std::vector<unsigned int> freqs = {100,200}; 
         //std::vector<unsigned int> amps(freqs.size(),1);
-        std::vector<unsigned int> freqs = {100,200,400,800,2080}; 
-        std::vector<unsigned int> amps = {5,4,3,2,1};
+        //std::vector<unsigned int> freqs = {100,200,400,800,2080}; 
+        //std::vector<unsigned int> amps = {5,4,3,2,1};
         //ah.generateTestAudio( windowSize , 16, freqs, amps );
+        std::vector<float> zeros (20,0.0f);
         int runTimes=0;
         while (!glfwWindowShouldClose(wh.window)) {
             //std::cout << "Round " << runTimes << std::endl;
             glfwPollEvents();
-            auto input = ah.getNormalizedTestAudio();
-            //auto input = ah.getMicrophoneAudio();
+            //auto input = ah.getNormalizedTestAudio();
+            auto input = ah.getMicrophoneAudio();
             //auto input = normalizeResults(ah.getMicrophoneAudio());
-            //for (auto i : input) {
-            //    std::cout << i;
-            //}
-            //std::cin.get();
+            /*
+            for (auto i : input) {
+                if ( i > 0 )
+                    std::cout << i << ' ';
+            }
+            std::cout << std::endl;
+            //*/
             vc.copyDataToGPU(input);
             vc.runCommandBuffer();
             vkDeviceWaitIdle(vc.device);
-            //auto result = vc.readDataFromGPU();
-            auto result = normalizeResults(vc.readDataFromGPU());
-            //result[0]=0.0f;
-            /*for (int i = 0 ; i < result.size() ; ++i) {
-                if (result[i] > 0.6f)
-                std::cout << i << '/' << result.size() << ":\t" << result[i] << std::endl;
-            }
-            std::cout 
-                << "min: " << *(std::min_element(result.begin(),result.end()))<< "\t"
-                << "max: " << *(std::max_element(result.begin(),result.end())) << std::endl;
-            */
+            auto result = vc.readDataFromGPU();
+            //auto res = (vc.readDataFromGPU());
+            std::copy(zeros.begin(),zeros.end(),result.begin());
+            //auto result = normalizeResults(res);
+            //for (int i = 0 ; i < result.size(); ++i) {
+            //for (int i = 0 ; i < 100 ;++i) {
+              //  if (result[i] > 2) 
+                //    std::cout << i << ":\t" << result[i] << std::endl;
+            //}
+            //std::cout << std::endl;
             vg.appendVertices(result);
             vg.updateUniformBuffer();
             vg.drawFrame(); 
-            /*if (ah.normData.size() < windowSize) {
-                for (auto& f : freqs) { 
-                    if ( f > 100 )
-                        f -= 100 ;
-                    else
-                        f = freqDomainMax;
-                }
-                ah.generateTestAudio(windowSize,4,freqs, amps);
-            }*/
-            if (ah.normData.size() < windowSize) break;
+            //if (ah.normData.size() < windowSize) break;
             ++runTimes;
         }
     }
