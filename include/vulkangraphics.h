@@ -110,8 +110,8 @@ struct VulkanGraphics {
         vulkanFrame(&vf),
         qfi(vf.physicalDevice, vf.surface),
         rowSize(windowSize), //queue family indices
-        rowNum(128 )
-        //rowNum(100 ) //using this value does not reveal the lack of depth buffering...
+        //rowNum(128 )
+        rowNum(100 ) //using this value does not reveal the lack of depth buffering...
     {
         std::cout << "graphics constuctor\n";
         createGraphicsLogicalDevice(vf.physicalDevice,vf.deviceExtensions);
@@ -200,7 +200,7 @@ struct VulkanGraphics {
         int originalSize = vertices.size();
         for (float intensity : heights) {
             float time = (originalSize/(float)rowSize) / 20;
-            float freq = (float)index/rowSize * 2;
+            float freq = (float)index/rowSize * 4 - 2.2f;
             Vertex v = {};
             //if (intensity > 1.0f) intensity /= 100;
             //else intensity *= 100;

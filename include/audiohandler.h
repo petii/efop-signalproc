@@ -39,6 +39,7 @@ struct AudioHandler {
         bufferSize(bufferSize),
         buffer(bufferSize),
         overlap(bufferSize * 0.925)
+        //overlap(0)
         //TODO: implement windowing algorithm somewhere (eg. Hanning)
         //micInput(bufferSize,0.0f),
     {}
@@ -47,14 +48,15 @@ struct AudioHandler {
     
     void generateTestAudio(
         size_t lenght,
+        size_t times,
         const std::vector<unsigned int>& frequencies,
         const std::vector<unsigned int>& amplitudes
     ) {
         assert( frequencies.size() == amplitudes.size() );
         normData.clear();
-        normData.resize(lenght);
+        normData.resize(lenght*times);
         for (size_t i = 0; i<normData.size(); ++i) {
-            float t = (float)i/normData.size();        
+            float t = (float)i/lenght;        
             normData[i] = 0;
             for (size_t wave = 0; wave < frequencies.size(); ++wave){
                 normData[i] += 

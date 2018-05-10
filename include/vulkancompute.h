@@ -36,7 +36,7 @@ struct VulkanCompute {
 
     VkQueue queue;
 
-    const int workGroupCount = 1024;
+    const int workGroupCount = 512;
 
     VulkanCompute(const VulkanFrame& vf, int windowSpan):
         windowSize(windowSpan),

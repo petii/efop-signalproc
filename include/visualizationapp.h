@@ -20,7 +20,8 @@ public:
     //this should be around 40k because it can only detect frequencies 
     //between 0 and windowSize/2 (dft has real input, so the output is
     //"symmetric")
-    const unsigned int windowSize = 4096 * 2 ;
+    const unsigned int windowSize = 4096 * 1 ;
+    //const unsigned int windowSize = 8 ;
     const unsigned int freqDomainMax = windowSize/2;
 private:
     WindowHandler wh;
@@ -79,19 +80,16 @@ public:
         //     create graphics from vertices
         // Sounds easy enough
         vg.appendVertices(std::vector<float>(freqDomainMax,0.0f));
-        //vc.copyDataToGPU(ah.getNormalizedMockAudio());
-        //vc.runCommandBuffer();
-        //vkDeviceWaitIdle(vc.device);
-        //auto result = normalizeResults(vc.readDataFromGPU());
-        //vg.appendVertices(result);
         ah.loadTestWAV("test/audio/a2002011001-e02-8kHz-mono.wav");
 
-        //std::vector<unsigned int> freqs = {static_cast<unsigned>(freqDomainMax)}; 
-        std::vector<unsigned int> freqs = {freqDomainMax/4}; 
-        std::vector<unsigned int> amps = {1};
-        //ah.generateTestAudio( windowSize * 100, freqs, amps );
-        //int runTimes=0;
+        //std::vector<unsigned int> freqs = {100,200}; 
+        //std::vector<unsigned int> amps(freqs.size(),1);
+        std::vector<unsigned int> freqs = {100,200,400,800,2080}; 
+        std::vector<unsigned int> amps = {5,4,3,2,1};
+        //ah.generateTestAudio( windowSize , 16, freqs, amps );
+        int runTimes=0;
         while (!glfwWindowShouldClose(wh.window)) {
+            //std::cout << "Round " << runTimes << std::endl;
             glfwPollEvents();
             auto input = ah.getNormalizedTestAudio();
             //auto input = ah.getMicrophoneAudio();
@@ -105,11 +103,29 @@ public:
             vkDeviceWaitIdle(vc.device);
             //auto result = vc.readDataFromGPU();
             auto result = normalizeResults(vc.readDataFromGPU());
-            result[0]=0.0f;
+            //result[0]=0.0f;
+            /*for (int i = 0 ; i < result.size() ; ++i) {
+                if (result[i] > 0.6f)
+                std::cout << i << '/' << result.size() << ":\t" << result[i] << std::endl;
+            }
+            std::cout 
+                << "min: " << *(std::min_element(result.begin(),result.end()))<< "\t"
+                << "max: " << *(std::max_element(result.begin(),result.end())) << std::endl;
+            */
             vg.appendVertices(result);
             vg.updateUniformBuffer();
             vg.drawFrame(); 
+            /*if (ah.normData.size() < windowSize) {
+                for (auto& f : freqs) { 
+                    if ( f > 100 )
+                        f -= 100 ;
+                    else
+                        f = freqDomainMax;
+                }
+                ah.generateTestAudio(windowSize,4,freqs, amps);
+            }*/
             if (ah.normData.size() < windowSize) break;
+            ++runTimes;
         }
     }
 
