@@ -48,5 +48,3 @@ lib/*
 # Compiled Vulkan shaders
 *.spv
 
-# Linter info for Atom
-.clang_complete

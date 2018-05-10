@@ -1,0 +1,6 @@
+-std=c++11
+-DDEBUG
+-Iinclude
+-I${VULKAN_SDK}/include
+-L${VULKAN_SDK}/lib
+-lvulkan
