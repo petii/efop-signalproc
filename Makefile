@@ -18,10 +18,10 @@ all:
 	make clean
 
 debug:
-	$(COMPILER) -o $(OUTPUT_NAME) $(SOURCES) $(CFLAGS) $(INCLUDE) $(LDFLAGS) -DDEBUG -g -ggdb
+	$(COMPILER) -o $(DTARGET)/$(OUTPUT_NAME) $(SOURCES) $(CFLAGS) $(INCLUDE) $(LDFLAGS) -DDEBUG -g -ggdb
 
 release:
-	$(COMPILER) -o $(OUTPUT_NAME) $(SOURCES) $(CFLAGS) $(INCLUDE) $(LDFLAGS) -DNDEBUG 
+	$(COMPILER) -o $(TARGET)/$(OUTPUT_NAME) $(SOURCES) $(CFLAGS) $(INCLUDE) $(LDFLAGS) -DNDEBUG 
 
 shaders:
 	cd src/shaders/ ; glslangValidator -V shader.*
