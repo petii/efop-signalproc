@@ -1,0 +1,23 @@
+
+\subsection{A feladat r\'eszletes le\'ir\'asa}
+\subsubsection{Modell}
+Adott egy hangull\'am, ami a leveg\H o nyom\'asa az id\H o f\"uggv\'eny\'eben:
+\(s: \mathbb{T} \rightarrow \mathbb{P} \) \newline
+A modell\"unkben $\mathbb{T}:=[0,+\infty), \mathbb{P}:=[-1,1] $ \newline
+A hanghull\'am, mint \"osszetett rezg\'es fel\'irhat\'o k\"ul\"onb\"oz\H o amplit\'ud\'oj\'u, f\'azis\'u \'es frekvenci\'aj\'u harmonikus rezg\'esek (r\'eszhangok) \"osszegek\'ent, azaz: \newline
+\( s(t) = \sum_i r_i\cdot\sin{(f_i\cdot t + \varphi_i)} \), ahol $r_i$ az amplit\'ud\'oja, $f_i$ a frekvenci\'aja, $\varphi_i$ pedig a f\'azisa az $i$-edik r\'eszhangnak.
+\subsubsection{Specifik\'aci\'o}
+\paragraph{Bemenet}
+A modellben szerepl\H o $s$ f\"uggv\'enyb\H ol $\Delta t$ id\H o alatt egy $N$ elem\H u mint\'at v\'etelez\"unk: $s_1,\dots,s_{N}$, \'es \newline
+\( \begin{array}{rcl}
+s_i := s(x_i) & \text{, ahol } & i\in[1..N],\\
+&&x_i\in\{ t_0 = x_0 < x_1 < \dots < x_{N-1} = t_0 + \Delta t \} \text{, tov\'abb\'a } \\
+&&x_j - x_{j-1} = \frac{\Delta t}{N}\ (j\in[2..N] ) 
+\end{array} \)
+\paragraph{Kimenet}
+Egy olyan $R_{s,t_0}:\left[ 0..\frac{N}{2} \right] \rightarrow [0,+\infty)$ f\"uggv\'eny, amely a frekvencia f\"uggv\'eny\'eben megadja az $s\rvert_{[t_0,t_0+\Delta t]}$ hanghull\'amban az adott frekvenci\'aj\'u r\'eszhang amplit\'ud\'oj\'at, azaz $R_{s,t_0}(f_i) = r_i$.
+\paragraph{\'Abr\'azol\'as}
+
+\[
+S(t,f):=\left( t , f , R_{s,t}(f) \right)
+\]

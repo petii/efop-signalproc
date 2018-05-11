@@ -1,0 +1,80 @@
+
+\section{Fejleszt\H oi dokument\'aci\'o}
+
+\input{tex/dev/specification}
+
+%\input{tex/dev/application}
+%these two may be the same
+\input{tex/dev/implementation}
+
+\subsection{El\H ok\"ovetelm\'enyek}
+\subsubsection{Vide\'ok\'artya driver}
+A haszn\'alt Linux disztrib\'uci\'o csomagjai k\"oz\"ott \'erdemes a \code{vulkan} kulcssz\'ora r\'akeresni \'es a haszn\'alt hardvernek megfelel\"o csomagot/csomagokat feltelep\'iteni.
+\subsection{K\"onyvt\'arak}
+
+\subsubsection{Audio}
+
+\subsubsection{Vulkan SDK}
+\paragraph{Bevezet\H o}
+A LunarG Vulkan SDK sz\'amos elengedhetetlen eszk\"ozt tartalmaz. K\"ozt"uk a sz\"uks\'eges fejl\'eceket, a standard valid\'aci\'os r\'etegeket, debuggol\'o eszk\"oz\"oket \'es a Vulkan f\"uggv\'enyek bet\"olt\H oj\'et. 
+\paragraph{Telep\'it\'es}
+A haszn\'alt Linux disztrib\'uci\'o csomagjai k\"oz\"ott val\'osz\'in\"uleg megtal\'alhat\'oak fejleszt\'eshez sz\"uks\'eges csomagok. 
+\newline
+Ellenkez\H o esetben a weboldalr\'ol (\url{https://vulkan.lunarg.com/sdk/home}) let\"olthet\H o a legfrissebb SDK verzi\'o.
+A script futtat\'asa ut\'an lesz egy \code{VulkanSDK} mappa az adott k\"onyvt\'arban.
+Az ebben tal\'alhat\'o \code{Getting\_Started.html} f\'ajl j\'o kiindul\'opont a tov\'abbiakhoz.
+A \code{setup-env.sh} script automatikusan be\'all\'itja a sz\"uks\'eges k\"ornyezeti v\'altoz\'okat.
+\paragraph{Tesztel\'es}
+Ezek ut\'an a \code{vulkaninfo}\footnote{A \code{vulkaninfo --html} paranccsal egy k\"onnyeben b\"ong\'eszhet\H o weboldalt kapunk kimenetnek.} parancsot kiadva inform\'aci\'okat kaphatunk a rendszer\"unk k\'epess\'egeir\H ol, illetve tesztelhetj\"uk az SDK telep\'it\'es\'enek sikeress\'eg\'et. 
+\'Erdemes lehet tov\'abb\'a p\'eldaprogramokat is lefuttatni. A \code{build\_examples.sh} script leford\'itja a p\'eldaprogramokat, amik ut\'ana a \code{examples/build/} k\"onyvt\'arban megtal\'alhat\'oak. (\code{cube, cubepp})
+
+\subsubsection{GLFW}
+A megjelen\'it\H o ablak kezel\'es\'ere a GLFW k\"onyvt\'arat haszn\'alom. Ez szint\'en telep\'ithet\H o csomag a legt\"obb Linux disztrib\'uci\'oban, vagy a weboldalukr\'ol let\"olthet\H o \'es telep\'it\'esi \'utmutat\'as is megtal\'alhat\'o. \url{http://www.glfw.org/download.html}
+
+\subsubsection{GLM}
+Az OpenGL-b\H ol ismer\H os matematikai k\"onyvt\'ar. 
+A telep\'it\'ese t\"ort\'enhet csomagkezel\H on kereszt\"ul, vagy mivel csak fejl\'eceket tartalmaz\'o k\"onyvt\'ar, a megfelel\H o helyre let\"olt\'essel.
+
+\subsection{Ford\'it\'as}
+A program gy\"ok\'erk\"onyvt\'ar\'aban vagyunk
+a \code{make} parancs kiad\'as\'aval a k\"ovetkez\H ok t\"ort\'ennek:
+\begin{enumerate}
+	\item Leford\'itjuk a shadereket (ld. \ref{shadercompilation})
+	\item Leford\'itjuk a programot (ld. \ref{compileoptions})
+\end{enumerate}
+
+\subsubsection{Ford\'it\'o v\'alaszt\'asa}
+A \code{Makefile} elej\'en a \code{COMPILER} v\'altoz\'ot a k\'iv\'ant ford\'it\'ora kell \'all\'itani (\code{g++/clang++}).
+\subsubsection{Ford\'it\'asi param\'eterek}\label{compileoptions}
+A teljes parancs (a \code{Makefile}-b\'ol): 
+\begin{itemize}
+	\item Debug verzi\'o
+		%\code{\$(COMPILER) -o \$(DTARGET)/\$(OUTPUT_NAME) \$(SOURCES) \$(CFLAGS) \$(INCLUDE) \$(LDFLAGS) -DDEBUG -g -ggdb}
+	\item Release verzi\'o
+		%\code{\$(COMPILER) -o \$(TARGET)/\$(OUTPUT_NAME) \$(SOURCES) \$(CFLAGS) \$(INCLUDE) \$(LDFLAGS) -DNDEBUG }
+\end{itemize}
+Itt a k\"ulonb\"oz\H o v\'altoz\'ok:
+\begin{itemize}
+	\item \code{COMPILER}: A v\'alasztott ford\'it\'o (\code{gcc} vagy \code{clang})
+	\item \code{TARGET/DTARGET}: A c\'elmappa (\code{bin/debug} vagy \code{bin/release}) 
+	\item \code{OUTPUT\_NAME}: A futtathat\'o \'allom\'any neve
+	\item \code{SOURCES}: Az \code{src} k\"onyvt\
+	\item \code{CFLAGS}: 
+	\item \code{INCLUDE}: 
+	\item \code{LDFLAGS}: 
+\end{itemize}
+
+\subsubsection{Shader}\label{shadercompilation}
+A Vulkan API SPIR-V (\url{https://www.khronos.org/spir/}) shadereket haszn\'al. Mivel ez egy b\'ajtk\'od form\'atum, \'igy a shaderek manu\'alis \'ir\'asa \'es olvas\'asa szokatlan lehet. 
+Szerencs\'ere a Khronos Group lefejlesztett egy ford\'it\'ot, ami az OpenGL-b\H ol ismer\H os GLSL shadert SPIR-V shaderr\'e alak\'itja. A LunarG SDK-ban megtal\'alhat\'o ez a program, a 
+\code{glslangValidator}. \newline
+A GLSL shaderek ford\'it\'asa \'igy t\"obbf\'elek\'eppen is t\"ort\'enhet:
+\begin{itemize}
+	\item \code{make shaders} \newline
+		A \code{Makefile}-ban defini\'alt parancs, leford\'tja az \"osszes shadert a \code{src/shaders} mapp\'aban.
+	\item \code{glslangValidator -V src/shaders/<shader neve>} \newline
+		A \code{-V} kapcsol\'o mondja meg, hogy gener\'aljon is SPIR-V shadert, an\'elk\"ul csak ellen\H orzi a k\'odot, hogy megfelel-e az implement\'alt szabv\'anynak.
+\end{itemize}
+
+
+\input{tex/dev/testing}

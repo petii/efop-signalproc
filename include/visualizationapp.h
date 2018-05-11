@@ -98,7 +98,7 @@ public:
             //auto input = normalizeResults(ah.getMicrophoneAudio());
             /*
             for (auto i : input) {
-                if ( i > 0 )
+                if ( std::abs(i) > 0.9f )
                     std::cout << i << ' ';
             }
             std::cout << std::endl;
