@@ -1,31 +1,52 @@
 
 \subsection{A feladat r\'eszletes le\'ir\'asa}
 \subsubsection{Modell}
-Adott egy hangull\'am, ami a leveg\H o nyom\'asa az id\H o f\"uggv\'eny\'eben:
+Adott egy hangull\'am, ami a l\'egnyom\'as v\'altoz\'asa az id\H o f\"uggv\'eny\'eben:
 \(s: \mathbb{T} \rightarrow \mathbb{P} \) \newline
 A modell\"unkben $\mathbb{T}:=[0,+\infty), \mathbb{P}:=[-1,1] $ \newline
-A hanghull\'am, mint \"osszetett rezg\'es fel\'irhat\'o k\"ul\"onb\"oz\H o amplit\'ud\'oj\'u, f\'azis\'u \'es frekvenci\'aj\'u harmonikus rezg\'esek (r\'eszhangok) \"osszegek\'ent, azaz: \newline
+A hanghull\'am, mint \"osszetett rezg\'es fel\'irhat\'o k\"ul\"onb\"oz\H o amplit\'ud\'oj\'u, f\'azis\'u \'es frekvenci\'aj\'u harmonikus rezg\'esek (r\'eszhangok) line\'aris kombin\'aci\'ojak\'ent, azaz: \newline
 \( s(t) = \sum_i r_i\cdot\sin{(f_i\cdot t + \varphi_i)} \), ahol $r_i$ az amplit\'ud\'oja, $f_i$ a frekvenci\'aja, $\varphi_i$ pedig a f\'azisa az $i$-edik r\'eszhangnak.
 \subsubsection{Specifik\'aci\'o}
 \paragraph{Bemenet}
-A modellben szerepl\H o $s$ f\"uggv\'enyb\H ol $\Delta t$ id\H o alatt egy $N$ elem\H u mint\'at v\'etelez\"unk: $s_1,\dots,s_{N}$, \'es \newline
+A modellben szerepl\H o $s$ f\"uggv\'enyb\H ol $\Delta t$ id\H o alatt egy p\'aros $N$ elem\H u mint\'at v\'etelez\"unk: $s_0,\dots,s_{N-1}$, \'es \newline
 \( \begin{array}{rcl}
-s_i := s(x_i) & \text{, ahol } & i\in[1..N],\\
+s_i := s(x_i) & \text{, ahol } & i\in[0..N-1],\\
 &&x_i\in\{ t_0 = x_0 < x_1 < \dots < x_{N-1} = t_0 + \Delta t \} \text{, tov\'abb\'a } \\
-&&x_j - x_{j-1} = \frac{\Delta t}{N}\ (j\in[2..N] ) 
+&&x_j - x_{j-1} = \frac{\Delta t}{N}\quad (j\in[1..N-1] ) 
 \end{array} \)
 \paragraph{Kimenet}
-Legyen $\mathbb{F}:=\left[ 0..\frac{N}{2} \right]$\newline>
-Ekkor a kimenet egy olyan $R_{s,t_0}:\mathbb{F} \rightarrow [0,+\infty)$ f\"uggv\'eny, amely a frekvencia f\"uggv\'eny\'eben megadja az $s\rvert_{[t_0,t_0+\Delta t]}$ hanghull\'amban az adott frekvenci\'aj\'u r\'eszhang amplit\'ud\'oj\'at, azaz $R_{s,t_0}(f_i) = r_i$.
+Legyen $\mathbb{F}:=\left[ 0..\frac{N}{2}-1 \right]$ \newline 
+Ekkor a kimenet egy olyan $R_{s,t_0}:\mathbb{F} \rightarrow [0,+\infty)$ f\"uggv\'eny, amely a frekvencia f\"uggv\'eny\'eben megadja az $s\rvert_{[t_0,t_0+\Delta t]}$ hanghull\'amban az adott frekvenci\'aj\'u r\'eszhang amplit\'ud\'oj\'at, azaz $R_{s,t_0}(f_i) = r_i\quad (i\in [0..N-1])$.
+
+\subparagraph{A r\'eszhang amplit\'ud\'oj\'anak sz\'amol\'asa}
+Az $s_0,\dots,s_{N-1}$ mint\'an diszkr\'et Fourier-transzform\'aci\'ot v\'egezve eredm\'enyk\'ent $N$ darab komplex sz\'amot kapunk. Legyen az eredm\'eny $\vec{h'}=(h_0,\dots,h_{N-1})\in\mathbb{C^N}$. 
+Maga a transzform\'aci\'o az k\"ovetkez\H ok\'eppen van defini\'alva:
+\[
+h_i = \sum_{j=0}^{N-1} s_j \cdot \left[ \cos\left( \frac{2\pi i j}{N} \right) - \imath\cdot\sin\left( \frac{2\pi i j}{N} \right) \right] \text{, ahol $\imath$ az imagin\'arius egys\'eg}
+\]
+Ez alapj\'an a r\'eszhangok tulajdons\'agai:
+\begin{itemize}
+	\item $r_i$ amplit\'ud\'o: $|h_i|=\sqrt{\Re{(h_i)}^2 + \Im{(h_i)}^2}$
+	\item $f_i$ frekvencia: $i$
+	\item $\varphi_i$ f\'azis: 
+\end{itemize}
+
+Val\'os minta eset\'en az eredm\'enyre az al\'abbi szimmetria teljes\"ul:
+\[
+h_i = \conj{h_{N-1-i}} \quad (i\in\left[0..\infrac{N}{2}\right])\text{, ahol $\conj{x}\ (x\in\mathbb C)$ a komplex konjug\'altat jel\"oli}
+\]
+
+
+
 \paragraph{\'Abr\'azol\'as}
-Maga a spektrogram az al\'abbi f\"uggv\'ennyel \'irhat\'o le:
+Maga az $s$ hanghull\'amhoz tartoz\'o spektrogram az al\'abbi f\"uggv\'ennyel \'irhat\'o le:
 \[ \begin{aligned}[rl]
-S&:\mathbb{T}\times\mathbb{F} \rightarrow [0,+\infty), \\
-S&(t,f):=R_{s,t}(f)
+S_s&:\mathbb{T}\times\mathbb{F} \rightarrow [0,+\infty), \\
+S_s&(t,f):=R_{s,t}(f)
 \end{aligned}
 \]
-Ekkor az \'abr\'azol\'as az $S$ f\"uggv\'eny grafikonj\'anak, azaz
+Ekkor az \'abr\'azol\'as megfelel az $S_s$ f\"uggv\'eny grafikonj\'anak, azaz
 \[
-\graf S = \left\{ \big( (t,f) ,S(t,f) \big) : t\in [0,+\infty), f\in\mathbb{F} \right\}
+\graf S_s = \left\{ \big( (t,f) ,S_s(t,f) \big) : t\in [0,+\infty), f\in\mathbb{F} \right\}
 \]
 
