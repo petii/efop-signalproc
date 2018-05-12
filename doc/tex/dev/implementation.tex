@@ -11,8 +11,33 @@ A konstruktor\'aban %TODO
 
 \paragraph{Modell}
 A modell r\'eteg tov\'abbi r\'eszekre bonthat\'o.
+
 \subparagraph{Hangkezel\'es}
+A hang kezel\'es\'et az \code{AudioHandler} oszt\'aly biztos\'itja.
+TODO: interf\'essz\'e alak\'it\'as, \'es k\"ul\"on TestAudioHandler illetve MicAudioHandler.
 
 \subparagraph{Hangfeldolgoz\'as}
+A hangfeldolgoz\'as a specifik\'aci\'oban eml\'itett m\'odon diszkr\'et Fourier-transzform\'aci\'oval t\"ort\'enik, ami a \code{VulkanCompute} oszt\'aly seg\'its\'eg\'evel vide\'ok\'arty\'an t\"ort\'enik.
+A konstruktor\'aban l\'etrehozza a m\H uk\"od\'es\'ehez sz\"uks\'eges eszk\"oz\"oket. 
+\begin{itemize}
+	\item A logikai eszk\"ozt, amin kereszt\"ul a program a fizikai eszk\"ozzel kommunik\'alni tud.
+	\item A logikai eszk\"ozh\"oz tartoz\'o sort, ahova az utas\'it\'asokat lehet k\"uldeni.
+	\item Mem\'ori\'at allok\'al az eszk\"ozon.
+	\item Buffereket hoz l\'etre a mem\'oria el\'er\'es\'ere.
+	\item L\'etrehozza az er\H oforr\'as le\'ir\'okat.
+	\item Bet\"olti a sz\'am\'it\'ast defini\'al\'o shadert.
+	\item Sz\'am\'it\'asi cs\H ovezet\'eket hoz l\'etre.
+	\item Command pool-t kre\'al \'es command buffer-t foglal bel\H ole.
+	\item Felveszi a majd v\'egrehajtand\'o parancsokat a command buffer-be.
+\end{itemize}
+
+Ezek ut\'an haszn\'alatra k\'esz, amely sorrendje:
+\begin{enumerate}
+	\item Adatok felt\"olt\'ese a mem\'ori\'aba a \code{copyDataToGPU} f\"uggv\'eny seg\'its\'eg\'evel.
+	\item A sz\'am\'it\'as futtat\'asa a \code{runCommandBuffer} met\'odus megh\'iv\'asa \'altal.
+	\item A sz\'amolt eredm\'eny kiolvas\'as\'a a \code{readDataFromGPU} f\"uggv\'ennyel.
+\end{enumerate}
+TODO: A sz\'amol\'o \'es a rajzol\'o haszn\'aljon k\"oz\"os mem\'ori\'at.
+
 
 \subparagraph{Rajzol\'as}
