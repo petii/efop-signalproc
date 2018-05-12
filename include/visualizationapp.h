@@ -72,7 +72,7 @@ public:
         mainLoop();
     }
 
-
+private:
     void mainLoop() {
         // Basic idea:
         //     get audio data

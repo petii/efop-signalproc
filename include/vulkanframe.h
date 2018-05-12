@@ -15,6 +15,7 @@
 struct VulkanFrame {
     //used to read in spir-v shaders
     static std::vector<char> readFile(const std::string& filename);
+    //TODO: move to utils!
 
 // private:
     #ifdef NDEBUG

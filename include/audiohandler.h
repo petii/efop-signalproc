@@ -18,10 +18,10 @@
 #include <portaudio.h>
 #include <mutex>
 
-struct AudioHandler {
-    std::random_device rd;
-    std::mt19937 gen;
-    std::uniform_real_distribution<float> dis;
+class AudioHandler {
+    //std::random_device rd;
+    //std::mt19937 gen;
+    //std::uniform_real_distribution<float> dis;
     //std::normal_distribution<float> dis;
     int bufferSize;
     std::vector<char> data;
@@ -35,13 +35,15 @@ struct AudioHandler {
     PaStreamParameters inputParams;
     PaStream *stream;
 
+    std::mutex micMutex;
+public:
     AudioHandler(
             int bufferSize,
             int rate = 44100,
             int channels = 1
     ):
-        gen(rd()),
-        dis(-1.0,1.0),
+        //gen(rd()),
+        //dis(-1.0,1.0),
         bufferSize(bufferSize),
         buffer(bufferSize),
         overlap(bufferSize * 0.2f),
@@ -130,7 +132,7 @@ struct AudioHandler {
         normData.erase(normData.begin(),normData.begin()+(bufferSize-overlap));
         return buffer;
     }
-
+/*
     const std::vector<float>& getNormalizedMockAudio() {
         for (int i = 0; i < overlap; ++i) {
             buffer[i] = buffer[i+overlap];
@@ -146,8 +148,7 @@ struct AudioHandler {
             throw std::runtime_error("Failed to start recording audio!");
         }
     }
-
-    std::mutex micMutex;
+//*/
 
     static int recordCallback(
         const void* input,

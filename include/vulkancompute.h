@@ -6,11 +6,6 @@
 #include "vulkanframe.h"
 #include <cstring>
 
-struct Complex {
-    float real;
-    float imag;
-};
-
 struct VulkanCompute {
     uint32_t windowSize; 
     uint32_t bufferSize;
