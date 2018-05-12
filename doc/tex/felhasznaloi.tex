@@ -1,15 +1,22 @@
 
 \section{Felhaszn\'al\'oi dokument\'aci\'o}
 \subsection{Feladat}
-A program azt feladatot hivatott ell\'atni, hogy valamilyen audio bemenetr\"ol \'erkez\H o jelet feldolgozzon, majd ezt az eredm\'enyt vizu\'alisan megjelen\'itse. Mindezt \'ugy, hogy az id\H o ami eltelik a jel kiad\'asa \'es az eredm\'eny megjelen\'ese k\"oz\"ott minim\'alis legyen.
+A program azt feladatot hivatott ell\'atni, hogy mikrofonbemenetr\"ol \'erkez\H o hangjelet feldolgozzon, majd ezt az eredm\'enyt vizu\'alisan megjelen\'itse. Mindezt \'ugy, hogy az id\H o ami eltelik a jel \'eszlel\'ese \'es az eredm\'eny megjelen\'ese k\"oz\"ott minim\'alis legyen.
 A megjelen\'it\'es egy h\'aromdimenzi\'os spektogramban nyilv\'anul meg. Az $x$-tengelyen az id\H o, az $y$-tengelyen a frekvencia, a $z$-tengelyen pedig az adott frekvenci\'aj\'u hull\'am amplit\'ud\'oja jelenik meg.
 
 \subsection{Technol\'ogia}
 
 \subsection{Hangfeldolgoz\'as}
-A jel feldolgoz\'asa vide\'ok\'arty\'an sz\'amolt diszkr\'et Fourier-transzform\'aci\'oval t\"ort\'enik. A transzform\'aci\'o a hangjelet az id\H o f\"uggv\'eny\'eb\H ol a frekvencia f\"uggv\'eny\'eve alak\'itja. 
+A jel feldolgoz\'asa vide\'ok\'arty\'an v\'egzett diszkr\'et Fourier-transzform\'aci\'oval t\"ort\'enik. A transzform\'aci\'o a hangjelet az id\H o f\"uggv\'eny\'er\H ol a frekvencia f\"uggv\'eny\'eve alak\'itja. 
+
+\subsection{Rendszerk\"ovetelm\'enyek}\label{runrequirements}
+A fejleszt\'es Linuxon, 64 bites AntergOS disztrib\'uci\'on zajlott. Mivel a felhaszn\'alt eszk\"oz\"ok mindegyike cross-platform, \'igy elm\'eletben Windowson is ford\'ithat\'o \'es futtathat\'o a program\footnote{<Vulkan t\'amogatotts\'ag>}, de ez nem ker\"ult tesztel\'esre.
+
+\subsubsection{Vide\'ok\'artya driver}
+A haszn\'alt Linux disztrib\'uci\'o csomagjai k\"oz\"ott \'erdemes a \code{vulkan} kulcssz\'ora r\'akeresni \'es a haszn\'alt hardvernek megfelel\"o csomagot/csomagokat feltelep\'iteni.
+
+\subsubsection{???}
+
 
 \subsection{Futtat\'as}
-
-\subsection{Rendszerk\"ovetelm\'enyek}
-A fejleszt\'es Linuxon, 64 bites AntergOS disztrib\'uci\'on zajlott. Mivel a felhaszn\'alt eszk\"oz\"ok mindegyike cross-platform\footnote{PortAudio, GLFW: Linux, Windows; Vulkan: Linux, Windows, Android}, \'igy elm\'eletben Windowson is ford\'ithat\'o \'es futtathat\'o a program\footnote{<Vulkan t\'amogatotts\'ag>}.
+Ha a futtat\'ashoz sz\"uks\'eges felt\'etelek adottak (\ref{runrequirements}) a program a \code{bin/Release} mapp\'aban tal\'alhat\'o \code{.out} kiterjeszt\'es\H u f\'ajl elind\'it\'as\'aval futtathat\'o. 

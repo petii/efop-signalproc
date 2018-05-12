@@ -15,9 +15,17 @@ s_i := s(x_i) & \text{, ahol } & i\in[1..N],\\
 &&x_j - x_{j-1} = \frac{\Delta t}{N}\ (j\in[2..N] ) 
 \end{array} \)
 \paragraph{Kimenet}
-Egy olyan $R_{s,t_0}:\left[ 0..\frac{N}{2} \right] \rightarrow [0,+\infty)$ f\"uggv\'eny, amely a frekvencia f\"uggv\'eny\'eben megadja az $s\rvert_{[t_0,t_0+\Delta t]}$ hanghull\'amban az adott frekvenci\'aj\'u r\'eszhang amplit\'ud\'oj\'at, azaz $R_{s,t_0}(f_i) = r_i$.
+Legyen $\mathbb{F}:=\left[ 0..\frac{N}{2} \right]$\newline>
+Ekkor a kimenet egy olyan $R_{s,t_0}:\mathbb{F} \rightarrow [0,+\infty)$ f\"uggv\'eny, amely a frekvencia f\"uggv\'eny\'eben megadja az $s\rvert_{[t_0,t_0+\Delta t]}$ hanghull\'amban az adott frekvenci\'aj\'u r\'eszhang amplit\'ud\'oj\'at, azaz $R_{s,t_0}(f_i) = r_i$.
 \paragraph{\'Abr\'azol\'as}
-
-\[
-S(t,f):=\left( t , f , R_{s,t}(f) \right)
+Maga a spektrogram az al\'abbi f\"uggv\'ennyel \'irhat\'o le:
+\[ \begin{aligned}[rl]
+S&:\mathbb{T}\times\mathbb{F} \rightarrow [0,+\infty), \\
+S&(t,f):=R_{s,t}(f)
+\end{aligned}
 \]
+Ekkor az \'abr\'azol\'as az $S$ f\"uggv\'eny grafikonj\'anak, azaz
+\[
+\graf S = \left\{ \big( (t,f) ,S(t,f) \big) : t\in [0,+\infty), f\in\mathbb{F} \right\}
+\]
+
