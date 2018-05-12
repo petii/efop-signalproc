@@ -7,11 +7,11 @@
 #include <string>
 #include <vector>
 
-static void glfwErrorCallback(int error, const char* description){
-    std::cout << "GLFW Error: " << error << " : " << description << std::endl;
-}
-
 struct WindowHandler {
+    static void glfwErrorCallback(int error, const char* description){
+        std::cout << "GLFW Error: " << error << " : " << description << std::endl;
+    }
+
 
     GLFWwindow* window;
 
