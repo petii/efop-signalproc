@@ -115,7 +115,38 @@ A kisz\'amolt amplit\'ud\'o \'ert\'ekeket a \code{VulkanGraphics} oszt\'aly seg\
 Inicializ\'al\'askor a sz\'am\'it\'asi egys\'eghez hasonl\'oan hoz l\'etre a m\H uk\"od\'es\'ehez sz\"uks\'eges eszk\"oz\"oket, csak mivel a megjelen\'it\'es \"osszetettebb feladat, ezek kieg\'esz\"ulnek, illetve m\'odusulnak.
 \begin{itemize}
 	\item L\'etrehoz egy rajzol\'as\'ert felel\H os logikai eszk\"ozt, amin kereszt\"ul a fizikai eszk\"ozzel lehet kommunik\'alni.
-	\item Be\'all\'itja a rajzol\'o \'es a prezent\'al\'o sort.
-	\item L\'etrehoz egy \code{swapchain}-t. Ez felel\H os a bufferek kezel\'es\'e\'ert. A jelenlegi implement\'aci\'o, amennyiben a hardver is t\'amogatja \code{double buffering}-et haszn\'al. Rajzol\'askor a \code{swapchain}-t\H ol kell k\'epet (pontosabban ) k\'erni, amire majd a k\'epkocka ker\"ul.
-	\item 
+	\item Be\'all\'itja a rajzol\'o \'es a prezent\'al\'o sorokat.
+	\item L\'etrehoz egy \code{swapchain}-t. Ez felel\H os a bufferek kezel\'es\'e\'ert. A jelenlegi implement\'aci\'o, amennyiben a hardver is t\'amogatja \code{double buffering}-et haszn\'al. Rajzol\'askor a \code{swapchain}-t\H ol kell k\'epet (pontosabban a k\'ep indexet) k\'erni, amire majd a rajz ker\"ul.
+	\item L\'etrehozza a t\'enyleges k\'epeket, amikre rajzolni lehet.
+	\item Be\'all\'it egy renderel\H o menetet.
+	\item Defini\'alja az er\H oforr\'as le\'ir\'o s\'em\'at.
+	\item Defini\'alja a szerel\H oszalag s\'em\'aj\'at.
+	\item L\'etrehozza a grafikus szerel\H oszalagot.
+	\item L\'etrehozza a \code{frame buffer}-eket, ami \"osszek\"oti a k\'epekkel a renderel\'est.
+	\item L\'etrehozza az utas\'it\'as pool-t.
+	\item Mem\'ori\'at allok\'al az eszk\"oz\"on a vertexeknek, indexeknek \'es a transzform\'aci\'os m\'atrixoknak, majd \"osszekapcsolja \H oket a megfelel\H o bufferekkel.
+	\item Inicializ\'alja az er\H oforr\'asle\'ir\'o pool-t, majd allok\'alja bel\H ole a t\'enyleges er\H oforr\'as le\'ir\'okat.
+	\item Lefoglal az utas\'it\'as pool-b\'ol utas\'it\'as buffert.
+	\item L\'etrehozza a rajzol\'as folyamat\'an a helyes fut\'asi sorrend biztos\'it\'as\'ara haszn\'alt szemaforokat. 
 \end{itemize}
+Miut\'an sikeresen l\'etrej\"ott a \code{VulkanGraphics} objektum, a k\"ovetkez\H o m\'odon t\"ort\'enhet a haszn\'alata.
+\begin{enumerate}
+	\item Az \code{appendVertices} met\'odussal felt\"olti a vertexeket a \code{vertices} vektorba, illetve kisz\'amolja a rajzoland\'o h\'aromsz\"ogek cs\'ucspontvertexeinek indexeit \'es azokat felt\"olti az \code{indices} vektorba.
+	\item Az \code{updateUniformBuffer} f\"uggv\'eny friss\'iti a transzform\'aci\'os m\'atrixokat.
+	\item A \code{drawFrame} elj\'ar\'as pedig kirajzolja az aktu\'alis k\'epkock\'at.
+		\begin{enumerate}
+			\item Elk\'eri a k\'ep index\'et a swapchain-t\H ol. (aszinkron)
+			\item Felt\"olti a \code{vertices} \'es az \code{indices} t\"omb tartalm\'at a a vide\'ok\'artya mem\'ori\'aj\'aba.
+			\item Felveszi a utas\'it\'asbuffer-be a v\'egrehajtand\'o utas\'it\'asokat.
+			\item Elk\"uldi a grafikus sornak az utas\'it\'ast v\'egrehajt\'asra. (aszinkron)
+			\item Felk\'esz\"ul az elk\'esz\"ult k\'ep prezent\'al\'as\'ara, \'es amint a \code{renderFinishedSemaphore} jelez, hogy elk\'esz\"ult a renderel\'es, kirakja megjelen\'it\H o fel\"uletre az elk\'esz\"ult k\'epet.
+		\end{enumerate}
+\end{enumerate}
+
+\paragraph{VulkanFrame}
+\begin{figure}[h]
+	\includegraphics[width=\textwidth]{Model__VulkanFrame_2}
+	\centering
+	\caption{A \code{VulkanFrame} oszt\'alydiagramja}
+\end{figure}
+Ez az oszt\'aly felel\H ose, hogy a sz\'amol\'o \'es a rajzol\'o r\'esz k\"oz\"osen haszn\'alt eszk\"ozeit \"osszefogja. Hozza l\'etre a Vulkan Instance-t, illetve v\'alasztja ki az alkalmaz\'as ig\'enyeinek megfelel\H o fizikai eszk\"ozt. Illetve ez szerzi meg az ablakkezel\H ot\H ol a rajzol\'asi fel\"uletet is, amit majd a rajzol\'o oszt\'aly a prezent\'al\'ashoz haszn\'al.
