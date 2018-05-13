@@ -3,10 +3,11 @@
 \subsubsection{El\H ok\"ovetelm\'enyek}
 \paragraph{Vide\'ok\'artya driver}
 L\'asd \ref{gpudriver}.
+Amennyiben a Vulkan SDK (\ref{vulkansdk}) telep\'it\'esre ker\"ul, abban megtal\'alhat\'o a bet\"olt\H o r\'eteg.
 %A haszn\'alt Linux disztrib\'uci\'o csomagjai k\"oz\"ott \'erdemes a \code{vulkan} kulcssz\'ora r\'akeresni \'es a haszn\'alt hardvernek megfelel\"o csomagot/csomagokat feltelep\'iteni.
 
 \paragraph{GLFW}
-A megjelen\'it\H o ablak kezel\'es\'ere a GLFW k\"onyvt\'arat haszn\'alom. Ez szint\'en telep\'ithet\H o csomag a legt\"obb Linux disztrib\'uci\'oban, vagy a weboldalukr\'ol let\"olthet\H o \'es telep\'it\'esi \'utmutat\'as is megtal\'alhat\'o. \url{http://www.glfw.org/download.html}
+A megjelen\'it\H o ablak kezel\'es\'ere a GLFW k\"onyvt\'arat haszn\'alom. Ez szint\'en telep\'ithet\H o csomag a legt\"obb Linux disztrib\'uci\'oban, vagy a \href{http://www.glfw.org/download.html}{weboldalukr\'ol} let\"olthet\H o \'es telep\'it\'esi \'utmutat\'as is megtal\'alhat\'o. 
 
 \paragraph{PortAudio}
 Csomagkezel\H o
@@ -15,9 +16,9 @@ Csomagkezel\H o
 Az OpenGL-b\H ol ismer\H os matematikai k\"onyvt\'ar. 
 A telep\'it\'ese t\"ort\'enhet csomagkezel\H on kereszt\"ul, vagy mivel csak fejl\'eceket tartalmaz\'o k\"onyvt\'ar, a megfelel\H o helyre let\"olt\'essel.
 
-\paragraph{Vulkan SDK}
+\paragraph{Vulkan SDK}\label{vulkansdk}
 \subparagraph{Bevezet\H o}
-A LunarG Vulkan SDK sz\'amos elengedhetetlen eszk\"ozt tartalmaz. K\"ozt"uk a sz\"uks\'eges fejl\'eceket, a standard valid\'aci\'os r\'etegeket, debuggol\'o eszk\"oz\"oket \'es a Vulkan f\"uggv\'enyek bet\"olt\H oj\'et. 
+A LunarG Vulkan SDK sz\'amos elengedhetetlen eszk\"ozt tartalmaz. K\"ozt\"uk a sz\"uks\'eges fejl\'eceket, a standard valid\'aci\'os r\'etegeket, debuggol\'o eszk\"oz\"oket \'es a Vulkan f\"uggv\'enyek bet\"olt\H oj\'et.
 \subparagraph{Telep\'it\'es}
 A haszn\'alt Linux disztrib\'uci\'o csomagjai k\"oz\"ott val\'osz\'in\"uleg megtal\'alhat\'oak fejleszt\'eshez sz\"uks\'eges csomagok. 
 \newline
@@ -25,18 +26,49 @@ Ellenkez\H o esetben a weboldalr\'ol (\url{https://vulkan.lunarg.com/sdk/home}) 
 A script futtat\'asa ut\'an lesz egy \code{VulkanSDK} mappa az adott k\"onyvt\'arban.
 Az ebben tal\'alhat\'o \code{Getting\_Started.html} f\'ajl j\'o kiindul\'opont a tov\'abbiakhoz.
 A \code{setup-env.sh} script automatikusan be\'all\'itja a sz\"uks\'eges k\"ornyezeti v\'altoz\'okat.
-\subparagraph{Tesztel\'es}
+\subparagraph{Telep\'it\'es tesztel\'ese}
 Ezek ut\'an a \code{vulkaninfo}\footnote{A \code{vulkaninfo --html} paranccsal egy k\"onnyeben b\"ong\'eszhet\H o weboldalt kapunk kimenetnek.} parancsot kiadva inform\'aci\'okat kaphatunk a rendszer\"unk k\'epess\'egeir\H ol, illetve tesztelhetj\"uk az SDK telep\'it\'es\'enek sikeress\'eg\'et. 
 \'Erdemes lehet tov\'abb\'a p\'eldaprogramokat is lefuttatni. A \code{build\_examples.sh} script leford\'itja a p\'eldaprogramokat, amik ut\'ana a \code{examples/build/} k\"onyvt\'arban megtal\'alhat\'oak. (\code{cube, cubepp})
 
-\subsubsection{Projekt szerkezet}
-Mapp\'ak
+\subsubsection{Projekt strukt\'ura}
+A gy\"ok\'er k\"onyvt\'ar tartalma:
+\begin{itemize}
+	\item \code{bin}: A leford\'itott futtathat\'o \'allom\'anyok
+	\item \code{doc}: Ennek a dokumentumnak a \LaTeX forr\'asf\'ajljai
+	\item \code{include}: Az alkalmaz\'as header f\'ajljai (\code{*.h})
+	\item \code{src}: Az alkalmaz\'as forr\'asf\'ajljai
+	\item \code{test}: Tesztel\'eshez haszn\'alt f\'ajlok
+	\item \code{.clang\_complete}: Sz\"ovegszerkeszt\H oh\"oz autocomplete \'es linter plugin configur\'aci\'os f\'ajlja
+	\item \code{.git}, \code{.gitignore}: Verzi\'okezel\H o f\'ajljai
+	\item \code{README.md}: GitHub-ra "olvass el" f\'ajl
+\end{itemize}
+
+\paragraph{\code{bin} k\"onyvt\'ar}
+Itt tov\'abbi k\'et alk\"onyvt\'ar tal\'alhat\'o: \code{debug} \'es \code{release). Az el\"obbiben a debug m\'odban ford\'itott alkalmaz\'as, tal\'alhat\'o, amely annyit jelent, hogy gener\'al a \code{gdb} debuggernek plusz inform\'aci\'okat, illetve enged\'elyezi a Vulkan SDK valid\'aci\'os r\'etegeit.
+Az ut\'obbiba a release m\'odban ford\'itott alkalmaz\'as ker\"ul. Ez valamivel gyorsabb fut\'ast jelent, cser\'eben az esetleges bugok eset\'en az alkalmaz\'as jobb esetben fut tov\'abb, rosszabb esetben \"osszeomlik, mindenf\'ele inform\'aci\'o a mi\'ertj\'er\H ol mell\H ozve.(\ref{compileoptions})
+
+\paragraph{\code{doc} k\"onyvt\'ar}
+A dokument\'aci\'o alapj\'aul az itt tal\'alhat\'o GitHub repository szolg\'alt: \url{https://github.com/shdnx/ELTE-LaTeX-Thesis-Base}
+
+Amiben kieg\'esz\"ult az a projekt:
+\begin{itemize}
+	\item A \code{szakdolgozat.tex} f\'ajlba \'uj parancsokat vettem fel.
+	\item Az \code{uml} k\"onyvt\'arban egy StarUML projekt, a \code{uml/png} k\"onyvt\'arban pedig az UML diagramok tal\'alhat\'oak \code{png} form\'atumban.
+	\item A \code{tex} mapp\'aban a tartalmat tov\'abb daraboltam, hogy kisebb, k\"onnyebben \'atl\'athat\'o f\'ajlok rem\'eny\'eben.
+		\begin{itemize}
+			\item A \code{tex/dev} mapp\'aban tal\'alhat\'oak a fejleszt\H oi dokument\'aci\'o egyes r\'eszei.
+		\end{itemize}
+\end{itemize}
+
+\paragraph{\code{src} k\"onyvt\'ar}
+Ebben a k\"onyvt\'arban tal\'alhat\'oak a ford\'it\'asi egys\'egek.
+Tov\'abba itt vannak m\'eg a shaderek is az \code{src/shaders} k\"onyvt\'arban.
+A shaderekr\H ol tov\'abbiakat a \ref{shadercompilation} r\'eszben lehet olvasni.
 
 \subsubsection{Ford\'it\'as}
-A program gy\"ok\'erk\"onyvt\'ar\'aban vagyunk
-a \code{make} parancs kiad\'as\'aval a k\"ovetkez\H ok t\"ort\'ennek:
+A program gy\"ok\'erk\"onyvt\'ar\'aban a \code{make} parancs kiad\'as\'aval a k\"ovetkez\H ok t\"ort\'ennek:
 \begin{enumerate}
-	\item Leford\'itjuk a shadereket (ld. \ref{shadercompilation})
+	\item Leford\'itjuk a                                                                            shadereket (ld. \ref{shadercompilation})
 	\item Leford\'itjuk a programot (ld. \ref{compileoptions})
 \end{enumerate}
 
@@ -71,5 +103,5 @@ A GLSL shaderek ford\'it\'asa \'igy t\"obbf\'elek\'eppen is t\"ort\'enhet:
 		A \code{Makefile}-ban defini\'alt parancs, leford\'tja az \"osszes shadert a \code{src/shaders} mapp\'aban.
 	\item \code{glslangValidator -V src/shaders/<shader neve>.<shader t\'ipusa>} \newline
 		A \code{-V} kapcsol\'o mondja meg, hogy gener\'aljon is SPIR-V shadert, an\'elk\"ul csak ellen\H orzi a k\'odot, hogy megfelel-e az implement\'alt szabv\'anynak.
-		A shader t\'ipusa alapj\'an 
+		A shader t\'ipusa alapj\'an az eredm\'enyezett f\'ajl \code{<shader t\'ipusa>.spv} alak\'u. A programba ez alapj\'an a n\'ev lesz bet\"oltve. 
 \end{itemize}
