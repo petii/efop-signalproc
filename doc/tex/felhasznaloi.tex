@@ -2,21 +2,49 @@
 \section{Felhaszn\'al\'oi dokument\'aci\'o}
 \subsection{Feladat}
 A program azt feladatot hivatott ell\'atni, hogy mikrofonbemenetr\"ol \'erkez\H o hangjelet feldolgozzon, majd ezt az eredm\'enyt vizu\'alisan megjelen\'itse. Mindezt \'ugy, hogy az id\H o ami eltelik a jel \'eszlel\'ese \'es az eredm\'eny megjelen\'ese k\"oz\"ott minim\'alis legyen.
-A megjelen\'it\'es egy h\'aromdimenzi\'os spektogramban nyilv\'anul meg. Az $x$-tengelyen az id\H o, az $y$-tengelyen a frekvencia, a $z$-tengelyen pedig az adott frekvenci\'aj\'u hull\'am amplit\'ud\'oja jelenik meg.
 
-\subsection{Technol\'ogia}
+A megjelen\'it\'es egy h\'aromdimenzi\'os spektogramon t\"ort\'enik. Ezen az $x$-tengelyen az id\H o, az $y$-tengelyen a frekvencia, a $z$-tengelyen pedig a hangban tal\'alt adott frekvenci\'aj\'u hull\'am amplit\'ud\'oja jelenik meg.
 
 \subsection{Hangfeldolgoz\'as}
 A jel feldolgoz\'asa vide\'ok\'arty\'an v\'egzett diszkr\'et Fourier-transzform\'aci\'oval t\"ort\'enik. A transzform\'aci\'o a hangjelet az id\H o f\"uggv\'eny\'er\H ol a frekvencia f\"uggv\'eny\'eve alak\'itja. 
 
+
+\subsection{Technol\'ogi\'ak}
+\subsubsection{Megjelen\'it\'es}
+Az alkalmaz\'as egy darab megjelen\'it\H o ablakb\'ol \'all. Az ablakkezel\'es\'ert a GLFW cross-platform k\"onyvt\'ar felel\H os.
+TODO: k\'ep a fut\'asr\'ol
+
+\subsubsection{Hangkezel\'es}
+A mikrofon bemenet kezel\'es\'et a PortAudio cross-platform k\"onyvt\'ar v\'egzi. Ezt haszn\'alja t\"obbek k\"oz\"ott az Audacity hangfelvev\H o \'es v\'ag\'o program.
+
+\subsubsection{Vide\'ok\'artya kezel\'es}
+A vide\'ok\'arty\'aval val\'o munk\'at a Vulkan cross-platform sz\'am\'it\'asi \'es grafikai API teszi lehet\H ov\'e. A program keret\'eben az API mindk\'et funkcionalit\'asa felhaszn\'al\'asra ker\"ult.
+
 \subsection{Rendszerk\"ovetelm\'enyek}\label{runrequirements}
-A fejleszt\'es Linuxon, 64 bites AntergOS disztrib\'uci\'on zajlott. Mivel a felhaszn\'alt eszk\"oz\"ok mindegyike cross-platform, \'igy elm\'eletben Windowson is ford\'ithat\'o \'es futtathat\'o a program\footnote{<Vulkan t\'amogatotts\'ag>}, de ez nem ker\"ult tesztel\'esre.
+A fejleszt\'es Linuxon, 64 bites AntergOS disztrib\'uci\'on zajlott. 
+\newline
+K\'et konfigur\'aci\'on lett tesztelve:
+\begin{itemize}
+	\item Egy asztali g\'epen
+		\begin{itemize}
+			\item Intel Core-i5 4460
+			\item NVIDIA GeForce GTX 960
+		\end{itemize}
+	\item Egy laptopon
+		\begin{itemize}
+			\item Intel Core-i5 4300U
+			\item Intel HD Graphics 4400
+		\end{itemize}
+\end{itemize}
 
-\subsubsection{Vide\'ok\'artya driver}
-A haszn\'alt Linux disztrib\'uci\'o csomagjai k\"oz\"ott \'erdemes a \code{vulkan} kulcssz\'ora r\'akeresni \'es a haszn\'alt hardvernek megfelel\"o csomagot/csomagokat feltelep\'iteni.
+Mivel a felhaszn\'alt eszk\"oz\"ok mindegyike cross-platform, \'igy elm\'eletben Windowson is ford\'ithat\'o \'es futtathat\'o a program, de ez nem ker\"ult tesztel\'esre.
 
-\subsubsection{???}
+\subsubsection{Vide\'ok\'artya driver}\label{gpudriver}
+A Vulkan API t\'amogatotts\'ag\'arol sz\'ol\'o t\'abl\'azat \href{https://en.wikipedia.org/wiki/Vulkan_(API)\#Compatibility}{itt} tal\'alhat\'o.
 
+A haszn\'alt Linux disztrib\'uci\'o csomagjai k\"oz\"ott \'erdemes a \code{vulkan} kulcssz\'ora r\'akeresni \'es a haszn\'alt hardvernek megfelel\"o csomagot/csomagokat feltelep\'iteni, vagy a gy\'art\'o oldal\'ar\H ol a legfrissebb drivert feltelep\'iteni.
+
+Tov\'abba Vulkan alkalmaz\'asok futtat\'as\'ahoz kell a Vulkan r\'eteg-\'es driver kezel\H o konyvt\'ar. (Debian alap\'u rendszereken \code{libvulkan1}, Arch alap\'uakon \code{vulkan-icd-loader}).
 
 \subsection{Futtat\'as}
 Ha a futtat\'ashoz sz\"uks\'eges felt\'etelek adottak (\ref{runrequirements}) a program a \code{bin/Release} mapp\'aban tal\'alhat\'o \code{.out} kiterjeszt\'es\H u f\'ajl elind\'it\'as\'aval futtathat\'o. 
