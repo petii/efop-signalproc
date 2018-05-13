@@ -142,13 +142,12 @@ public:
         }
         return buffer;
     }
-
+//*/
     void startRecording() {
         if (Pa_StartStream(stream) != paNoError) {
             throw std::runtime_error("Failed to start recording audio!");
         }
     }
-//*/
 
     static int recordCallback(
         const void* input,

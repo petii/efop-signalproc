@@ -5,7 +5,7 @@
 Az alkalmaz\'as k\'etr\'eteg\H u modell-n\'ezet architekt\'ura szerint k\'esz\"ult.
 Ezek m\H uk\"od\'es\'et a \code{VisaulizationApplication} oszt\'aly k\"oti \"ossze \'es ir\'any\'itja.
 
-\paragraph{Alkalmaz\'as}
+\subsubsection{Alkalmaz\'as}
 \begin{figure}[h]
 	\includegraphics[width=\textwidth]{VisualizationApplication__VisualizationApp_0}
 	\centering
@@ -19,9 +19,9 @@ Maga az alkalmaz\'as a k\"ovetkez\H o v\'altoz\'okon kereszt\"ul param\'eterezhe
 	\item \code{windowSize}: mekkora legyen a minta, amit elemz\"unk; a specifik\'aci\'oban $N$
 \end{itemize}
 
-\paragraph{N\'ezet}
+\subsubsection{N\'ezet}
 \begin{figure}[h]
-	\includegraphics[width=\textwidth]{View__ViewClassDiagram_2}
+	\includegraphics[width=\textwidth]{View__ViewClassDiagram_7}
 	\centering
 	\caption{A n\'ezet r\'eteg}
 \end{figure}
@@ -30,17 +30,59 @@ Ezt a \code{WindowHandler} oszt\'aly biztos\'itja, a GLFW k\"onyvt\'ar seg\'its\
 A konstruktor\'aban inicializ\'alja a GLFW-t, l\'etrehozza \'es be\'all\'itja az ablakot, be\'all\'itja a hibakezel\H o f\"uggv\'eny\'et. \newline
 A \code{getGLFWextensions} f\"uggv\'ennyel inform\'aci\'ot szerezhet\"unk a k\"onyvt\'art\'ol, hogy milyen kieg\'esz\'it\H o funkcionalit\'asokra lesz sz\"uks\'eg\"unk a z\"okken\H omentes m\H uk\"od\'eshez. Ezt felhaszn\'aljuk amikor egy kompatibilis fizikai eszk\"ozt keres\"unk.
 
-\paragraph{Modell}
-A modell r\'eteg tov\'abbi r\'eszekre bonthat\'o.
+\subsubsection{Modell}
 \begin{figure}[h]
-	\includegraphics{}
+	\includegraphics[width=\textwidth]{Model__ModelClassDiagram_1}
+	\centering
+	\caption{A modell r\'eteg kapcsolati \'abr\'aja}
 \end{figure}
+A modell r\'eteg tov\'abbi r\'eszekre bonthat\'o.
 
-\subparagraph{Hangkezel\'es}
+\paragraph{Hangkezel\'es}
+\begin{figure}[h]
+	\includegraphics[width=\textwidth]{Model__AudioHandler_5}
+	\centering
+	\caption{Az \code{AudioHander} oszt\'alydiagramja}
+\end{figure}
 A hang kezel\'es\'et az \code{AudioHandler} oszt\'aly biztos\'itja.
+A konstruktor\'aban lefoglal a t\'arol\'oknak helyet \'es inicializ\'alja a \code{PortAudio} k\"onyvt\'art.
+H\'arom param\'eterrel tudjuk a m\H uk\"od\'es\'et finomhangolni:
+\begin{itemize}
+	\item A buffer m\'erete
+	\item A mintav\'etelez\'esi r\'ata
+	\item H\'any csatorn\'an t\"ort\'enik a mintav\'etelez\'es
+\end{itemize}
+Az ut\'obbi kett\"onek csak mikrofonbemenet haszn\'alata eset\'en van jelent\H os\'ege.
+Az \code{overlap} adattag azt szab\'alyozza, hogy a v\'etlezett mint\'ak mekkora fed\'esben legyenek. $\code{overlap}\in[0..\code{bufferSize})$
+TODO: a r\'at\'at belevenni a f\'ajlbeolvas\'asba
+\newline
+Ezek ut\'an h\'aromf\'elek\'epp tud hangadatot szolg\'altatni:
+\begin{enumerate}
+	\item Harmonikus rezg\'esek line\'aris kombin\'aci\'ojak\'ent el\"o\'all\'it egy mesters\'eges \"osszetett hangot
+		\begin{enumerate}
+			\item A \code{generateTestAudio} f\"uggv\'enynek megadjuk, hogy mekkora intervallumon milyen frekvenci\'aj\'u \'es amplit\'ud\'oj\'u harmonikus rezg\'eseket \'all\'itson el\H o
+			\item Majd a \code{getNormalizedTestAudio} f\"uggv\'ennyel tudjuk az el\H o\'all\'itott hang egy prefix\'et elk\'erni. A f\"uggv\'eny t\"orli ezt a prefixet.
+		\end{enumerate}
+	\item M\'ar l\'etez\H o \code{wav} f\'ajlt bet\"olt hangbemenetk\'ent
+		\begin{enumerate}
+			\item A \code{loadTestWAV} f\"uggv\'ennyel beolvassa a f\'ajlt.
+			\item A \code{getNormalizedTestAudio} f\"uggv\'ennyel a beolvasott f\'ajlt egy prefix\'et elk\'erni. A f\"uggv\'eny t\"orli ezt a prefixet.
+		\end{enumerate}
+	\item Mikrofon \'altal \'eszlelt hangot haszn\'aljon.
+		\begin{enumerate}
+			\item A \code{startRecording} met\'odussal elind\'itja a PortAudio streamet.
+			\item Ezut\'an a \code{getMicrophoneAudio} f\"uggv\'ennyel tudunk az \'eszlelt adatb\'ol olvasni.
+		\end{enumerate}
+\end{enumerate} 
+
 TODO: interf\'essz\'e alak\'it\'as, \'es k\"ul\"on TestAudioHandler illetve MicAudioHandler.
 
-\subparagraph{Hangfeldolgoz\'as}
+\paragraph{Hangfeldolgoz\'as}
+\begin{figure}[h]
+	\includegraphics[width=\textwidth]{Model__VulkanCompute_3}
+	\centering
+	\caption{A \code{VulkanCompute} oszt\'alydiagramja}
+\end{figure}
 A hangfeldolgoz\'as a specifik\'aci\'oban eml\'itett m\'odon diszkr\'et Fourier-transzform\'aci\'oval t\"ort\'enik, ami a \code{VulkanCompute} oszt\'aly seg\'its\'eg\'evel vide\'ok\'arty\'an t\"ort\'enik.
 A konstruktor\'aban l\'etrehozza a m\H uk\"od\'es\'ehez sz\"uks\'eges eszk\"oz\"oket. 
 \begin{itemize}
@@ -50,12 +92,12 @@ A konstruktor\'aban l\'etrehozza a m\H uk\"od\'es\'ehez sz\"uks\'eges eszk\"oz\"
 	\item Buffereket hoz l\'etre a mem\'oria el\'er\'es\'ere.
 	\item L\'etrehozza az er\H oforr\'as le\'ir\'okat.
 	\item Bet\"olti a sz\'am\'it\'ast defini\'al\'o shadert.
-	\item Sz\'am\'it\'asi cs\H ovezet\'eket hoz l\'etre.
+	\item Sz\'am\'it\'asi szerel\H oszalagot hoz l\'etre.
 	\item Command pool-t kre\'al \'es command buffer-t foglal bel\H ole.
 	\item Felveszi a majd v\'egrehajtand\'o parancsokat a command buffer-be.
 \end{itemize}
 
-Ezek ut\'an haszn\'alatra k\'esz, amely sorrendje:
+Ezek ut\'an haszn\'alatra k\'esz, amely a k\"ovetkez\H o sorrendben t\"ort\'enik:
 \begin{enumerate}
 	\item Adatok felt\"olt\'ese a mem\'ori\'aba a \code{copyDataToGPU} f\"uggv\'eny seg\'its\'eg\'evel.
 	\item A sz\'am\'it\'as futtat\'asa a \code{runCommandBuffer} met\'odus megh\'iv\'asa \'altal.
@@ -63,4 +105,17 @@ Ezek ut\'an haszn\'alatra k\'esz, amely sorrendje:
 \end{enumerate}
 TODO: A sz\'amol\'o \'es a rajzol\'o haszn\'aljon k\"oz\"os mem\'ori\'at.
 
-\subparagraph{Rajzol\'as}
+\paragraph{Rajzol\'as}
+\begin{figure}[h]
+	\includegraphics[width=\textwidth]{Model__VulkanGraphics_4}
+	\centering
+	\caption{A \code{VulkanGraphics} oszt\'alydiagramja}
+\end{figure}
+A kisz\'amolt amplit\'ud\'o \'ert\'ekeket a \code{VulkanGraphics} oszt\'aly seg\'its\'egevel tudjuk az ablakon megjelen\H o rajzz\'a alak\'itani. 
+Inicializ\'al\'askor a sz\'am\'it\'asi egys\'eghez hasonl\'oan hoz l\'etre a m\H uk\"od\'es\'ehez sz\"uks\'eges eszk\"oz\"oket, csak mivel a megjelen\'it\'es \"osszetettebb feladat, ezek kieg\'esz\"ulnek, illetve m\'odusulnak.
+\begin{itemize}
+	\item L\'etrehoz egy rajzol\'as\'ert felel\H os logikai eszk\"ozt, amin kereszt\"ul a fizikai eszk\"ozzel lehet kommunik\'alni.
+	\item Be\'all\'itja a rajzol\'o \'es a prezent\'al\'o sort.
+	\item L\'etrehoz egy \code{swapchain}-t. Ez felel\H os a bufferek kezel\'es\'e\'ert. A jelenlegi implement\'aci\'o, amennyiben a hardver is t\'amogatja \code{double buffering}-et haszn\'al. Rajzol\'askor a \code{swapchain}-t\H ol kell k\'epet (pontosabban ) k\'erni, amire majd a k\'epkocka ker\"ul.
+	\item 
+\end{itemize}
