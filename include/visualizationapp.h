@@ -108,7 +108,7 @@ private:
             vkDeviceWaitIdle(vc.device);
             auto result = vc.readDataFromGPU();
             //auto res = (vc.readDataFromGPU());
-            std::copy(zeros.begin(),zeros.end(),result.begin());
+            //std::copy(zeros.begin(),zeros.end(),result.begin());
             //auto result = normalizeResults(res);
             //for (int i = 0 ; i < result.size(); ++i) {
             //for (int i = 0 ; i < 100 ;++i) {

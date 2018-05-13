@@ -496,46 +496,7 @@ void VulkanGraphics::createSemaphores() {
     }
 }
 
-void VulkanGraphics::drawFrame(){
-    //acquire swapchain image (async)
-    uint32_t imageIndex = 123456;
-    VkResult result = vkAcquireNextImageKHR(device, swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
-
-    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-        // recreateSwapChain();
-        std::cout << "should recreate swapchain\n";
-        return;
-    } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-        throw std::runtime_error("failed to acquire swap chain image!");
-    }
-    //upload vertex data into memory
-    //TODO: figure out a better way of doing this
-    int bufferSize = sizeof(vertices[0]) * vertices.size();
-    void* data;
-    vkMapMemory(device, vertexBufferMemory, 0, bufferSize, 0, &data);
-    std::memcpy(data, vertices.data(), (size_t) bufferSize);
-    vkUnmapMemory(device, vertexBufferMemory);
-    //upload indices to memory
-    //TODO: same as vertex
-    //generate index vector
-    //std::vector<uint16_t> indices;
-    //int offset = VulkanGraphics::rowSize;
-    //for (int i = 0; i < vertices.size()/offset-1; ++i) {
-        ////i : which column
-        //for (int j = 0; j < offset-1; ++j) {
-            //indices.push_back(i);
-            //indices.push_back(i+offset);
-            //indices.push_back(i+offset+1);
-            //indices.push_back(i);
-            //indices.push_back(i+offset+1);
-            //indices.push_back(i+1);
-        //}
-    //}
-    // void* data;
-    bufferSize = sizeof(indices[0]) * indices.size();
-    vkMapMemory(device, indexBufferMemory, 0, bufferSize, 0, &data);
-    std::memcpy(data, indices.data(), (size_t) bufferSize);
-    vkUnmapMemory(device, indexBufferMemory);
+void VulkanGraphics::recordCommandBuffer(uint32_t imageIndex) {
     //record commands into command buffer
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -543,9 +504,6 @@ void VulkanGraphics::drawFrame(){
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     //TODO: error handling
     vkBeginCommandBuffer(commandBuffer, &beginInfo);
-    //let's hope the image index is ready
-    //std::cout << imageIndex << std::endl ;
-    //
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = renderPass;
@@ -592,6 +550,39 @@ void VulkanGraphics::drawFrame(){
     vkCmdEndRenderPass(commandBuffer);
     //TODO: error handling
     vkEndCommandBuffer(commandBuffer);
+}
+
+void VulkanGraphics::drawFrame(){
+    //acquire swapchain image (async)
+    uint32_t imageIndex = 123456;
+    VkResult result = vkAcquireNextImageKHR(device, swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        // recreateSwapChain();
+        std::cout << "should recreate swapchain\n";
+        return;
+    } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        throw std::runtime_error("failed to acquire swap chain image!");
+    }
+    //upload vertex data into memory
+    //TODO: figure out a better way of doing this
+    int bufferSize = sizeof(vertices[0]) * vertices.size();
+    void* data;
+    vkMapMemory(device, vertexBufferMemory, 0, bufferSize, 0, &data);
+    std::memcpy(data, vertices.data(), (size_t) bufferSize);
+    vkUnmapMemory(device, vertexBufferMemory);
+    //upload indices to memory
+    //TODO: same as vertex
+    // void* data;
+    bufferSize = sizeof(indices[0]) * indices.size();
+    vkMapMemory(device, indexBufferMemory, 0, bufferSize, 0, &data);
+    std::memcpy(data, indices.data(), (size_t) bufferSize);
+    vkUnmapMemory(device, indexBufferMemory);
+    //record commands into command buffer
+    //let's hope the image index is ready
+    //std::cout << imageIndex << std::endl ;
+    //
+    recordCommandBuffer(imageIndex);
     //draw command buffer
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -633,13 +624,7 @@ void VulkanGraphics::drawFrame(){
     } else if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");
     }
-    //delte buffers
-    //TODO: this probably becomes obsolete if buffer usage changes
     vkDeviceWaitIdle(device);
-    //vkDestroyBuffer(device,vertexBuffer,nullptr);
-    //vkDestroyBuffer(device,indexBuffer,nullptr);
-    //vkFreeMemory(device,vertexBufferMemory,nullptr);
-    //vkFreeMemory(device,indexBufferMemory,nullptr);
     //validation layer requires to be in sync with graphics
     if (VulkanFrame::enableValidationLayers) {
         vkQueueWaitIdle(presentQueue);

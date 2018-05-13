@@ -174,7 +174,6 @@ struct VulkanGraphics {
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
 
-    void recordCommandBuffer();
 
     void drawFrame();
 
@@ -222,6 +221,8 @@ struct VulkanGraphics {
         }
     }
 private:
+    void recordCommandBuffer(uint32_t);
+
     void createGraphicsLogicalDevice(const VkPhysicalDevice&,const std::vector<const char*>&);
     void createSwapChain(const VulkanFrame&);
     void createImageViews();
