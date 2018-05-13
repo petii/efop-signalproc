@@ -54,7 +54,7 @@ H\'arom param\'eterrel tudjuk a m\H uk\"od\'es\'et finomhangolni:
 \end{itemize}
 Az ut\'obbi kett\"onek csak mikrofonbemenet haszn\'alata eset\'en van jelent\H os\'ege.
 Az \code{overlap} adattag azt szab\'alyozza, hogy a v\'etlezett mint\'ak mekkora fed\'esben legyenek. $\code{overlap}\in[0..\code{bufferSize})$
-TODO: a r\'at\'at belevenni a f\'ajlbeolvas\'asba
+%TODO: a r\'at\'at belevenni a f\'ajlbeolvas\'asba
 \newline
 Ezek ut\'an h\'aromf\'elek\'epp tud hangadatot szolg\'altatni:
 \begin{enumerate}
@@ -75,7 +75,6 @@ Ezek ut\'an h\'aromf\'elek\'epp tud hangadatot szolg\'altatni:
 		\end{enumerate}
 \end{enumerate} 
 
-TODO: interf\'essz\'e alak\'it\'as, \'es k\"ul\"on TestAudioHandler illetve MicAudioHandler.
 
 \paragraph{Hangfeldolgoz\'as}
 \begin{figure}[h]
@@ -103,7 +102,6 @@ Ezek ut\'an haszn\'alatra k\'esz, amely a k\"ovetkez\H o sorrendben t\"ort\'enik
 	\item A sz\'am\'it\'as futtat\'asa a \code{runCommandBuffer} met\'odus megh\'iv\'asa \'altal.
 	\item A sz\'amolt eredm\'eny kiolvas\'as\'a a \code{readDataFromGPU} f\"uggv\'ennyel.
 \end{enumerate}
-TODO: A sz\'amol\'o \'es a rajzol\'o haszn\'aljon k\"oz\"os mem\'ori\'at.
 
 \paragraph{Rajzol\'as}
 \begin{figure}[h]
@@ -170,4 +168,10 @@ Vulkan mem\'oriakezel\'es\'e\'ert felel\H os met\'odusok.
 A swapchain l\'etrehoz\'as\'at seg\'iteni hivatott elj\'ar\'asok \'es f\"uggv\'enyek.
 
 \subsubsection{Fejleszt\'esi lehet\H os\'egek}
-Hol is kezdjem...
+A forr\'asf\'ajlokban \code{//TODO:...} kommentekkel jeleztem a k\"ul\"onb\"oz\H o j\"ov\H obeli fejleszt\'esi lehet\H os\'egeket. Ezek k\"oz\"ott vannak kisebb \'es nagyobb m\'ert\'ek\H uek. 
+Itt kiemelek n\'eh\'anyat a teljess\'eg ig\'enye n\'elk\"ul:
+\begin{itemize}
+	\item Az \code{AudioHandler} oszt\'aly absztrah\'al\'asa, \'igy p\'eld\'aul k\"ul\"onbontani a tesztel\'es, \'es a val\'odi mikrofonbemenet r\'eszt. \newline
+	M\'asik lehet\H os\'eg, hogy a tesztel\'es r\'esz\'et teljesen kivenni, \'es tesztelni a rendszer be\'all\'it\'as\'aval, hogy az audio outputot audio inputk\'ent is kezelje, ez\'altal biztos\'itani, hogy a program determinisztikuss\'ag\'at.
+	\item NVIDIA fejleszt\H ok \href{https://developer.nvidia.com/vulkan-memory-management}{javaslata} alapj\'an a k\"ul\"onb\"oz\H o Vulkan komponensek haszn\'aljanak k\"oz\"os mem\'ori\'at illetve buffereket, eltol\'asokat haszn\'alva, a hat\'ekonys\'ag jav\'it\'asa \'erdek\'eben.
+\end{itemize}

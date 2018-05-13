@@ -10,7 +10,7 @@ Amennyiben a Vulkan SDK (\ref{vulkansdk}) telep\'it\'esre ker\"ul, abban megtal\
 A megjelen\'it\H o ablak kezel\'es\'ere a GLFW k\"onyvt\'arat haszn\'alom. Ez szint\'en telep\'ithet\H o csomag a legt\"obb Linux disztrib\'uci\'oban, vagy a \href{http://www.glfw.org/download.html}{weboldalukr\'ol} let\"olthet\H o \'es telep\'it\'esi \'utmutat\'as is megtal\'alhat\'o. 
 
 \paragraph{PortAudio}
-Csomagkezel\H o
+A let\"olt\'ese t\"ort\'enhet csomagkeze\H ob\H ol, vagy a \href{http://www.portaudio.com/download.html}{weboldalukr\'ol}.
 
 \paragraph{GLM}
 Az OpenGL-b\H ol ismer\H os matematikai k\"onyvt\'ar. 
@@ -44,7 +44,7 @@ A gy\"ok\'er k\"onyvt\'ar tartalma:
 \end{itemize}
 
 \paragraph{\code{bin} k\"onyvt\'ar}
-Itt tov\'abbi k\'et alk\"onyvt\'ar tal\'alhat\'o: \code{debug} \'es \code{release). Az el\"obbiben a debug m\'odban ford\'itott alkalmaz\'as, tal\'alhat\'o, amely annyit jelent, hogy gener\'al a \code{gdb} debuggernek plusz inform\'aci\'okat, illetve enged\'elyezi a Vulkan SDK valid\'aci\'os r\'etegeit.
+Itt tov\'abbi k\'et alk\"onyvt\'ar tal\'alhat\'o: \code{debug} \'es \code{release}. Az el\"obbiben a debug m\'odban ford\'itott alkalmaz\'as, tal\'alhat\'o, amely annyit jelent, hogy gener\'al a \code{gdb} debuggernek plusz inform\'aci\'okat, illetve enged\'elyezi a Vulkan SDK valid\'aci\'os r\'etegeit.
 Az ut\'obbiba a release m\'odban ford\'itott alkalmaz\'as ker\"ul. Ez valamivel gyorsabb fut\'ast jelent, cser\'eben az esetleges bugok eset\'en az alkalmaz\'as jobb esetben fut tov\'abb, rosszabb esetben \"osszeomlik, mindenf\'ele inform\'aci\'o a mi\'ertj\'er\H ol mell\H ozve.(\ref{compileoptions})
 
 \paragraph{\code{doc} k\"onyvt\'ar}
@@ -68,7 +68,7 @@ A shaderekr\H ol tov\'abbiakat a \ref{shadercompilation} r\'eszben lehet olvasni
 \subsubsection{Ford\'it\'as}
 A program gy\"ok\'erk\"onyvt\'ar\'aban a \code{make} parancs kiad\'as\'aval a k\"ovetkez\H ok t\"ort\'ennek:
 \begin{enumerate}
-	\item Leford\'itjuk a                                                                            shadereket (ld. \ref{shadercompilation})
+	\item Leford\'itjuk a shadereket (ld. \ref{shadercompilation})
 	\item Leford\'itjuk a programot (ld. \ref{compileoptions})
 \end{enumerate}
 
@@ -77,23 +77,35 @@ A \code{Makefile} elej\'en a \code{COMPILER} v\'altoz\'ot a k\'iv\'ant ford\'it\
 \subsubsection{Ford\'it\'asi param\'eterek}\label{compileoptions}
 A teljes parancs (a \code{Makefile}-b\'ol): 
 \begin{itemize}
-	\item Debug verzi\'o
-		%\code{\$(COMPILER) -o \$(DTARGET)/\$(OUTPUT_NAME) \$(SOURCES) \$(CFLAGS) \$(INCLUDE) \$(LDFLAGS) -DDEBUG -g -ggdb}
-	\item Release verzi\'o
-		%\code{\$(COMPILER) -o \$(TARGET)/\$(OUTPUT_NAME) \$(SOURCES) \$(CFLAGS) \$(INCLUDE) \$(LDFLAGS) -DNDEBUG }
+	\item Debug verzi\'o:
+		\$(COMPILER) -o \$(DTARGET)/\$(OUTPUT\_NAME) \$(SOURCES) \$(CFLAGS) \$(INCLUDE) \$(LDFLAGS) -DDEBUG -g -ggdb -Og
+		\begin{itemize}
+			\item \code{-o} ut\'an a kimeneti \'allom\'any van megadva
+			\item \code{-DDEBUG}: Defini\'alja a \code{DEBUG} szimb\'olumot.
+			\item \code{-g -ggdb}: Ford\'itson debuggol\'o szimb\'olumokat a futtathat\'o \'allom\'anyba.
+			\item \code{-Og}: Olyan optimaliz\'aci\'okat v\'egez, ami nem akad\'alyozza a debuggol\'ast.
+		\end{itemize}
+	\item Release verzi\'o:
+		\$(COMPILER) -o \$(TARGET)/\$(OUTPUT\_NAME) \$(SOURCES) \$(CFLAGS) \$(INCLUDE) \$(LDFLAGS) -DNDEBUG -O3
+		\begin{itemize}
+			\item \code{-o} ut\'an a kimeneti \'allom\'any van megadva
+			\item \code{-DNDEBUG}: Defini\'alja az \code{NDEBUG} szimb\'olumot.
+			\item \code{-O3}: 3-as szint\H u optimaliz\'aci\'o. \href{https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html}{C++ optimaliz\'aci\'os be\'all\'it\'asok}
+		\end{itemize}
 \end{itemize}
 Itt a k\"ulonb\"oz\H o v\'altoz\'ok:
 \begin{itemize}
-	\item \code{COMPILER}: A v\'alasztott ford\'it\'o (\code{gcc} vagy \code{clang})
+	\item \code{COMPILER}: A v\'alasztott ford\'it\'o (\code{g++} vagy \code{clang++})
 	\item \code{TARGET/DTARGET}: A c\'elmappa (\code{bin/debug} vagy \code{bin/release}) 
-	\item \code{OUTPUT\_NAME}: A futtathat\'o \'allom\'any neve
-	\item \code{SOURCES}: Az \code{src} k\"onyvt\
-	\item \code{CFLAGS}: 
-	\item \code{INCLUDE}: 
-	\item \code{LDFLAGS}: 
+	\item \code{OUTPUT\_NAME}: A futtathat\'o \'allom\'any neve.
+	\item \code{SOURCES}: Az \code{src} k\"onyvt\'ar \code{.cpp} f\'ajljai.
+	\item \code{CFLAGS}: Milyen ford\'it\'asi param\'eterek legyenek megadva.
+		A program C++11-es szabv\'any szerint k\'esz\"ul (\code{-std=c++11}) \'es szeretn\'ek tudni az \"osszes figyelmeztet\'esr\H ol, amit a ford\'it\'o ta\'al. (\code{-Wall})
+	\item \code{INCLUDE}: Hol tal\'alja a ford\'it\'o a header f\'ajlokat. 
+	\item \code{LDFLAGS}: Hol tal\'alja a linker a felhaszn\'alt k\"onyvt\'arak met\'odusainak defin\'ici\'oit. 
 \end{itemize}
 
-\subsubsection{Shader}\label{shadercompilation}
+\subsubsection{Shaderek}\label{shadercompilation}
 A Vulkan API \href{https://www.khronos.org/spir/}{SPIR-V} shadereket haszn\'al. Mivel ez egy b\'ajtk\'od form\'atum, \'igy a shaderek manu\'alis \'ir\'asa \'es olvas\'asa szokatlan lehet. 
 Szerencs\'ere a Khronos Group lefejlesztett egy ford\'it\'ot, ami az OpenGL-b\H ol ismer\H os GLSL shadert SPIR-V shaderr\'e alak\'itja. A LunarG SDK-ban megtal\'alhat\'o ez a program, a 
 \code{glslangValidator}. \newline
@@ -101,7 +113,8 @@ A GLSL shaderek ford\'it\'asa \'igy t\"obbf\'elek\'eppen is t\"ort\'enhet:
 \begin{itemize}
 	\item \code{make shaders} \newline
 		A \code{Makefile}-ban defini\'alt parancs, leford\'tja az \"osszes shadert a \code{src/shaders} mapp\'aban.
-	\item \code{glslangValidator -V src/shaders/<shader neve>.<shader t\'ipusa>} \newline
+	\item \code{glslangValidator -V <shader el\'er\'esi \'utja>.<shader t\'ipusa>} \newline
 		A \code{-V} kapcsol\'o mondja meg, hogy gener\'aljon is SPIR-V shadert, an\'elk\"ul csak ellen\H orzi a k\'odot, hogy megfelel-e az implement\'alt szabv\'anynak.
-		A shader t\'ipusa alapj\'an az eredm\'enyezett f\'ajl \code{<shader t\'ipusa>.spv} alak\'u. A programba ez alapj\'an a n\'ev lesz bet\"oltve. 
+		A shader t\'ipusa alapj\'an az eredm\'enyezett f\'ajl \code{<shader t\'ipusa>.spv} alak\'u. A programba ez alapj\'an a n\'ev lesz bet\"oltve.
+		\textbf{Fontos!} A SPIR-V shaderek az \'eppen aktu\'alis k\"onyvt\'arba ker\"ulnek. 
 \end{itemize}

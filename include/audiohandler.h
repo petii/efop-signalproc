@@ -30,6 +30,7 @@ class AudioHandler {
     int overlap;
     std::deque<float> micInput;
 
+    //TODO: use rate in file reading if needed
     int sampleRate;
     const int framesPerBuffer = 512;
     PaStreamParameters inputParams;

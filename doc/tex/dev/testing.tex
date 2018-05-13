@@ -1,2 +1,13 @@
 
 \subsection{Tesztel\'es}
+A program vizu\'alis volta miatt a tesztel\'es a sz\'am\'it\'asi r\'eszre szor\'itkozott, hogy a diszkr\'et Fourier-transzform\'aci\'o helyes eredm\'enyt sz\'amol-e.
+
+Az \code{AudioHandler} oszt\'alyban van lehet\H os\'eg \code{WAV} f\'ajlt bet\"olteni, illetve megadott frekvenci\'aj\'u hangot gener\'alni.
+
+Gener\'alt hang eset\'en az eredm\'enyk\'ent kapott frekvencia megegyezik a megadott frekvenci\'aval.
+
+Hang f\'ajl bet\"olt\'ese eset\'en a vide\'ok\'arty\'an v\'egzett DFT eredm\'enye megegyezik\footnote{Mivel lebeg\H opontos sz\'amokr\'ol van sz\'o, itt a megegyezik azt jelent\'i, hogy egy $\varepsilon>0$ sugar\'u k\"ornyezet\'en bel\"ul van. Ez a gyakorlatban olyan $10^{-5}$ nagys\'agrendet jelentett.} a processzoron futtatott DFT algoritmus eredm\'eny\'evel.
+
+TODO: tesztf\'ajlok fut\'as\'ar\'ol k\'ep.
+
+Mivel az alkalmaz\'asn\'al fontos szerepet j\'atszik a kis k\'es\'es\H u megjelen\'it\'es, a k\"ovetkez\H o r\'eszben m\'er\'esek eredm\'enyeit r\'eszletezem.
