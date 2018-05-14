@@ -21,7 +21,7 @@ void main() {
     //gl_Position = vec4(inPosition,1.0);
     fragColor = vec3(
         //rgba
-        1.0 * inPosition.z,
+        1.0 * (inPosition.z - 1),
         //0.0, 
         0.75*(1.0 - (abs(inPosition.z - 0.5))),
         1.0 * (1-inPosition.z)

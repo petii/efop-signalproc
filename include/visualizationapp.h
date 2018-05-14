@@ -16,6 +16,12 @@ public:
     const int HEIGHT = 600;
 
     const std::string name;
+//triple buffering megnezese
+//osszehasonlitas
+
+//teszteles helyett meresek
+//tablazatok
+//laptop, asztali gep osszehasonlitasa
 
     //this should be around 40k because it can only detect frequencies 
     //between 0 and windowSize/2 (dft has real input, so the output is
@@ -83,8 +89,6 @@ private:
         vg.appendVertices(std::vector<float>(freqDomainMax,0.0f));
         //ah.loadTestWAV("test/audio/a2002011001-e02-8kHz-mono.wav");
 
-        //std::vector<unsigned int> freqs = {100,200}; 
-        //std::vector<unsigned int> amps(freqs.size(),1);
         //std::vector<unsigned int> freqs = {100,200,400,800,2080}; 
         //std::vector<unsigned int> amps = {5,4,3,2,1};
         //ah.generateTestAudio( windowSize , 16, freqs, amps );
@@ -105,17 +109,8 @@ private:
             //*/
             vc.copyDataToGPU(input);
             vc.runCommandBuffer();
-            vkDeviceWaitIdle(vc.device);
+            vkQueueWaitIdle(vc.queue);
             auto result = vc.readDataFromGPU();
-            //auto res = (vc.readDataFromGPU());
-            //std::copy(zeros.begin(),zeros.end(),result.begin());
-            //auto result = normalizeResults(res);
-            //for (int i = 0 ; i < result.size(); ++i) {
-            //for (int i = 0 ; i < 100 ;++i) {
-              //  if (result[i] > 2) 
-                //    std::cout << i << ":\t" << result[i] << std::endl;
-            //}
-            //std::cout << std::endl;
             vg.appendVertices(result);
             vg.updateUniformBuffer();
             vg.drawFrame(); 
