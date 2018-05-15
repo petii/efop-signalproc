@@ -47,7 +47,7 @@ public:
         //std::vector<const char*> extensions
         const WindowHandler& wh
     ): pWh(&wh) {
-        std::cout << "vulkanframe constructing\n";
+        //std::cout << "vulkanframe constructing\n";
         createInstance(appName,wh.getGLFWExtensions());
         pickPhysicalDevice();
         if (enableValidationLayers) {
@@ -57,10 +57,11 @@ public:
     }
 
     ~VulkanFrame(){
-        std::cout << "vulkanframe destructing\n";
+        //std::cout << "vulkanframe destructing\n";
         if (enableValidationLayers) {
             DestroyDebugReportCallbackEXT(instance,callback,nullptr);
         }
+        vkDestroySurfaceKHR(instance,surface,nullptr);
         vkDestroyInstance(instance,nullptr);
     }
 

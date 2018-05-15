@@ -25,12 +25,12 @@ public:
 //tablazatok
 //laptop, asztali gep osszehasonlitasa
 
+    static const int baseWindowSize = 2048;
     //this should be around 40k because it can only detect frequencies
     //between 0 and windowSize/2 (dft has real input, so the output is
     //"symmetric")
-    const unsigned int windowSize = 4096 * 2 ;
-    //const unsigned int windowSize = 8 ;
-    const unsigned int freqDomainMax = windowSize/2;
+    const unsigned int windowSize;
+    unsigned int freqDomainMax() const {return windowSize/2;}
 
     int numberOfRuns;
 private:
@@ -41,8 +41,9 @@ private:
     AudioHandler ah;
 
 public:
-    VisualizationApplication(const std::string& appName):
+    VisualizationApplication(const std::string& appName, int windowSizeMul):
             name(appName),
+            windowSize(baseWindowSize * windowSizeMul),
             wh( //WindowHandler
                 name,
                 WIDTH,
@@ -55,7 +56,7 @@ public:
                 wh
             ),
             vc(vf,windowSize), //VulkanCompute
-            vg(vf,wh,freqDomainMax), //VulkanGraphics
+            vg(vf,wh,freqDomainMax()), //VulkanGraphics
             ah(windowSize) //audiohandler
     {
         //std::cout << "constructing\n";
@@ -80,6 +81,11 @@ public:
         //std::cout << "running running\n";
         numberOfRuns = runNumbers;
         Measurements m(runNumbers);
+
+        //fill up the vertex buffer with zeros for accurate measurement
+        for (int i = 0; i < vg.rowNum; ++i) {
+            vg.appendVertices(std::vector<float>(freqDomainMax(),0.0f));
+        }
         ah.startRecording();
         //mainLoop(m);
         std::cout << "Measuring time to draw " << runNumbers << " frames:\t";
@@ -129,7 +135,7 @@ private:
 
         std::string toString() {
             std::stringstream result;
-            result << "Overall runtime:\t" 
+            result << "Overall runtime (" << size << " runs):\t" 
                 << std::chrono::duration_cast<std::chrono::milliseconds>(overallRuntime).count() << " milliseconds" << std::endl;   
             std::vector<long> diff;
             for (
@@ -140,7 +146,7 @@ private:
                 auto span = *end - *start;
                 diff.push_back(std::chrono::duration_cast<std::chrono::milliseconds>(span).count());
             }
-            result << "Average runtime out of " << size << " runs:\t";
+            result << "Average runtime:\t";
             //using custom loop instead of std::accumulate to avoid possible overflow
             double avg = 0.0;
             double N = static_cast<double>(diff.size());
@@ -165,7 +171,7 @@ private:
         //     compute vertices
         //     create graphics from vertices
         // Sounds easy enough
-        vg.appendVertices(std::vector<float>(freqDomainMax,0.0f)); // so we can start drawing right away
+        vg.appendVertices(std::vector<float>(freqDomainMax(),0.0f)); // so we can start drawing right away
         while (!glfwWindowShouldClose(wh.window)) {
             glfwPollEvents();
             auto input = ah.getMicrophoneAudio();
@@ -180,7 +186,6 @@ private:
     }
 
     std::chrono::high_resolution_clock::duration mainLoopMeasureRunTime(/*std::chrono::duration<long>& m*/) {
-        vg.appendVertices(std::vector<float>(freqDomainMax,0.0f));
         int runTimes=0;
         auto overallRuntimeStart = std::chrono::high_resolution_clock::now();
         while (runTimes < numberOfRuns && !glfwWindowShouldClose(wh.window)) {
@@ -200,7 +205,6 @@ private:
     }
 
     void mainLoopMeasureFrameTimes(Measurements &m) {
-        vg.appendVertices(std::vector<float>(freqDomainMax,0.0f));
         int runTimes=0;
         auto overallRuntimeStart = std::chrono::high_resolution_clock::now();
         while (runTimes < numberOfRuns && !glfwWindowShouldClose(wh.window)) {
@@ -227,7 +231,6 @@ private:
             overallRuntimeEnd - overallRuntimeStart;
     }
 void mainLoopMeasureComputeTime(Measurements &m) {
-        vg.appendVertices(std::vector<float>(freqDomainMax,0.0f));
         int runTimes=0;
         auto overallRuntimeStart = std::chrono::high_resolution_clock::now();
         while (runTimes < numberOfRuns && !glfwWindowShouldClose(wh.window)) {
@@ -259,7 +262,6 @@ void mainLoopMeasureComputeTime(Measurements &m) {
             overallRuntimeEnd - overallRuntimeStart;
     }
 void mainLoopMeasureDrawTime(Measurements &m) {
-        vg.appendVertices(std::vector<float>(freqDomainMax,0.0f));
         int runTimes=0;
         auto overallRuntimeStart = std::chrono::high_resolution_clock::now();
         while (runTimes < numberOfRuns && !glfwWindowShouldClose(wh.window)) {

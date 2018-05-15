@@ -382,9 +382,9 @@ void VulkanGraphics::createVertexBuffer() {
     //TODO: figure out buffers
     vertices.reserve(rowNum * rowSize);
     VkDeviceSize bufferSize = sizeof(Vertex) * vertices.capacity();
-    std::cout << rowNum << ',' << rowSize << std::endl;
-    std::cout << sizeof(Vertex) << ';' << vertices.capacity() << std::endl;
-    std::cout << "vertex buffer:" << bufferSize << std::endl;
+    //std::cout << rowNum << ',' << rowSize << std::endl;
+    //std::cout << sizeof(Vertex) << ';' << vertices.capacity() << std::endl;
+    //std::cout << "vertex buffer:" << bufferSize << std::endl;
 
     util::memory::createBuffer(
         vulkanFrame->physicalDevice,
@@ -400,7 +400,7 @@ void VulkanGraphics::createIndexBuffer() {
     //TODO: figure out buffers
     indices.reserve( rowNum * (rowSize-1) *2 *3);
     VkDeviceSize bufferSize = sizeof(uint32_t) * indices.capacity();
-    std::cout << "index buffer:" << bufferSize << std::endl;
+    //std::cout << "index buffer:" << bufferSize << std::endl;
     util::memory::createBuffer(
         vulkanFrame->physicalDevice,
         device,

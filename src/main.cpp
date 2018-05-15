@@ -8,20 +8,35 @@
 
 int main (int argc, char ** argv) {
     try {
-        auto initStart = std::chrono::high_resolution_clock::now();
-        VisualizationApplication app("Visualization with Vulkan");
-        auto initEnd = std::chrono::high_resolution_clock::now();
-        
-        std::cout << "Initialization took:\t" 
-            << std::chrono::duration_cast<std::chrono::milliseconds>(initEnd-initStart).count()
-            << " milliseconds\n"<< std::endl;
-
-        if (argc > 1) {
-            int runs = std::stoi(std::string(argv[1]));
-            app.run(runs);
+        int rangeBegin = 2;
+        int rangeEnd = rangeBegin;
+        if (argc == 3) {
+            rangeBegin = std::stoi(std::string(argv[2]));
+            rangeEnd = rangeBegin;
         }
-        else {
-            app.run();
+        if (argc == 4) {
+            rangeBegin = std::stoi(std::string(argv[2]));
+            rangeEnd = std::stoi(std::string(argv[3]));
+        }
+        for (int multiplier = rangeBegin; multiplier<=rangeEnd; ++multiplier) {
+            std::cout << "Base window size:\t" << VisualizationApplication::baseWindowSize << std::endl;
+            std::cout << "Running with a base window size multiplier of " << multiplier << std::endl;
+            auto initStart = 
+                std::chrono::high_resolution_clock::now();
+            VisualizationApplication app("Visualization with Vulkan",multiplier);
+            auto initEnd = std::chrono::high_resolution_clock::now();
+            
+            std::cout << "Initialization took:\t" 
+                << std::chrono::duration_cast<std::chrono::milliseconds>(initEnd-initStart).count()
+                << " milliseconds\n"<< std::endl;
+
+            if (argc > 1) {
+                int runs = std::stoi(std::string(argv[1]));
+                app.run(runs);
+            }
+            else {
+                app.run();
+            }
         }
     }
     catch (const std::exception &e) {

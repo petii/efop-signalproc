@@ -113,7 +113,7 @@ struct VulkanGraphics {
         //rowNum(128 )
         rowNum(100 ) //using this value does not reveal the lack of depth buffering...
     {
-        std::cout << "graphics constuctor\n";
+        //std::cout << "graphics constuctor\n";
         createGraphicsLogicalDevice(vf.physicalDevice,vf.deviceExtensions);
         vkGetDeviceQueue(device,qfi.graphicsFamily,0,&graphicsQueue);
         vkGetDeviceQueue(device,qfi.presentFamily,0,&presentQueue);
@@ -137,7 +137,7 @@ struct VulkanGraphics {
     }
 
     ~VulkanGraphics() {
-        std::cout << "graphics destructor\n";
+        //std::cout << "graphics destructor\n";
         vkDestroySemaphore(device, imageAvailableSemaphore,nullptr);
         vkDestroySemaphore(device, renderFinishedSemaphore,nullptr);
 

@@ -22,7 +22,7 @@ struct WindowHandler {
         void* userPointer,
         GLFWwindowsizefun resizeFunction
     ) {
-        std::cout << "window constructor\n";
+        //std::cout << "window constructor\n";
         if (!glfwInit()) {
             throw std::runtime_error("Failed to initialize GLFW!");
         }
@@ -46,7 +46,7 @@ struct WindowHandler {
     }
 
     ~WindowHandler() {
-        std::cout << "window destructor\n";
+        //std::cout << "window destructor\n";
         glfwDestroyWindow(window);
         glfwTerminate();
     }
@@ -57,11 +57,12 @@ struct WindowHandler {
         glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
         std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-
+        /*
         std::cout << "extensions:\n";
         for (auto a : extensions){
             std::cout << a << std::endl;
         }
+        //*/
         return extensions;
     }
 
