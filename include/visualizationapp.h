@@ -76,109 +76,217 @@ public:
         std::cout << app << ':' << w << 'x' << h << std::endl;
     }
 
-    void run(int runNumbers = 100) {
+    void run(int runNumbers) {
         //std::cout << "running running\n";
         numberOfRuns = runNumbers;
         Measurements m(runNumbers);
         ah.startRecording();
-        mainLoop(m);
-        printMeasurements(m);
+        //mainLoop(m);
+        std::cout << "Measuring time to draw " << runNumbers << " frames:\t";
+        auto runTime = mainLoopMeasureRunTime();
+        std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(runTime).count() << " milliseconds\n";
+        std::cout << std::endl;
+        std::cout << "Measuring the time it takes to draw a frame.\n";
+        mainLoopMeasureFrameTimes(m);
+        std::cout << m.toString() << std::endl;
+        m.clear();
+        std::cout << std::endl;
+        std::cout << "Measuring time it takes to complete the compute task.\n";
+        mainLoopMeasureComputeTime(m);
+        std::cout << m.toString() << std::endl;
+        m.clear();
+        std::cout << std::endl;
+        std::cout << "Measuring time it takes to complete the drawing task.\n";
+        mainLoopMeasureDrawTime(m);
+        std::cout << m.toString() << std::endl;
+    }
+
+    void run() {
+        ah.startRecording();
+        mainLoop();
     }
 
 private:
 
     struct Measurements{
-        Measurements(int measurementNumber) {
-            frameStarts.reserve(measurementNumber); 
-            frameEnds.reserve(measurementNumber); 
-
-            computeStarts.reserve(measurementNumber); 
-            computeEnds.reserve(measurementNumber); 
-
-            drawStarts.reserve(measurementNumber); 
-            drawEnds.reserve(measurementNumber); 
+        const int size;
+        Measurements(int size):size(size) {
+            clear();
         }
 
-        std::chrono::duration<double> overallRuntime;
-        std::vector<std::chrono::high_resolution_clock::time_point> frameStarts;
-        std::vector<std::chrono::high_resolution_clock::time_point> frameEnds;
+        //std::chrono::duration<long> overallRuntime;
+        std::chrono::high_resolution_clock::duration overallRuntime;
 
-        std::vector<std::chrono::high_resolution_clock::time_point> computeStarts;
-        std::vector<std::chrono::high_resolution_clock::time_point> computeEnds;
+        std::vector<std::chrono::high_resolution_clock::time_point> starts;
+        std::vector<std::chrono::high_resolution_clock::time_point> ends;
+        void clear() {
+            overallRuntime = std::chrono::duration<long>::zero();
+            starts.clear();
+            starts.resize(size);
+            ends.clear();
+            ends.resize(size);
+        }
 
-        std::vector<std::chrono::high_resolution_clock::time_point> drawStarts;
-        std::vector<std::chrono::high_resolution_clock::time_point> drawEnds;
+        std::string toString() {
+            std::stringstream result;
+            result << "Overall runtime:\t" 
+                << std::chrono::duration_cast<std::chrono::milliseconds>(overallRuntime).count() << " milliseconds" << std::endl;   
+            std::vector<long> diff;
+            for (
+                auto start = starts.begin(), end=ends.begin() ; 
+                start!=starts.end() && end!=ends.end();
+                ++start,++end
+            ){
+                auto span = *end - *start;
+                diff.push_back(std::chrono::duration_cast<std::chrono::milliseconds>(span).count());
+            }
+            result << "Average runtime out of " << size << " runs:\t";
+            //using custom loop instead of std::accumulate to avoid possible overflow
+            double avg = 0.0;
+            double N = static_cast<double>(diff.size());
+            for (const auto& d : diff) {
+                avg += d/N; 
+            }
+            result << avg << " milliseconds\n";
+            auto fastest = std::min_element(diff.begin(),diff.end());
+            auto slowest = std::max_element(diff.begin(),diff.end());
+            result << "Fastest runtime:\t" << *fastest 
+                << " milliseconds" << std::endl;
+            result << "Slowest runtime:\t" << *slowest 
+                << " milliseconds" ;// << std::endl; 
+            return result.str();
+        }
     };
 
-    void printMeasurements(const Measurements& m) {
-        std::cout << "The app ran for:\t" 
-            << std::chrono::duration_cast<std::chrono::milliseconds>(m.overallRuntime).count() << " milliseconds\n" << std::endl;
-
-    }
-
-
-    void mainLoop(Measurements &m) {
+    void mainLoop() {
         // Basic idea:
         //     get audio data
         //     feed data to computeDevice
         //     compute vertices
         //     create graphics from vertices
         // Sounds easy enough
-        vg.appendVertices(std::vector<float>(freqDomainMax,0.0f));
-        //ah.loadTestWAV("test/audio/a2002011001-e02-8kHz-mono.wav");
+        vg.appendVertices(std::vector<float>(freqDomainMax,0.0f)); // so we can start drawing right away
+        while (!glfwWindowShouldClose(wh.window)) {
+            glfwPollEvents();
+            auto input = ah.getMicrophoneAudio();
+            vc.copyDataToGPU(input);
+            vc.runCommandBuffer();
+            vkQueueWaitIdle(vc.queue);
+            auto result = vc.readDataFromGPU();
+            vg.appendVertices(result);
+            vg.updateUniformBuffer();
+            vg.drawFrame();
+        }
+    }
 
-        //std::vector<unsigned int> freqs = {100,200,400,800,2080}; 
-        //std::vector<unsigned int> amps = {5,4,3,2,1};
-        //ah.generateTestAudio( windowSize , 16, freqs, amps );
-        //std::vector<float> zeros (20,0.0f);
+    std::chrono::high_resolution_clock::duration mainLoopMeasureRunTime(/*std::chrono::duration<long>& m*/) {
+        vg.appendVertices(std::vector<float>(freqDomainMax,0.0f));
+        int runTimes=0;
+        auto overallRuntimeStart = std::chrono::high_resolution_clock::now();
+        while (runTimes < numberOfRuns && !glfwWindowShouldClose(wh.window)) {
+            glfwPollEvents();
+            auto input = ah.getMicrophoneAudio();
+            vc.copyDataToGPU(input);
+            vc.runCommandBuffer();
+            vkQueueWaitIdle(vc.queue);
+            auto result = vc.readDataFromGPU();
+            vg.appendVertices(result);
+            vg.updateUniformBuffer();
+            vg.drawFrame();
+            ++runTimes;
+        }
+        auto overallRuntimeEnd = std::chrono::high_resolution_clock::now();
+        return overallRuntimeEnd - overallRuntimeStart;
+    }
+
+    void mainLoopMeasureFrameTimes(Measurements &m) {
+        vg.appendVertices(std::vector<float>(freqDomainMax,0.0f));
         int runTimes=0;
         auto overallRuntimeStart = std::chrono::high_resolution_clock::now();
         while (runTimes < numberOfRuns && !glfwWindowShouldClose(wh.window)) {
             //auto frameStart = 
-            m.frameStarts.push_back(
-                std::chrono::high_resolution_clock::now()
-            );
+            m.starts[runTimes] = 
+                std::chrono::high_resolution_clock::now();
+            glfwPollEvents();
+            auto input = ah.getMicrophoneAudio();
+            vc.copyDataToGPU(input);
+            vc.runCommandBuffer();
+            vkQueueWaitIdle(vc.queue);
+            auto result = vc.readDataFromGPU();
+            vg.appendVertices(result);
+            vg.updateUniformBuffer();
+            vg.drawFrame(); 
+            //auto frameEnd = 
+            vkQueueWaitIdle(vg.presentQueue);
+            m.ends[runTimes] = 
+                std::chrono::high_resolution_clock::now();
+            ++runTimes;
+        }
+        auto overallRuntimeEnd = std::chrono::high_resolution_clock::now();
+        m.overallRuntime = 
+            overallRuntimeEnd - overallRuntimeStart;
+    }
+void mainLoopMeasureComputeTime(Measurements &m) {
+        vg.appendVertices(std::vector<float>(freqDomainMax,0.0f));
+        int runTimes=0;
+        auto overallRuntimeStart = std::chrono::high_resolution_clock::now();
+        while (runTimes < numberOfRuns && !glfwWindowShouldClose(wh.window)) {
             glfwPollEvents();
 
             auto input = ah.getMicrophoneAudio();
 
             //auto computeStart = 
-            m.computeStarts.push_back(
-                std::chrono::high_resolution_clock::now()
-            );
+            m.starts[runTimes] = 
+                std::chrono::high_resolution_clock::now();
             vc.copyDataToGPU(input);
-            auto computeCopyEnd = 
-                std::chrono::high_resolution_clock::now();
-            auto computeRunStart =
-                std::chrono::high_resolution_clock::now();
+            //auto computeCopyEnd = 
+            //    std::chrono::high_resolution_clock::now();
+            //auto computeRunStart =
+            //    std::chrono::high_resolution_clock::now();
             vc.runCommandBuffer();
             vkQueueWaitIdle(vc.queue);
             //auto computeEnd =
-            m.computeEnds.push_back(
-                std::chrono::high_resolution_clock::now()
-            );
-
+            m.ends[runTimes] = 
+                std::chrono::high_resolution_clock::now();
             auto result = vc.readDataFromGPU();
-
-            //auto drawStart = 
-            m.drawStarts.push_back(
-                std::chrono::high_resolution_clock::now()
-            );
             vg.appendVertices(result);
             vg.updateUniformBuffer();
             vg.drawFrame(); 
-            //This is unnecessary from a performance standpoint, and probably hurts
+            ++runTimes;
+        }
+        auto overallRuntimeEnd = std::chrono::high_resolution_clock::now();
+        m.overallRuntime = 
+            overallRuntimeEnd - overallRuntimeStart;
+    }
+void mainLoopMeasureDrawTime(Measurements &m) {
+        vg.appendVertices(std::vector<float>(freqDomainMax,0.0f));
+        int runTimes=0;
+        auto overallRuntimeStart = std::chrono::high_resolution_clock::now();
+        while (runTimes < numberOfRuns && !glfwWindowShouldClose(wh.window)) {
+            glfwPollEvents();
+            auto input = ah.getMicrophoneAudio();
+            vc.copyDataToGPU(input);
+            vc.runCommandBuffer();
+            vkQueueWaitIdle(vc.queue);
+            auto result = vc.readDataFromGPU();
+            //auto drawStart = 
+            m.starts[runTimes] = 
+                std::chrono::high_resolution_clock::now();
+            vg.appendVertices(result);
+            vg.updateUniformBuffer();
+            vg.drawFrame(); 
+            //Drawing and presenting are both async operations.
+            //To accurately measure how long it takes to actually 
+            //draw the frame we need to be done with presenting.
+            //
+            //This negatively impacts performance, since we can not 
+            //start the Fourier-transform while presenting is still
+            //in progess 
             vkQueueWaitIdle(vg.presentQueue);
             //auto drawEnd = 
-            m.drawEnds.push_back(
-                std::chrono::high_resolution_clock::now()
-            );
-
+            m.ends[runTimes] = 
+                std::chrono::high_resolution_clock::now();
             ++runTimes;
-            //auto frameEnd = 
-            m.frameEnds.push_back(
-                std::chrono::high_resolution_clock::now()
-            );
         }
         auto overallRuntimeEnd = std::chrono::high_resolution_clock::now();
         m.overallRuntime = 
