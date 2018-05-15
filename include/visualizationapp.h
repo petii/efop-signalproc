@@ -90,7 +90,11 @@ public:
         //mainLoop(m);
         std::cout << "Measuring time to draw " << runNumbers << " frames:\t";
         auto runTime = mainLoopMeasureRunTime();
-        std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(runTime).count() << " milliseconds\n";
+        auto runTimeInMillisecs = std::chrono::duration_cast<std::chrono::milliseconds>(runTime).count();
+        std::cout << runTimeInMillisecs << " milliseconds\n";
+        std::cout << "Calculated average for 1 frame:\t" 
+            << static_cast<double>(runTimeInMillisecs) / numberOfRuns 
+            << " milliseconds" <<  std::endl;
         std::cout << std::endl;
         std::cout << "Measuring the time it takes to draw a frame.\n";
         mainLoopMeasureFrameTimes(m);

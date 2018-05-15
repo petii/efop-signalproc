@@ -19,13 +19,15 @@ int main (int argc, char ** argv) {
             rangeEnd = std::stoi(std::string(argv[3]));
         }
         for (int multiplier = rangeBegin; multiplier<=rangeEnd; ++multiplier) {
+            std::cout << std::string(50,'-') << std::endl;
             std::cout << "Base window size:\t" << VisualizationApplication::baseWindowSize << std::endl;
             std::cout << "Running with a base window size multiplier of " << multiplier << std::endl;
+            std::cout << std::string(50,'-') << std::endl;
             auto initStart = 
                 std::chrono::high_resolution_clock::now();
             VisualizationApplication app("Visualization with Vulkan",multiplier);
             auto initEnd = std::chrono::high_resolution_clock::now();
-            
+            std::cout << std::string(50,'-') << std::endl;
             std::cout << "Initialization took:\t" 
                 << std::chrono::duration_cast<std::chrono::milliseconds>(initEnd-initStart).count()
                 << " milliseconds\n"<< std::endl;
@@ -37,6 +39,7 @@ int main (int argc, char ** argv) {
             else {
                 app.run();
             }
+            std::cout << std::string(50,'-') << std::endl;
         }
     }
     catch (const std::exception &e) {
