@@ -10,6 +10,8 @@
 #include "vulkangraphics.h"
 #include "audiohandler.h"
 
+#include <chrono>
+
 class VisualizationApplication {
 public:
     const int WIDTH = 800;
@@ -23,12 +25,14 @@ public:
 //tablazatok
 //laptop, asztali gep osszehasonlitasa
 
-    //this should be around 40k because it can only detect frequencies 
+    //this should be around 40k because it can only detect frequencies
     //between 0 and windowSize/2 (dft has real input, so the output is
     //"symmetric")
-    const unsigned int windowSize = 4096 * 1 ;
+    const unsigned int windowSize = 4096 * 2 ;
     //const unsigned int windowSize = 8 ;
     const unsigned int freqDomainMax = windowSize/2;
+
+    int numberOfRuns;
 private:
     WindowHandler wh;
     VulkanFrame vf;
@@ -54,13 +58,13 @@ public:
             vg(vf,wh,freqDomainMax), //VulkanGraphics
             ah(windowSize) //audiohandler
     {
-        std::cout << "constructing\n";
+        //std::cout << "constructing\n";
         //VulkanGraphics::rowSize = vc.windowSize;
         //VulkanGraphics::rowSize = 4;
         // wh.initWindow();
     }
     ~VisualizationApplication() {
-        std::cout << "app destructor\n";
+        //std::cout << "app destructor\n";
     }
 
     static void onWindowResized(GLFWwindow *window, int width, int height) {
@@ -72,14 +76,48 @@ public:
         std::cout << app << ':' << w << 'x' << h << std::endl;
     }
 
-    void run() {
-        std::cout << "running running\n";
+    void run(int runNumbers = 100) {
+        //std::cout << "running running\n";
+        numberOfRuns = runNumbers;
+        Measurements m(runNumbers);
         ah.startRecording();
-        mainLoop();
+        mainLoop(m);
+        printMeasurements(m);
     }
 
 private:
-    void mainLoop() {
+
+    struct Measurements{
+        Measurements(int measurementNumber) {
+            frameStarts.reserve(measurementNumber); 
+            frameEnds.reserve(measurementNumber); 
+
+            computeStarts.reserve(measurementNumber); 
+            computeEnds.reserve(measurementNumber); 
+
+            drawStarts.reserve(measurementNumber); 
+            drawEnds.reserve(measurementNumber); 
+        }
+
+        std::chrono::duration<double> overallRuntime;
+        std::vector<std::chrono::high_resolution_clock::time_point> frameStarts;
+        std::vector<std::chrono::high_resolution_clock::time_point> frameEnds;
+
+        std::vector<std::chrono::high_resolution_clock::time_point> computeStarts;
+        std::vector<std::chrono::high_resolution_clock::time_point> computeEnds;
+
+        std::vector<std::chrono::high_resolution_clock::time_point> drawStarts;
+        std::vector<std::chrono::high_resolution_clock::time_point> drawEnds;
+    };
+
+    void printMeasurements(const Measurements& m) {
+        std::cout << "The app ran for:\t" 
+            << std::chrono::duration_cast<std::chrono::milliseconds>(m.overallRuntime).count() << " milliseconds\n" << std::endl;
+
+    }
+
+
+    void mainLoop(Measurements &m) {
         // Basic idea:
         //     get audio data
         //     feed data to computeDevice
@@ -92,31 +130,59 @@ private:
         //std::vector<unsigned int> freqs = {100,200,400,800,2080}; 
         //std::vector<unsigned int> amps = {5,4,3,2,1};
         //ah.generateTestAudio( windowSize , 16, freqs, amps );
-        std::vector<float> zeros (20,0.0f);
+        //std::vector<float> zeros (20,0.0f);
         int runTimes=0;
-        while (!glfwWindowShouldClose(wh.window)) {
-            //std::cout << "Round " << runTimes << std::endl;
+        auto overallRuntimeStart = std::chrono::high_resolution_clock::now();
+        while (runTimes < numberOfRuns && !glfwWindowShouldClose(wh.window)) {
+            //auto frameStart = 
+            m.frameStarts.push_back(
+                std::chrono::high_resolution_clock::now()
+            );
             glfwPollEvents();
-            //auto input = ah.getNormalizedTestAudio();
+
             auto input = ah.getMicrophoneAudio();
-            //auto input = normalizeResults(ah.getMicrophoneAudio());
-            /*
-            for (auto i : input) {
-                if ( std::abs(i) > 0.9f )
-                    std::cout << i << ' ';
-            }
-            std::cout << std::endl;
-            //*/
+
+            //auto computeStart = 
+            m.computeStarts.push_back(
+                std::chrono::high_resolution_clock::now()
+            );
             vc.copyDataToGPU(input);
+            auto computeCopyEnd = 
+                std::chrono::high_resolution_clock::now();
+            auto computeRunStart =
+                std::chrono::high_resolution_clock::now();
             vc.runCommandBuffer();
             vkQueueWaitIdle(vc.queue);
+            //auto computeEnd =
+            m.computeEnds.push_back(
+                std::chrono::high_resolution_clock::now()
+            );
+
             auto result = vc.readDataFromGPU();
+
+            //auto drawStart = 
+            m.drawStarts.push_back(
+                std::chrono::high_resolution_clock::now()
+            );
             vg.appendVertices(result);
             vg.updateUniformBuffer();
             vg.drawFrame(); 
-            //if (ah.normData.size() < windowSize) break;
+            //This is unnecessary from a performance standpoint, and probably hurts
+            vkQueueWaitIdle(vg.presentQueue);
+            //auto drawEnd = 
+            m.drawEnds.push_back(
+                std::chrono::high_resolution_clock::now()
+            );
+
             ++runTimes;
+            //auto frameEnd = 
+            m.frameEnds.push_back(
+                std::chrono::high_resolution_clock::now()
+            );
         }
+        auto overallRuntimeEnd = std::chrono::high_resolution_clock::now();
+        m.overallRuntime = 
+            overallRuntimeEnd - overallRuntimeStart;
     }
 
     std::vector<float> normalizeResults(const std::vector<float>& input) {
