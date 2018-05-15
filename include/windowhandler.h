@@ -40,7 +40,7 @@ struct WindowHandler {
         );
 
         glfwSetWindowUserPointer(window,userPointer);
-        glfwSetWindowSizeCallback(window,resizeFunction);
+        //glfwSetWindowSizeCallback(window,resizeFunction);
 
         glfwSetErrorCallback(glfwErrorCallback);
     }

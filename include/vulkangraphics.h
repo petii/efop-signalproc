@@ -138,6 +138,8 @@ struct VulkanGraphics {
 
     ~VulkanGraphics() {
         //std::cout << "graphics destructor\n";
+	destroySwapChain();
+
         vkDestroySemaphore(device, imageAvailableSemaphore,nullptr);
         vkDestroySemaphore(device, renderFinishedSemaphore,nullptr);
 
@@ -149,21 +151,11 @@ struct VulkanGraphics {
         vkFreeMemory(device,vertexBufferMemory,nullptr);
         vkFreeMemory(device,indexBufferMemory,nullptr);
 
+        vkDestroyDescriptorSetLayout(device,descriptorSetLayout,nullptr);
+
         vkDestroyBuffer(device,uniformBuffer,nullptr);
         vkFreeMemory(device,uniformBufferMemory,nullptr);
 
-        for (const auto& frameBuffer : swapChainFramebuffers) {
-            vkDestroyFramebuffer(device,frameBuffer,nullptr);
-        }
-        vkDestroyPipeline(device,graphicsPipeline,nullptr);
-        vkDestroyPipelineLayout(device,pipelineLayout,nullptr);
-        vkDestroyDescriptorSetLayout(device,descriptorSetLayout,nullptr);
-        vkDestroyRenderPass(device, renderPass, nullptr);
-
-        for (const auto& imageView : swapChainImageViews) {
-            vkDestroyImageView(device,imageView,nullptr);
-        }
-        vkDestroySwapchainKHR(device,swapChain,nullptr);
         vkDestroyDevice(device,nullptr);
     }
 
@@ -239,4 +231,34 @@ private:
     void createDescriptorSet();
     void createCommandBuffers();
     void createSemaphores();
+
+    void destroySwapChain() {
+        for (auto frameBuffer : swapChainFramebuffers) {
+            vkDestroyFramebuffer(device,frameBuffer,nullptr);
+        }
+        vkDestroyPipeline(device,graphicsPipeline,nullptr);
+        vkDestroyPipelineLayout(device,pipelineLayout,nullptr);
+        vkDestroyRenderPass(device, renderPass, nullptr);
+
+        for (auto imageView : swapChainImageViews) {
+            vkDestroyImageView(device,imageView,nullptr);
+        }
+
+        vkFreeCommandBuffers(device,commandPool,1,&commandBuffer);
+
+        vkDestroySwapchainKHR(device,swapChain,nullptr);
+    }
+
+    void recreateSwapChain() {
+        vkDeviceWaitIdle(device);
+        destroySwapChain();
+
+        createSwapChain(*vulkanFrame);
+        createImageViews();
+        createRenderPass();
+        createPipeLineLayout();
+        createGraphicsPipeline();
+        createFramebuffers();
+        createCommandBuffers();
+    }
 };
