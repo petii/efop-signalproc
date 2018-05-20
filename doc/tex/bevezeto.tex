@@ -2,7 +2,7 @@
 \section{Bevezet\H o}
 Inform\'aci\'o minden\"utt jelen van k\"or\"ul\"ott\"unk. A technol\'ogia fejl\H od\'es\'evel egyre t\"obbet \'es t\"obbet tudtunk bel\H ole digitaliz\'alni. Ez\'altal az adat rendelkez\'esre \'all, a k\'erd\'es az marad, hogy ezt hogyan tudjuk felhaszn\'alni.
 
-Az ut\'obbi id\H oben m\'egink\'abb el\H ot\'erbe ker\"ult a vide\'ok\'arty\'ak nem csak j\'at\'ekokban val\'o kihaszn\'al\'asa, hanem nagym\'ert\'ekben t\"obbsz\'alas\'ithat\'o probl\'em\'ak nagy bemenetre val\'o felhaszn\'al\'asa. 
+Az ut\'obbi id\H oben jobban el\H ot\'erbe ker\"ult a vide\'ok\'arty\'ak nem csak j\'at\'ekokban val\'o kihaszn\'al\'asa, hanem nagym\'ert\'ekben t\"obbsz\'alas\'ithat\'o probl\'em\'ak nagy bemenetre val\'o felhaszn\'al\'asa.
 
 Ugyanakkor a nagyobb sz\'am\'it\'asi kapacit\'as nem sokat \'er, ha a programoz\'o nem tudja kihaszn\'alni.
 Vide\'ok\'arty\'ak \'altal\'anos c\'el\'u programoz\'asra a mostan\'aban jellemz\H o technol\'ogi\'ak a CUDA az NVIDIA-t\'ol illetve az OpenCL a Khronos Group-t\'ol. A CUDA nagyon gyors \'es el\'eg k\'enyelmes, a sok be\'ep\'itett funkci\'o j\'ovolt\'ab\'ol, amik nem csak levesznek a fejleszt\H o v\'all\'ar\'ol felel\H oss\'eget, de a v\'egletekig optimaliz\'alva van a hardverre. Cser\'ebe csak a gy\'art\'o vide\'ok\'arty\'ain t\'amogatott.
@@ -14,6 +14,12 @@ Az OpenGL-\'ert felel\H os \href{https://www.khronos.org/}{Khronos Group} a 2015
 %\footnote{\url{https://www.gamestar.hu/hir/star-citizen-directx-12-vulkan-api-226130.html}}
 
 \subsection{Vulkan}
+\begin{figure}[h]
+	\includegraphics[width=\textwidth]{img/vulkanpromo}
+	\centering
+	\caption{Prom\'oci\'o az \'uj API-nak.
+		\cite{vulkan1.1launchpres} }
+\end{figure}
 Maga az API az \href{https://www.amd.com/en-us/innovations/software-technologies/mantle}{AMD Mantle} egyfajta folytat\'asak\'ent is tekinthet\H o. Az elgondol\'as az, hogy pr\'ob\'aljunk min\'el jobb teljes\'itm\'enyt kinyerni a hardverb\H ol, CPU-GPU a terhel\'es jobb eloszt\'as\'aval.
 
 A legjobb eredm\'enyhez az vezet, ha optimaliz\'aci\'os lehet\H os\'eget adunk azok kez\'ebe, akik jobban ismerik az adott alkalmaz\'ast: a fejleszt\H ok.
@@ -22,9 +28,11 @@ Ez\'altal nagyobb kontrollja van a fejleszt\H onek a program m\H uk\"od\'ese fel
 Cser\'ebe mivel t\"obb feladatk\"or h\'arul az alkalmaz\'as k\'esz\'it\H o(i)re, maga a fejleszt\'esi folyamat lehet hosszadalmasabb.
 
 \subsection{Kiterjesztett val\'os\'ag}
-AR\footnote{Augmented Reality} alkalmaz\'asokban a megfelel\H o felhaszn\'al\'oi \'elm\'enyhez elengedhetetlen, hogy kis k\'es\'essel t\"ort\'enjen a felhaszn\'al\'o el\'e az inform\'aci\'o prezent\'al\'asa. 
+AR alkalmaz\'asokban a megfelel\H o felhaszn\'al\'oi \'elm\'enyhez elengedhetetlen, hogy kis k\'es\'essel t\"ort\'enjen a felhaszn\'al\'o el\'e az inform\'aci\'o prezent\'al\'asa. 
 
 Kicsit komolyabb p\'eld\'aval \'elve egy j\"ov\H obeli aut\'o AR sz\'elv\'ed\H oj\'en lehet a m\'asodperc t\"ored\'ek\'en m\'ulik egy \'elet, hogy megjelenjen valamilyen figyelmeztet\'es a s\"of\H ornek egy k\"ozelg\H o gyalogosr\'ol.
 
-Ugyan enn\'el a p\'eld\'an\'al maradva, a Vulkan \'ig\'erete, hogy a driverek \'ir\'asa egyszer\H ubb lesz, \'igy ebben az esetben lehets\'eges, hogy az aut\'o be\'agyazott rendszer\'ere t\"ort\'en\H o fejleszt\'esi id\H o ler\"ovid\"ul, hiszen a fejleszt\H oknek nem kell valamilyen speci\'alisan arra a hardverre fejlesztett k\"ornyezettel megismerkedni\"uk. 
-%\paragraph{Motiv\'aci\'o}
+Tov\'abb\'a a Vulkan \'ig\'erete, hogy a driverek \'ir\'asa egyszer\H ubb lesz, \'igy ebben az esetben lehets\'eges az is, hogy az aut\'o be\'agyazott rendszer\'ere t\"ort\'en\H o fejleszt\'esi id\H o ler\"ovid\"ul, hiszen a fejleszt\H oknek nem kell valamilyen speci\'alisan arra a hardverre fejlesztett k\"ornyezettel megismerkedni\"uk. 
+
+\subsection{Motiv\'aci\'o}
+
