@@ -195,7 +195,7 @@ struct VulkanGraphics {
             Vertex v = {};
             //if (intensity > 1.0f) intensity /= 100;
             //else intensity *= 100;
-            v.position = glm::vec3(time,freq,intensity /10 );
+            v.position = glm::vec3(time,freq,intensity);
             //v.position = glm::vec3(time,freq,0.0f);
             vertices.push_back(v);
             ++index;

@@ -25,7 +25,7 @@ public:
 //tablazatok
 //laptop, asztali gep osszehasonlitasa
 
-    static const int baseWindowSize = 2048;
+    static const int baseWindowSize = 256;
     //this should be around 40k because it can only detect frequencies
     //between 0 and windowSize/2 (dft has real input, so the output is
     //"symmetric")

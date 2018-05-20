@@ -10,12 +10,12 @@ int main (int argc, char ** argv) {
     try {
         int rangeBegin = 2;
         int rangeEnd = rangeBegin;
-        if (argc == 3) {
-            rangeBegin = std::stoi(std::string(argv[2]));
+        if (argc == 2) {
+            rangeBegin = std::stoi(std::string(argv[1]));
             rangeEnd = rangeBegin;
         }
         if (argc == 4) {
-            rangeBegin = std::stoi(std::string(argv[2]));
+            rangeBegin = std::stoi(std::string(argv[1]));
             rangeEnd = std::stoi(std::string(argv[3]));
         }
         for (int multiplier = rangeBegin; multiplier<=rangeEnd; ++multiplier) {
@@ -32,8 +32,8 @@ int main (int argc, char ** argv) {
                 << std::chrono::duration_cast<std::chrono::milliseconds>(initEnd-initStart).count()
                 << " milliseconds\n"<< std::endl;
 
-            if (argc > 1) {
-                int runs = std::stoi(std::string(argv[1]));
+            if (argc > 2) {
+                int runs = std::stoi(std::string(argv[2]));
                 app.run(runs);
             }
             else {

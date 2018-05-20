@@ -29,7 +29,9 @@ layout(std430, binding = 1) buffer buf {
 };
 
 void main() {
-    for (int passes = 0 ; passes <= BUFFER_SIZE/2/gl_NumWorkGroups.x ; ++passes){
+    for (int passes = 0 ; 
+        passes <= BUFFER_SIZE/2/gl_NumWorkGroups.x ; 
+        ++passes){
         uint index = gl_GlobalInvocationID.x + passes * gl_NumWorkGroups.x;
         float real = 0.0;
         float im = 0.0;
@@ -37,12 +39,19 @@ void main() {
         
         for (int i = 0; i<BUFFER_SIZE; ++i) {
             float p = 2 * M_PI * index * i / BUFFER_SIZE;
+            // Hann function
+            float hann = sin(M_PI * (i+index) / (BUFFER_SIZE-1));
+            float hannedAudio = hann*hann * audio.value[i];
             //real
-            real += audio.value[i] * cos(p);
+            real += hannedAudio * cos(p);
             //imaginary
-            im += audio.value[i] * -sin(p);
+            im += hannedAudio * -sin(p);
+            //real
+            //real += audio.value[i] * cos(p);
+            //imaginary
+            //im += audio.value[i] * -sin(p);
         }
-        result[index] = sqrt(real*real + im*im) / 2 ;
+        result[index] =  sqrt(real*real + im*im) / 2 ;
         //result[index] = sqrt(real*real + im*im) / (BUFFER_SIZE / 16);
         //result[index] = gl_NumWorkGroups.x;
         //result[index] = gl_GlobalInvocationID.x;
