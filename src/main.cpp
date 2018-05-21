@@ -6,6 +6,8 @@
 
 #include <chrono>
 
+std::chrono::high_resolution_clock::duration VisualizationApplication::deltaTime = std::chrono::high_resolution_clock::duration::zero();
+
 int main (int argc, char ** argv) {
     try {
         int rangeBegin = 16;

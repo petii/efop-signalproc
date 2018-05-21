@@ -646,6 +646,7 @@ void VulkanGraphics::updateUniformBuffer() {
             glm::vec3(0.0f, 0.0f, 1.0f) //axis
         ) *
         //*/
+        rotationMatrix * 
         glm::translate(glm::mat4(),
             glm::vec3(-2.5f,1.0f,0.0f)
         );

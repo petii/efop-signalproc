@@ -20,7 +20,8 @@ struct WindowHandler {
         int width,
         int height,
         void* userPointer,
-        GLFWwindowsizefun resizeFunction
+        GLFWwindowsizefun resizeFunction,
+        GLFWkeyfun keyInputFunction
     ) {
         //std::cout << "window constructor\n";
         if (!glfwInit()) {
@@ -41,6 +42,7 @@ struct WindowHandler {
 
         glfwSetWindowUserPointer(window,userPointer);
         //glfwSetWindowSizeCallback(window,resizeFunction);
+        glfwSetKeyCallback(window,keyInputFunction);
 
         glfwSetErrorCallback(glfwErrorCallback);
     }

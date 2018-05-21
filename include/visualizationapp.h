@@ -49,7 +49,8 @@ public:
                 WIDTH,
                 HEIGHT,
                 this,
-                VisualizationApplication::onWindowResized
+                VisualizationApplication::onWindowResized,
+                VisualizationApplication::onRotateKeyPressed
             ),
             vf( //VulkanFrame
                 name,
@@ -77,27 +78,32 @@ public:
         std::cout << app << ':' << w << 'x' << h << std::endl;
     //*/
     }
-    void onRotateKeyPressed(
+    static void onRotateKeyPressed(
         GLFWwindow * window, 
         int key,
         int scancode,
         int action,
         int mods
     ) {
+        auto userP = glfwGetWindowUserPointer(window);
+        auto app = reinterpret_cast<VisualizationApplication*>(userP);
+
         //TODO: make this an enum
         int rotateDir = 0;
         if (action == GLFW_PRESS || action == GLFW_REPEAT) {
             switch (key) {
                 case GLFW_KEY_RIGHT:
-                    rotateDir = 1;
+                    rotateDir = -1;
                     break;
                 case GLFW_KEY_LEFT:
-                    rotateDir = -1;
+                    rotateDir = 1;
                 default:
                     break;
             }
         }
-        vg.rotateView(rotateDir); 
+        float deltaT = 
+            std::chrono::duration_cast<std::chrono::milliseconds>(deltaTime).count();
+        app->vg.rotateView(rotateDir, deltaT/1000); 
     }
 
     void run(int runNumbers) {
@@ -138,6 +144,7 @@ public:
         ah.startRecording();
         mainLoop();
     }
+
 
 private:
 
@@ -191,6 +198,8 @@ private:
         }
     };
 
+    static std::chrono::high_resolution_clock::duration deltaTime;
+
     void mainLoop() {
         // Basic idea:
         //     get audio data
@@ -199,6 +208,7 @@ private:
         //     create graphics from vertices
         // Sounds easy enough
         vg.appendVertices(std::vector<float>(freqDomainMax(),0.0f)); // so we can start drawing right away
+        static auto prevTime = std::chrono::high_resolution_clock::now();
         while (!glfwWindowShouldClose(wh.window)) {
             glfwPollEvents();
             auto input = ah.getMicrophoneAudio();
@@ -209,6 +219,9 @@ private:
             vg.appendVertices(result);
             vg.updateUniformBuffer();
             vg.drawFrame();
+            deltaTime = 
+                std::chrono::high_resolution_clock::now() - prevTime;
+            prevTime = std::chrono::high_resolution_clock::now();
         }
     }
 

@@ -2,6 +2,9 @@
 
 #include <vector>
 #include <vulkan/vulkan.h>
+
+#define GLM_FORCE_RADIANS
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
 
 #include "vulkanframe.h"
@@ -110,8 +113,9 @@ struct VulkanGraphics {
         vulkanFrame(&vf),
         qfi(vf.physicalDevice, vf.surface),
         rowSize(windowSize), //queue family indices
-        //rowNum(128 )
-        rowNum(100 ) //using this value does not reveal the lack of depth buffering...
+        //rowNum(128),
+        rowNum(100 ), //using this value does not reveal the lack of depth buffering...
+        rotationMatrix (glm::mat4())
     {
         //std::cout << "graphics constuctor\n";
         createGraphicsLogicalDevice(vf.physicalDevice,vf.deviceExtensions);
@@ -213,8 +217,16 @@ struct VulkanGraphics {
         }
     }
 
-    void rotateView(int direction) {
-        
+
+    const float rotationSpeed = glm::radians(30.0f);
+    glm::mat4 rotationMatrix;
+
+    void rotateView(int direction, float deltaTime) {
+        rotationMatrix = glm::rotate(
+            rotationMatrix,
+            direction * rotationSpeed * deltaTime,
+            glm::vec3(0.0f,0.0f,1.0f)  
+        );
     }
 private:
     void recordCommandBuffer(uint32_t);
