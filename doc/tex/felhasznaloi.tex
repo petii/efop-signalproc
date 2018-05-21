@@ -10,7 +10,7 @@ A jel feldolgoz\'asa vide\'ok\'arty\'an v\'egzett diszkr\'et Fourier-transzform\
 
 Tekintettel arra, hogy a diszkr\'et Fourier-transzform\'aci\'o kifejezetten m\H uveletig\'enyes algoritmus ($\ordo{n^2}$) a gyakorlatban \'altal\'aban gyors Fourier-transzform\'ac\'iot haszn\'alnak az ilyen feladatok megold\'as\'ara, amellyel $\ordo{n\cdot\log n}$-re lehet ezt jav\'itani.
 
-Azonban a processzorral ellent\'etben, ahol kevesebb mag van, de azok magasabb \'orajelen, a GPU-ban rengeteg sz\'am\'it\'asi egys\'eg van, amelyek egym\'ast\'ol f\"uggetlen\"ul p\'arhuzamosan tudnak m\H uk\"odni, viszont alacsonyabb \'orajelen. \'Igy ha a kimenet egyes  komponenseit k\"ul\"on sz\'am\'it\'asi egys\'eg sz\'amolja p\'arhuzamosan, akkor elm\'eletileg $\ordo{n}$-es m\H uveletig\'enyr\H ol besz\'elhet\"unk, ami m\'egink\'abb hozz\'aj\'arul a kis k\'es\'es\H u megjelen\'it\'eshez. 
+Azonban a processzorral ellent\'etben, ahol kevesebb mag, de azok magasabb \'orajelen, a GPU-ban rengeteg sz\'am\'it\'asi egys\'eg van, amelyek egym\'ast\'ol f\"uggetlen\"ul p\'arhuzamosan tudnak m\H uk\"odni, viszont alacsonyabb \'orajelen. \'Igy ha a kimenet egyes  komponenseit k\"ul\"on sz\'am\'it\'asi egys\'eg sz\'amolja p\'arhuzamosan, akkor elm\'eletileg $\ordo{n}$-es m\H uveletig\'enyr\H ol besz\'elhet\"unk, ami m\'egink\'abb hozz\'aj\'arul a kis k\'es\'es\H u megjelen\'it\'eshez. 
 
 
 \subsection{Technol\'ogi\'ak}
@@ -57,11 +57,11 @@ A haszn\'alt Linux disztrib\'uci\'o csomagjai k\"oz\"ott \'erdemes a \code{vulka
 Tov\'abba Vulkan alkalmaz\'asok futtat\'as\'ahoz kell a Vulkan r\'eteg-\'es driver kezel\H o konyvt\'ar. (Debian alap\'u rendszereken \code{libvulkan1}, Arch alap\'uakon \code{vulkan-icd-loader}).
 
 \subsection{Futtat\'as}
-Ha a futtat\'ashoz sz\"uks\'eges felt\'etelek adottak (\ref{runrequirements}) a program a \code{bin/Release} mapp\'aban tal\'alhat\'o \code{.out} kiterjeszt\'es\H u f\'ajl elind\'it\'as\'aval futtathat\'o. 
-
-A program elind\'it\'asa ut\'an az al\'abbihoz hasonl\'o k\'eperny\H o fogad minket:
 \begin{figure}[h]
-	%\includegraphics[\width=\textwidth]{img/user/screenshot.png}
+	\includegraphics[width=\textwidth]{img/user/screenshot}
 	\centering
 	\caption{K\'eperny\H ok\'ep a programr\'ol fut\'as k\"ozben.}
 \end{figure}
+
+Ha a futtat\'ashoz sz\"uks\'eges felt\'etelek adottak (\ref{runrequirements}) a program a \code{bin/release} mapp\'aban tal\'alhat\'o \code{.out} kiterjeszt\'es\H u f\'ajl elind\'it\'as\'aval futtathat\'o. 
+
