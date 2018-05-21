@@ -23,7 +23,7 @@ void main() {
         //rgba
         1.0 * (inPosition.z - 1),
         //0.0, 
-        0.75*(1.0 - (abs(inPosition.z - 0.5))),
+        0.75*(1.0 - (abs(inPosition.z - 0.3))),
         1.0 * (1-inPosition.z)
     ); //inColor;
 }

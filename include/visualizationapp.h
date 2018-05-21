@@ -77,6 +77,28 @@ public:
         std::cout << app << ':' << w << 'x' << h << std::endl;
     //*/
     }
+    void onRotateKeyPressed(
+        GLFWwindow * window, 
+        int key,
+        int scancode,
+        int action,
+        int mods
+    ) {
+        //TODO: make this an enum
+        int rotateDir = 0;
+        if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+            switch (key) {
+                case GLFW_KEY_RIGHT:
+                    rotateDir = 1;
+                    break;
+                case GLFW_KEY_LEFT:
+                    rotateDir = -1;
+                default:
+                    break;
+            }
+        }
+        vg.rotateView(rotateDir); 
+    }
 
     void run(int runNumbers) {
         //std::cout << "running running\n";

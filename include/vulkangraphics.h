@@ -212,6 +212,10 @@ struct VulkanGraphics {
             indices.push_back(i+ originalSize - rowSize );
         }
     }
+
+    void rotateView(int direction) {
+        
+    }
 private:
     void recordCommandBuffer(uint32_t);
 

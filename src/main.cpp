@@ -8,7 +8,7 @@
 
 int main (int argc, char ** argv) {
     try {
-        int rangeBegin = 2;
+        int rangeBegin = 16;
         int rangeEnd = rangeBegin;
         if (argc == 2) {
             rangeBegin = std::stoi(std::string(argv[1]));
