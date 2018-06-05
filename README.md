@@ -1,1 +1,12 @@
-# bsc-thesis
+# Work for EFOP
+## Goal
+Egy jelfeldolgozó rendszer tervezése amely a feladatát valós időben tudja elvégezni. 
+Szeretnék megvizsgálni meglevő keretrendszereket, olyan téren, hogy hogyan tudnak egymással együttműködni használhatóság és főként hatékonyság szempontjából. Ezt figyelembe véve pedig olyan lehetséges tervezetet készíteni, amely modern és adatvizualizációs problémákat minél kisebb késéssel tud megoldani. 
+
+# Audio Input
+## "Native" linux (pulseaudio)
+## PortAudio
+
+# Fourier Transform
+## On GPU with Vulkan
+## FFTW 
