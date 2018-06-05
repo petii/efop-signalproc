@@ -376,7 +376,44 @@ void VulkanGraphics::createCommandPool() {
     }
 }
 
-//const int rowNum = 128;
+void VulkanGraphics::createDepthResources() {
+    //TODO:find supported format according to hardware
+    VkFormat format = VK_FORMAT_D32_SFLOAT;
+
+    VkImageCreateInfo imageInfo = {};
+    imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageInfo.imageType = VK_IMAGE_TYPE_2D;
+    imageInfo.extent = {
+        swapChainExtent.width,
+        swapChainExtent.height,
+        1
+    };
+    imageInfo.mipLevels = 1;
+    imageInfo.arrayLayers = 1;
+    imageInfo.format = format;
+    imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    imageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    if (vkCreateImage(device,&imageInfo, nullptr, &depthImage) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create depth image!");
+    }
+
+    VkMemoryRequirements memReq ;
+    vkGetImageMemoryRequirements(device,depthImage, &memReq);
+
+    VkMemoryAllocateInfo allocateInfo = {};
+    allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocateInfo.allocationSize = memReq.size;
+    allocateInfo.memoryTypeIndex = 
+        util::memory::findMemoryType(
+            vulkanFrame->physicalDevice,
+            memReq.memoryTypeBits,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        );
+}
 
 void VulkanGraphics::createVertexBuffer() {
     //TODO: figure out buffers

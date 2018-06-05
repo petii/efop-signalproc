@@ -4,6 +4,7 @@
 #include <vulkan/vulkan.h>
 
 #define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
 
@@ -99,6 +100,10 @@ struct VulkanGraphics {
     VkBuffer uniformBuffer;
     VkDeviceMemory uniformBufferMemory;
 
+    VkImage depthImage;
+    VkDeviceMemory depthImageMemory;
+    VkImageView depthImageView;
+
     VkDescriptorPool descriptorPool;
     VkDescriptorSet descriptorSet;
 
@@ -129,6 +134,7 @@ struct VulkanGraphics {
         createGraphicsPipeline();
         createFramebuffers();
         createCommandPool();
+        createDepthResources();
         createVertexBuffer();
         createIndexBuffer();
         //Also allocates memory and binds them
@@ -240,6 +246,7 @@ private:
     void createGraphicsPipeline();
     void createFramebuffers();
     void createCommandPool();
+    void createDepthResources();
     void createVertexBuffer();
     void createIndexBuffer();
     void createUniformBuffer(const VkPhysicalDevice&);
