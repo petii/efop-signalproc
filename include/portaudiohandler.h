@@ -18,7 +18,9 @@
 #include <portaudio.h>
 #include <mutex>
 
-class PortAudioHandler {
+#include "audiohandler.h"
+
+class PortAudioHandler : public AudioHandler{
     //std::random_device rd;
     //std::mt19937 gen;
     //std::uniform_real_distribution<float> dis;

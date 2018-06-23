@@ -2,27 +2,25 @@
 
 #include <complex>
 #include <iostream>
+#include <utility>
+#include <memory>
 
 #include "audiohandler.h"
 #include "fourierhandler.h"
-
+#include "portaudiohandler.h"
+#include "pulseaudiohandler.h"
+#include "vulkanfourier.h"
+#include "fftwfourier.h"
 #include "measurement.h"
 
 class MeasurementsApp {
 public:
-  const std::string name;
-  // triple buffering megnezese
-  // osszehasonlitas
-
-  // teszteles helyett meresek
+  // meresek
   // tablazatok
   // laptop, asztali gep osszehasonlitasa
 
   static const int baseWindowSize = 256;
-  // this should be around 40k because it can only detect frequencies
-  // between 0 and windowSize/2 (dft has real input, so the output is
-  //"symmetric")
-  const unsigned int windowSize;
+  unsigned int windowSize;
   unsigned int freqDomainMax() const { return windowSize / 2; }
 
   int numberOfRuns;
@@ -32,11 +30,20 @@ private:
   FourierHandler *fourierHandler;
 
 public:
-  MeasurementsApp(const std::string &appName, int windowSizeMul)
-      : name(appName) {}
+  MeasurementsApp(std::pair<int,int> range, int runs) {}
   ~MeasurementsApp() {}
 
+  void doMeasurements() {
+    auto portAudioResults = runAudioMeasurements(std::make_unique<PortAudioHandler>(...));
+    auto pulseAudioResults = runAudioMeasurements(std::make_unique<PulseAudioHandler>(...));
+
+    auto vulkanFourierResults = runFourierMeasurements(std::make_unique<VulkanFourier>(...));
+    auto fftwFourierResults = runFourierMeasurements(std::make_unique<FFTWFourier>(...));
+  }
 private:
+  Measurement runAudioMeasurements(std::unique_ptr<AudioHandler> audioHandler);
+  Measurement runFourierMeasurements(std::unique_ptr<FourierHandler> fourierHandler);
+
   std::vector<std::complex<float>>
   discreteFourierTransformCPU(std::vector<float> input) {
     std::vector<std::complex<float>> dft(input.size());
