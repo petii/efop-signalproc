@@ -48,3 +48,4 @@ lib/*
 # Compiled Vulkan shaders
 *.spv
 
+.vscode/
