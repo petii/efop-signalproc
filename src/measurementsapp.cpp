@@ -20,6 +20,7 @@ void MeasurementsApp::doMeasurements() {
 
 std::vector<Measurement> MeasurementsApp::runAudioMeasurements(
     std::unique_ptr<AudioHandler> audioHandler) {}
+
 std::vector<Measurement> MeasurementsApp::runFourierMeasurements(
     std::unique_ptr<FourierHandler> fourierHandler) {
   std::random_device randomDevice{};
@@ -42,10 +43,12 @@ std::vector<Measurement> MeasurementsApp::runFourierMeasurements(
     }
     fourierHandler->setWindowSize(dataSize);
     for (auto &data : randomData) {
-
       fourierHandler->addInput(data);
+      runMeasurement.add();
       fourierHandler->runTransform();
+      runMeasurement.end();
     }
-    measurements.push_back(measurement);
+    measurements.push_back(runMeasurement);
   }
+  return measurements;
 }

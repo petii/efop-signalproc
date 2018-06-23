@@ -14,12 +14,21 @@ struct Measurement {
 
   std::vector<std::chrono::high_resolution_clock::time_point> starts;
   std::vector<std::chrono::high_resolution_clock::time_point> ends;
+  
   void clear() {
     overallRuntime = std::chrono::high_resolution_clock::duration::zero();
     starts.clear();
-    starts.resize(size);
+    starts.reserve(size);
     ends.clear();
-    ends.resize(size);
+    ends.reserve(size);
+  }
+
+  inline void add() {
+    starts.push_back(std::chrono::high_resolution_clock::now());
+  }
+
+  inline void end() {
+    ends.push_back(std::chrono::high_resolution_clock::now());
   }
 
   std::string toString() {
