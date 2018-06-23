@@ -5,9 +5,11 @@
 class FourierHandler {
 
 public:
-  template <typename T> void addInput(const std::vector<T> &input) = delete;
+  virtual void setWindowSize(size_t size) = 0;
 
-  void runTransform() = delete;
+  virtual void addInput(const std::vector<double> &input) = 0;
 
-  template <typename T> std::vector<T> getResult() const = delete;
+  virtual void runTransform() = 0;
+
+  virtual std::vector<double> getResult() const = 0;
 };
