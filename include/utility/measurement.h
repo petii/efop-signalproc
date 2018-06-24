@@ -6,15 +6,24 @@
 #include <string>
 #include <vector>
 
+enum class MeasurementType {
+  DataCopy,
+  Transform,
+};
+
 struct Measurement {
   const int size;
-  Measurement(int size) : size(size) { clear(); }
+  Measurement(MeasurementType type, int size) : size(size), purpose(type) {
+    clear();
+  }
+
+  MeasurementType purpose;
 
   std::chrono::high_resolution_clock::duration overallRuntime;
 
   std::vector<std::chrono::high_resolution_clock::time_point> starts;
   std::vector<std::chrono::high_resolution_clock::time_point> ends;
-  
+
   void clear() {
     overallRuntime = std::chrono::high_resolution_clock::duration::zero();
     starts.clear();

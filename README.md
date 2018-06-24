@@ -4,9 +4,9 @@ Szeretnék megvizsgálni meglevő keretrendszereket, olyan téren, hogy hogyan t
 Június 30-ig egy, az eredményeimet összefoglaló dokumentum készítését vállalom.
 
 # Audio Input
-## "Native" linux (pulseaudio)
+## PulseAudio
 ## PortAudio
 
 # Fourier Transform
 ## On GPU with Vulkan
-## FFTW 
+## FFTW++

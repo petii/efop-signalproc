@@ -1,5 +1,6 @@
 #include "measurementsapp.h"
 
+#include <memory>
 #include <random>
 
 MeasurementsApp::MeasurementsApp(std::pair<int, int> range, int runs)
@@ -7,10 +8,10 @@ MeasurementsApp::MeasurementsApp(std::pair<int, int> range, int runs)
 MeasurementsApp::~MeasurementsApp() {}
 
 void MeasurementsApp::doMeasurements() {
-  auto portAudioResults =
-      runAudioMeasurements(std::make_unique<PortAudioHandler>());
-  auto pulseAudioResults =
-      runAudioMeasurements(std::make_unique<PulseAudioHandler>());
+//   auto portAudioResults =
+//       runAudioMeasurements(std::make_unique<PortAudioHandler>());
+//   auto pulseAudioResults =
+//       runAudioMeasurements(std::make_unique<PulseAudioHandler>());
 
   auto vulkanFourierResults =
       runFourierMeasurements(std::make_unique<VulkanFourier>());
@@ -31,8 +32,8 @@ std::vector<Measurement> MeasurementsApp::runFourierMeasurements(
 
   for (int size = range.first; size < range.second; ++size) {
     auto dataSize = baseWindowSize * size;
-    Measurement copyMeasurement(runs);
-    Measurement runMeasurement(runs);
+    Measurement copyMeasurement(MeasurementType::DataCopy, runs);
+    Measurement runMeasurement(MeasurementType::Transform, runs);
     fourierHandler->setWindowSize(dataSize);
     std::vector<std::vector<double>> randomData;
     randomData.resize(runs);
@@ -43,11 +44,14 @@ std::vector<Measurement> MeasurementsApp::runFourierMeasurements(
     }
     fourierHandler->setWindowSize(dataSize);
     for (auto &data : randomData) {
+      copyMeasurement.add();
       fourierHandler->addInput(data);
+      copyMeasurement.end();
       runMeasurement.add();
       fourierHandler->runTransform();
       runMeasurement.end();
     }
+    measurements.push_back(copyMeasurement);
     measurements.push_back(runMeasurement);
   }
   return measurements;

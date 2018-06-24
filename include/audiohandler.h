@@ -1,7 +1,9 @@
 #pragma once
 
+#include <vector>
+
 class AudioHandler {
 
 public:
-  template <typename T> std::vector<T> getAudio(int items) = delete;
+  virtual std::vector<double> getAudio(int items) = 0;
 };

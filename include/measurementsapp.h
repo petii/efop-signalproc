@@ -8,7 +8,7 @@
 #include "audiohandler.h"
 #include "fftwfourier.h"
 #include "fourierhandler.h"
-#include "measurement.h"
+#include "utility/measurement.h"
 #include "portaudiohandler.h"
 #include "pulseaudiohandler.h"
 #include "vulkanfourier.h"
