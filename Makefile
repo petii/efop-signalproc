@@ -9,7 +9,7 @@ OUTPUT_NAME := a.out
 FFTWPP_PATH := /home/petii/.local/fftw++-2.05
 
 SOURCES := $(shell find $(SRCDIR) -type f -name *.cpp) ${FFTWPP_PATH}/fftw++.cc
-CFLAGS := -std=c++17 -Wall -fopenmp 
+CFLAGS := -std=c++17 -fopenmp 
 LDFLAGS := -L${VULKAN_SDK}/lib `pkg-config --static --libs glfw3` -lvulkan -lportaudio -lfftw3 -lfftw3_omp
 INCLUDE := -Iinclude -I${VULKAN_SDK}/include -I${FFTWPP_PATH} 
 

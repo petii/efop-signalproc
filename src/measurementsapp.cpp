@@ -1,15 +1,15 @@
 #include "measurementsapp.h"
 
+#include <chrono>
 #include <memory>
 #include <random>
-#include <chrono>
 
 MeasurementsApp::MeasurementsApp(std::pair<int, int> range, int runs)
     : range(range), runs(runs) {}
 MeasurementsApp::~MeasurementsApp() {}
 
 void MeasurementsApp::doMeasurements() {
-    std::clog << range.first << '-' << range.second << std::endl;
+  std::clog << range.first << '-' << range.second << std::endl;
   //   auto portAudioResults =
   //       runAudioMeasurements(std::make_unique<PortAudioHandler>());
   //   auto pulseAudioResults =
@@ -17,8 +17,8 @@ void MeasurementsApp::doMeasurements() {
 
   auto vulkanFourierResults =
       runFourierMeasurements(std::make_unique<VulkanFourier>());
-    auto fftwFourierResults =
-        runFourierMeasurements(std::make_unique<FFTWFourier>());
+  auto fftwFourierResults =
+      runFourierMeasurements(std::make_unique<FFTWFourier>());
   std::clog << "vulkan\t" << vulkanFourierResults.size() << std::endl;
   for (auto &i : vulkanFourierResults) {
     std::clog << i.toString() << std::endl;
@@ -63,7 +63,7 @@ std::vector<Measurement> MeasurementsApp::runFourierMeasurements(
       runMeasurement.end();
     }
     auto end = std::chrono::high_resolution_clock::now();
-    runMeasurement.overallRuntime = end - start;
+    copyMeasurement.overallRuntime = end - start;
     measurements.push_back(copyMeasurement);
     measurements.push_back(runMeasurement);
   }

@@ -46,9 +46,11 @@ class VulkanFourier : public FourierHandler {
 
   VkPipelineLayout pipelineLayout;
   VkPipeline pipeline;
+  VkPipeline hanningPipeline;
 
   VkCommandPool commandPool;
   VkCommandBuffer commandBuffer;
+  VkCommandBuffer hanningCommandBuffer;
 
   VkQueue queue;
 
@@ -70,6 +72,7 @@ public:
   std::vector<double> getResult() const override;
 
   void runTransform() override;
+  void runHanning();
 
   VulkanFourier() {
     // creation();
@@ -103,12 +106,21 @@ private:
     allocateDescriptorSet();
     connectBuffersToDescriptorSets();
     createComputePipelineLayout();
-    createComputePipeline();
+    createComputePipelines();
     createCommandPool();
-    allocateCommandBuffer();
+    allocateCommandBuffers();
     recordCommands();
+
+    vkMapMemory(device, bufferMemory, 0, bufferSize, 0, &pData);
+    fData = (float *)pData;
   }
+
+  void *pData;
+  float *fData;
+
   void deletion() {
+    vkUnmapMemory(device, bufferMemory);
+
     initialized = false;
 
     vkFreeMemory(device, bufferMemory, nullptr);
@@ -179,8 +191,8 @@ private:
   void allocateDescriptorSet();
   void connectBuffersToDescriptorSets();
   void createComputePipelineLayout();
-  void createComputePipeline();
+  void createComputePipelines();
   void createCommandPool();
-  void allocateCommandBuffer();
+  void allocateCommandBuffers();
   void recordCommands();
 };

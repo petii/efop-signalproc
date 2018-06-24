@@ -8,7 +8,7 @@
 
 struct Measurement {
   const int size;
-  Measurement(const std::string& type, int size) : size(size), purpose(type) {
+  Measurement(const std::string &type, int size) : size(size), purpose(type) {
     clear();
   }
 
@@ -38,11 +38,14 @@ struct Measurement {
   std::string toString() {
     std::stringstream result;
     result << purpose << std::endl;
-    result << "Overall runtime (" << size << " runs):\t"
-           << std::chrono::duration_cast<std::chrono::nanoseconds>(
-                  overallRuntime)
-                  .count()
-           << " nanoseconds" << std::endl;
+    if (overallRuntime !=
+        std::chrono::high_resolution_clock::duration::zero()) {
+      result << "Overall runtime (" << size << " runs):\t"
+             << std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    overallRuntime)
+                    .count()
+             << " nanoseconds" << std::endl;
+    }
     std::vector<long> diff;
     for (auto start = starts.begin(), end = ends.begin();
          start != starts.end() && end != ends.end(); ++start, ++end) {

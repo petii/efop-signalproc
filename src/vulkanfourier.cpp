@@ -121,19 +121,16 @@ bool VulkanFourier::checkValidationLayerSupport(
   return true;
 }
 
-void VulkanFourier::addInput(const std::vector<double> &data){
-  void *pData;
-  vkMapMemory(device, bufferMemory, 0, bufferSize, 0, &pData);
-  float *fData = (float *)pData;
+void VulkanFourier::addInput(const std::vector<double> &data) {
   for (int i = 0; i < data.size(); ++i) {
     fData[i] = static_cast<float>(data[i]);
   }
+  runHanning();
   // std::memcpy(
   //     pData,
   //     data.data(),
   //     data.size()
   // );
-  vkUnmapMemory(device, bufferMemory);
 }
 
 std::vector<double> VulkanFourier::getResult() const {
@@ -147,6 +144,15 @@ std::vector<double> VulkanFourier::getResult() const {
   );
   vkUnmapMemory(device, bufferMemory);
   return data;
+}
+
+void VulkanFourier::runHanning() {
+  VkSubmitInfo submitInfo = {};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &hanningCommandBuffer;
+
+  vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
 }
 
 void VulkanFourier::runTransform() {
@@ -405,7 +411,7 @@ void VulkanFourier::createComputePipelineLayout() {
   vkCreatePipelineLayout(device, &pllci, nullptr, &pipelineLayout);
 }
 
-void VulkanFourier::createComputePipeline() {
+void VulkanFourier::createComputePipelines() {
   // Set compute buffer size as a specialization constant (in shader)
   uint32_t specData[] = {windowSize};
 
@@ -434,6 +440,18 @@ void VulkanFourier::createComputePipeline() {
 
   vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &cplci, nullptr,
                            &pipeline);
+
+  VkPipelineShaderStageCreateInfo hsi = {};
+  ssci.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  ssci.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+  ssci.module = shaderModule;
+  ssci.pName = "hann";
+  ssci.pSpecializationInfo = &specInfo;
+
+  cplci.stage = hsi;
+
+  vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &cplci, nullptr,
+                           &hanningPipeline);
 }
 
 void VulkanFourier::createCommandPool() {
@@ -445,7 +463,7 @@ void VulkanFourier::createCommandPool() {
   vkCreateCommandPool(device, &commandPoolCreateInfo, nullptr, &commandPool);
 }
 
-void VulkanFourier::allocateCommandBuffer() {
+void VulkanFourier::allocateCommandBuffers() {
   VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
   commandBufferAllocateInfo.sType =
       VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -455,6 +473,9 @@ void VulkanFourier::allocateCommandBuffer() {
   commandBufferAllocateInfo.commandBufferCount =
       1; // allocate a single command buffer.
   vkAllocateCommandBuffers(device, &commandBufferAllocateInfo, &commandBuffer);
+
+  vkAllocateCommandBuffers(device, &commandBufferAllocateInfo,
+                           &hanningCommandBuffer);
 }
 
 void VulkanFourier::recordCommands() {
@@ -472,6 +493,18 @@ void VulkanFourier::recordCommands() {
                 1,              // uint32_t groupCountY,
                 1               // uint32_t groupCountZ
   );
-
   vkEndCommandBuffer(commandBuffer);
+
+  vkBeginCommandBuffer(hanningCommandBuffer, &beginInfo);
+
+  vkCmdBindPipeline(hanningCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
+                    hanningPipeline);
+  vkCmdBindDescriptorSets(hanningCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
+                          pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+  vkCmdDispatch(hanningCommandBuffer,
+                // windowSize,// uint32_t groupCountX,
+                workGroupCount, // uint32_t groupCountX,
+                1,              // uint32_t groupCountY,
+                1               // uint32_t groupCountZ
+  );
 }
