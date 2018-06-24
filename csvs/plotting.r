@@ -16,3 +16,5 @@ lines(c.v.means)
 plot(t.f.means,type='l')
 lines(t.v.means)
 
+plot(t.v.means,type='l')
+lines(t.f.means)

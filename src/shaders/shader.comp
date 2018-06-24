@@ -31,6 +31,6 @@ void main() {
     real += audio.value[i] * cos(p);
     im += audio.value[i] * -sin(p);
   }
-  result[index] = sqrt(real * real + im * im) / 2;
+  result[index] = sqrt(real * real + im * im) ;
   // result[index] /= (BUFFER_SIZE / index);
 }

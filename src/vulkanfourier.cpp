@@ -125,7 +125,7 @@ void VulkanFourier::addInput(const std::vector<double> &data) {
   for (int i = 0; i < data.size(); ++i) {
     fData[i] = static_cast<float>(data[i]);
   }
-  runHanning();
+  // runHanning();
   // std::memcpy(
   //     pData,
   //     data.data(),

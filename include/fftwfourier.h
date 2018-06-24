@@ -42,7 +42,7 @@ public:
     auto &dataRef = *data;
     for (int i = 0; i < windowSize; ++i) {
       //apply hann function
-      dataRef[i] = hann(i,input[i]);
+      dataRef[i] = input[i];
     }
   }
 

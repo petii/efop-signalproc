@@ -37,10 +37,14 @@ void MeasurementsApp::doMeasurements() {
   //   auto pulseAudioResults =
   //       runAudioMeasurements(std::make_unique<PulseAudioHandler>());
 
+  std::clog << "running vulkan\n";
   auto vulkanFourierResults =
       runFourierMeasurements(std::make_unique<VulkanFourier>());
+  std::clog << "end of vulkan\n";
+  std::clog << "running fftw++\n";
   auto fftwFourierResults =
       runFourierMeasurements(std::make_unique<FFTWFourier>());
+  std::clog << "end of fftw++\n";
   exportResults("vulkan", vulkanFourierResults);
   exportResults("fftwpp", fftwFourierResults);
   // std::clog << "vulkan\t" << vulkanFourierResults.size() << std::endl;
