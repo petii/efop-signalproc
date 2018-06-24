@@ -26,9 +26,8 @@ release:
 	$(COMPILER) -o $(TARGET)/$(OUTPUT_NAME) $(SOURCES) $(CFLAGS) $(INCLUDE) $(LDFLAGS) -DNDEBUG -O3
 
 shaders:
-	cd src/shaders/ ; glslangValidator -V shader.*
+	cd src/shaders/ ; glslangValidator -V shader.comp 
+	cd src/shaders/ ; glslangValidator -V hann.comp -o hann.spv 
 
 clean:
-	rm $(DTARGET) $(TARGET) -r
-	mkdir $(DTARGET) $(TARGET)
 	rm src/shaders/*.spv

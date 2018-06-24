@@ -153,6 +153,8 @@ void VulkanFourier::runHanning() {
   submitInfo.pCommandBuffers = &hanningCommandBuffer;
 
   vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+
+  // vkQueueWaitIdle(queue);
 }
 
 void VulkanFourier::runTransform() {
@@ -441,17 +443,22 @@ void VulkanFourier::createComputePipelines() {
   vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &cplci, nullptr,
                            &pipeline);
 
+  auto shaderCode = util::pipeline::readShader("src/shaders/hann.spv");
+  auto hanningShader = util::pipeline::createShaderModule(device,shaderCode);
+
   VkPipelineShaderStageCreateInfo hsi = {};
-  ssci.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-  ssci.stage = VK_SHADER_STAGE_COMPUTE_BIT;
-  ssci.module = shaderModule;
-  ssci.pName = "hann";
-  ssci.pSpecializationInfo = &specInfo;
+  hsi.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  hsi.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+  hsi.module = hanningShader;
+  hsi.pName = "main";
+  hsi.pSpecializationInfo = &specInfo;
 
   cplci.stage = hsi;
 
   vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &cplci, nullptr,
                            &hanningPipeline);
+
+  vkDestroyShaderModule(device,hanningShader,nullptr);
 }
 
 void VulkanFourier::createCommandPool() {
@@ -507,4 +514,6 @@ void VulkanFourier::recordCommands() {
                 1,              // uint32_t groupCountY,
                 1               // uint32_t groupCountZ
   );
+
+  vkEndCommandBuffer(hanningCommandBuffer);
 }

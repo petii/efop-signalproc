@@ -119,6 +119,9 @@ private:
   float *fData;
 
   void deletion() {
+    vkQueueWaitIdle(queue);
+    vkDeviceWaitIdle(device);
+
     vkUnmapMemory(device, bufferMemory);
 
     initialized = false;
@@ -130,6 +133,7 @@ private:
     vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
     vkDestroyShaderModule(device, shaderModule, nullptr);
     vkDestroyPipeline(device, pipeline, nullptr);
+    vkDestroyPipeline(device, hanningPipeline, nullptr);
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
     vkDestroyCommandPool(device, commandPool, nullptr);

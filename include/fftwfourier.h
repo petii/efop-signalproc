@@ -28,6 +28,7 @@ class FFTWFourier : public FourierHandler {
 
 public:
   FFTWFourier() { fftwpp::fftw::maxthreads = get_max_threads(); }
+  virtual ~FFTWFourier() {}
 
   virtual void setWindowSize(size_t size) override {
     windowSize = size;

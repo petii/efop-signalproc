@@ -7,6 +7,8 @@
 class FourierHandler {
 
 public:
+  virtual ~FourierHandler() {};
+
   virtual void setWindowSize(size_t size) = 0;
 
   virtual void addInput(const std::vector<double> &input) = 0;
