@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <random>
+#include <chrono>
 
 MeasurementsApp::MeasurementsApp(std::pair<int, int> range, int runs)
     : range(range), runs(runs) {}
@@ -16,10 +17,14 @@ void MeasurementsApp::doMeasurements() {
 
   auto vulkanFourierResults =
       runFourierMeasurements(std::make_unique<VulkanFourier>());
-  //   auto fftwFourierResults =
-  //       runFourierMeasurements(std::make_unique<FFTWFourier>());
+    auto fftwFourierResults =
+        runFourierMeasurements(std::make_unique<FFTWFourier>());
   std::clog << "vulkan\t" << vulkanFourierResults.size() << std::endl;
   for (auto &i : vulkanFourierResults) {
+    std::clog << i.toString() << std::endl;
+  }
+  std::clog << "fftwpp\t" << fftwFourierResults.size() << std::endl;
+  for (auto &i : fftwFourierResults) {
     std::clog << i.toString() << std::endl;
   }
 }
@@ -48,15 +53,18 @@ std::vector<Measurement> MeasurementsApp::runFourierMeasurements(
       }
     }
     fourierHandler->setWindowSize(dataSize);
+    auto start = std::chrono::high_resolution_clock::now();
     for (auto &data : randomData) {
-    //   copyMeasurement.add();
+      copyMeasurement.add();
       fourierHandler->addInput(data);
-    //   copyMeasurement.end();
+      copyMeasurement.end();
       runMeasurement.add();
       fourierHandler->runTransform();
       runMeasurement.end();
     }
-    // measurements.push_back(copyMeasurement);
+    auto end = std::chrono::high_resolution_clock::now();
+    runMeasurement.overallRuntime = end - start;
+    measurements.push_back(copyMeasurement);
     measurements.push_back(runMeasurement);
   }
   return measurements;

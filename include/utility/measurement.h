@@ -39,16 +39,16 @@ struct Measurement {
     std::stringstream result;
     result << purpose << std::endl;
     result << "Overall runtime (" << size << " runs):\t"
-           << std::chrono::duration_cast<std::chrono::milliseconds>(
+           << std::chrono::duration_cast<std::chrono::nanoseconds>(
                   overallRuntime)
                   .count()
-           << " milliseconds" << std::endl;
+           << " nanoseconds" << std::endl;
     std::vector<long> diff;
     for (auto start = starts.begin(), end = ends.begin();
          start != starts.end() && end != ends.end(); ++start, ++end) {
       auto span = *end - *start;
       diff.push_back(
-          std::chrono::duration_cast<std::chrono::milliseconds>(span).count());
+          std::chrono::duration_cast<std::chrono::nanoseconds>(span).count());
     }
     result << "Average runtime:\t";
     // using custom loop instead of std::accumulate to avoid possible overflow
@@ -57,12 +57,12 @@ struct Measurement {
     for (const auto &d : diff) {
       avg += d / N;
     }
-    result << avg << " milliseconds\n";
+    result << avg << " nanoseconds\n";
     auto fastest = std::min_element(diff.begin(), diff.end());
     auto slowest = std::max_element(diff.begin(), diff.end());
-    result << "Fastest runtime:\t" << *fastest << " milliseconds" << std::endl;
+    result << "Fastest runtime:\t" << *fastest << " nanoseconds" << std::endl;
     result << "Slowest runtime:\t" << *slowest
-           << " milliseconds"; // << std::endl;
+           << " nanoseconds"; // << std::endl;
     return result.str();
   }
 };
