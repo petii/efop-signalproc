@@ -7,8 +7,8 @@
 #include "measurementsapp.h"
 
 int main(int argc, char **argv) {
-  if (argc > 1 &&
-      (std::string(argv[1]) == "-h" || std::string(argv[1]) == "--help")) {
+  if ( argc == 1 || (argc > 1 &&
+      (std::string(argv[1]) == "-h" || std::string(argv[1]) == "--help")) ){
     std::clog
         << "usage:\t" << argv[0] << " "
         << "[#1 [#2] [#3]]" << std::endl

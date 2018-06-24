@@ -8,9 +8,9 @@
 #include "audiohandler.h"
 #include "fftwfourier.h"
 #include "fourierhandler.h"
-#include "utility/measurement.h"
 #include "portaudiohandler.h"
 #include "pulseaudiohandler.h"
+#include "utility/measurement.h"
 #include "vulkanfourier.h"
 
 class MeasurementsApp {
@@ -24,7 +24,7 @@ public:
   inline unsigned int freqDomainMax() const { return windowSize / 2; }
 
   int runs;
-  std::pair<int,int> range;
+  std::pair<int, int> range;
 
 public:
   MeasurementsApp(std::pair<int, int> range, int runs);

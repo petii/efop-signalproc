@@ -6,18 +6,13 @@
 #include <string>
 #include <vector>
 
-enum class MeasurementType {
-  DataCopy,
-  Transform,
-};
-
 struct Measurement {
   const int size;
-  Measurement(MeasurementType type, int size) : size(size), purpose(type) {
+  Measurement(const std::string& type, int size) : size(size), purpose(type) {
     clear();
   }
 
-  MeasurementType purpose;
+  std::string purpose;
 
   std::chrono::high_resolution_clock::duration overallRuntime;
 
@@ -42,6 +37,7 @@ struct Measurement {
 
   std::string toString() {
     std::stringstream result;
+    result << purpose << std::endl;
     result << "Overall runtime (" << size << " runs):\t"
            << std::chrono::duration_cast<std::chrono::milliseconds>(
                   overallRuntime)

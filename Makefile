@@ -4,7 +4,7 @@ SRCDIR := src
 BUILDDIR := build
 DTARGET := bin/debug
 TARGET := bin/release
-OUTPUT_NAME := vapp.out
+OUTPUT_NAME := a.out
 
 SOURCES := $(shell find $(SRCDIR) -type f -name *.cpp)
 CFLAGS := -std=c++17 -Wall
@@ -18,7 +18,7 @@ all:
 	make clean
 
 debug:
-	$(COMPILER) -o $(DTARGET)/$(OUTPUT_NAME) $(SOURCES) $(CFLAGS) $(INCLUDE) $(LDFLAGS) -DDEBUG -g -ggdb -Og
+	$(COMPILER) -o $(OUTPUT_NAME) $(SOURCES) $(CFLAGS) $(INCLUDE) $(LDFLAGS) -DDEBUG -g -ggdb -Og
 
 release:
 	$(COMPILER) -o $(TARGET)/$(OUTPUT_NAME) $(SOURCES) $(CFLAGS) $(INCLUDE) $(LDFLAGS) -DNDEBUG -O3

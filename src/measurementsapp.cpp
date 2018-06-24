@@ -8,15 +8,20 @@ MeasurementsApp::MeasurementsApp(std::pair<int, int> range, int runs)
 MeasurementsApp::~MeasurementsApp() {}
 
 void MeasurementsApp::doMeasurements() {
-//   auto portAudioResults =
-//       runAudioMeasurements(std::make_unique<PortAudioHandler>());
-//   auto pulseAudioResults =
-//       runAudioMeasurements(std::make_unique<PulseAudioHandler>());
+    std::clog << range.first << '-' << range.second << std::endl;
+  //   auto portAudioResults =
+  //       runAudioMeasurements(std::make_unique<PortAudioHandler>());
+  //   auto pulseAudioResults =
+  //       runAudioMeasurements(std::make_unique<PulseAudioHandler>());
 
   auto vulkanFourierResults =
       runFourierMeasurements(std::make_unique<VulkanFourier>());
-  auto fftwFourierResults =
-      runFourierMeasurements(std::make_unique<FFTWFourier>());
+  //   auto fftwFourierResults =
+  //       runFourierMeasurements(std::make_unique<FFTWFourier>());
+  std::clog << "vulkan\t" << vulkanFourierResults.size() << std::endl;
+  for (auto &i : vulkanFourierResults) {
+    std::clog << i.toString() << std::endl;
+  }
 }
 
 std::vector<Measurement> MeasurementsApp::runAudioMeasurements(
@@ -30,10 +35,10 @@ std::vector<Measurement> MeasurementsApp::runFourierMeasurements(
 
   std::vector<Measurement> measurements;
 
-  for (int size = range.first; size < range.second; ++size) {
+  for (int size = range.first; size <= range.second; ++size) {
     auto dataSize = baseWindowSize * size;
-    Measurement copyMeasurement(MeasurementType::DataCopy, runs);
-    Measurement runMeasurement(MeasurementType::Transform, runs);
+    Measurement copyMeasurement("data copy", runs);
+    Measurement runMeasurement("transformation", runs);
     fourierHandler->setWindowSize(dataSize);
     std::vector<std::vector<double>> randomData;
     randomData.resize(runs);
@@ -44,14 +49,14 @@ std::vector<Measurement> MeasurementsApp::runFourierMeasurements(
     }
     fourierHandler->setWindowSize(dataSize);
     for (auto &data : randomData) {
-      copyMeasurement.add();
+    //   copyMeasurement.add();
       fourierHandler->addInput(data);
-      copyMeasurement.end();
+    //   copyMeasurement.end();
       runMeasurement.add();
       fourierHandler->runTransform();
       runMeasurement.end();
     }
-    measurements.push_back(copyMeasurement);
+    // measurements.push_back(copyMeasurement);
     measurements.push_back(runMeasurement);
   }
   return measurements;

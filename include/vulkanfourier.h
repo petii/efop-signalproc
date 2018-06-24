@@ -52,10 +52,39 @@ class VulkanFourier : public FourierHandler {
 
   VkQueue queue;
 
-  const int workGroupCount = 512;
+  int workGroupCount = 512;
 
 public:
+  void setWindowSize(size_t size) override {
+    if (initialized) {
+      deletion();
+    }
+    windowSize = size;
+    workGroupCount = size;
+    bufferSize = size;
+    memorySize = size;
+    creation();
+  }
+
+  void addInput(const std::vector<double> &data) override;
+  std::vector<double> getResult() const override;
+
+  void runTransform() override;
+
   VulkanFourier() {
+    // creation();
+  }
+
+  virtual ~VulkanFourier() {
+    if (initialized)
+      deletion();
+  }
+
+private:
+  bool initialized = false;
+
+  void creation() {
+    initialized = true;
     createInstance(APPNAME, {});
     pickPhysicalDevice();
     if (enableValidationLayers) {
@@ -79,8 +108,9 @@ public:
     allocateCommandBuffer();
     recordCommands();
   }
+  void deletion() {
+    initialized = false;
 
-  ~VulkanFourier() {
     vkFreeMemory(device, bufferMemory, nullptr);
     vkDestroyBuffer(device, inputBuffer, nullptr);
     vkDestroyBuffer(device, resultBuffer, nullptr);
@@ -99,7 +129,6 @@ public:
     vkDestroyInstance(instance, nullptr);
   }
 
-private:
   void pickPhysicalDevice();
   void createInstance(const std::string &appName,
                       std::vector<const char *> extensions);
@@ -134,29 +163,24 @@ private:
     std::cerr << "validation layer: " << msg << std::endl;
     return VK_FALSE;
   }
-public:
-    void copyDataToGPU(const std::vector<float>& data);
-    std::vector<float> readDataFromGPU();
 
-    void runCommandBuffer();
 private:
-    //std::vector<Complex> result;
+  // std::vector<Complex> result;
 
-    void createComputeLogicalDevice(
-            VkPhysicalDevice physicalDevice,
-            const std::vector<const char*>& enabledLayers
-    );
-    uint32_t getComputeQueueFamilyIndex(VkPhysicalDevice physicalDevice);
-    void allocateBufferMemory(VkPhysicalDevice physicalDevice);
-    void createBuffers();
-    void createShaderModule(const std::string& file);
-    void createDescriptorSetLayout();
-    void createDescriptorPool();
-    void allocateDescriptorSet();
-    void connectBuffersToDescriptorSets();
-    void createComputePipelineLayout();
-    void createComputePipeline();
-    void createCommandPool();
-    void allocateCommandBuffer();
-    void recordCommands();
+  void
+  createComputeLogicalDevice(VkPhysicalDevice physicalDevice,
+                             const std::vector<const char *> &enabledLayers);
+  uint32_t getComputeQueueFamilyIndex(VkPhysicalDevice physicalDevice);
+  void allocateBufferMemory(VkPhysicalDevice physicalDevice);
+  void createBuffers();
+  void createShaderModule(const std::string &file);
+  void createDescriptorSetLayout();
+  void createDescriptorPool();
+  void allocateDescriptorSet();
+  void connectBuffersToDescriptorSets();
+  void createComputePipelineLayout();
+  void createComputePipeline();
+  void createCommandPool();
+  void allocateCommandBuffer();
+  void recordCommands();
 };
