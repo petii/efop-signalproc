@@ -49,3 +49,4 @@ lib/*
 *.spv
 
 .vscode/
+.Rproj.user

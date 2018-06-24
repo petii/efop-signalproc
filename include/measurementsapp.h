@@ -32,10 +32,13 @@ public:
 
   void doMeasurements();
 
+  void exportResults(const std::string &file,
+                     const std::vector<std::vector<Measurement>> &m);
+
 private:
   std::vector<Measurement>
   runAudioMeasurements(std::unique_ptr<AudioHandler> audioHandler);
-  std::vector<Measurement>
+  std::vector<std::vector<Measurement>>
   runFourierMeasurements(std::unique_ptr<FourierHandler> fourierHandler);
 
   std::vector<std::complex<float>>

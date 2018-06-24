@@ -23,7 +23,7 @@ debug:
 	$(COMPILER) -o $(OUTPUT_NAME) $(SOURCES) $(CFLAGS) $(INCLUDE) $(LDFLAGS) -DDEBUG -g -ggdb -Og
 
 release:
-	$(COMPILER) -o $(TARGET)/$(OUTPUT_NAME) $(SOURCES) $(CFLAGS) $(INCLUDE) $(LDFLAGS) -DNDEBUG -O3
+	$(COMPILER) -o $(OUTPUT_NAME) $(SOURCES) $(CFLAGS) $(INCLUDE) $(LDFLAGS) -DNDEBUG -O3
 
 shaders:
 	cd src/shaders/ ; glslangValidator -V shader.comp 

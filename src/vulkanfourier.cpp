@@ -154,7 +154,7 @@ void VulkanFourier::runHanning() {
 
   vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
 
-  // vkQueueWaitIdle(queue);
+  vkQueueWaitIdle(queue);
 }
 
 void VulkanFourier::runTransform() {

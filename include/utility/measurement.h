@@ -8,7 +8,9 @@
 
 struct Measurement {
   const int size;
-  Measurement(const std::string &type, int size) : size(size), purpose(type) {
+  const int execSize;
+  Measurement(const std::string &type, int size, int dataSize)
+      : size(size), purpose(type), execSize(dataSize) {
     clear();
   }
 
