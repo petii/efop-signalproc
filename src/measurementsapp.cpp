@@ -79,6 +79,7 @@ std::vector<std::vector<Measurement>> MeasurementsApp::runFourierMeasurements(
     std::vector<Measurement> rmeasurements;
   for (int size = range.first; size <= range.second; ++size) {
     auto dataSize = baseWindowSize * size;
+    std::clog << dataSize << "\t";
     Measurement copyMeasurement("datacopy", runs, dataSize);
     Measurement runMeasurement("transformation", runs, dataSize);
     fourierHandler->setWindowSize(dataSize);
@@ -96,7 +97,7 @@ std::vector<std::vector<Measurement>> MeasurementsApp::runFourierMeasurements(
       fourierHandler->addInput(data);
       copyMeasurement.end();
       runMeasurement.add();
-      fourierHandler->runTransform();
+      // fourierHandler->runTransform();
       runMeasurement.end();
     }
     auto end = std::chrono::high_resolution_clock::now();
@@ -104,6 +105,7 @@ std::vector<std::vector<Measurement>> MeasurementsApp::runFourierMeasurements(
     cmeasurements.push_back(copyMeasurement);
     rmeasurements.push_back(runMeasurement);
   }
+  std::endl(std::clog);
   measurements.push_back(cmeasurements);
   measurements.push_back(rmeasurements);
   return measurements;

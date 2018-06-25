@@ -122,27 +122,28 @@ bool VulkanFourier::checkValidationLayerSupport(
 }
 
 void VulkanFourier::addInput(const std::vector<double> &data) {
-  for (int i = 0; i < data.size(); ++i) {
-    fData[i] = static_cast<float>(data[i]);
-  }
+  // for (int i = 0; i < data.size(); ++i) {
+  //   fData[i] = static_cast<float>(data[i]);
+  // }
   // runHanning();
-  // std::memcpy(
-  //     pData,
-  //     data.data(),
-  //     data.size()
-  // );
+  std::memcpy(
+      pData,
+      data.data(),
+      data.size()
+  );
 }
 
 std::vector<double> VulkanFourier::getResult() const {
-  void *pData;
-  vkMapMemory(device, bufferMemory, bufferSize,
-              // 0,
-              bufferSize / 2, 0, &pData);
+  // TODO: figure out the memory mapping
+  // void *pData;
+  // vkMapMemory(device, bufferMemory, bufferSize,
+  //             // 0,
+  //             bufferSize / 2, 0, &pData);
   std::vector<double> data(windowSize / 2);
-  std::memcpy(data.data(), pData,
-              bufferSize / 2 // * sizeof(float)
-  );
-  vkUnmapMemory(device, bufferMemory);
+  // std::memcpy(data.data(), pData,
+  //             bufferSize / 2 // * sizeof(float)
+  // );
+  // vkUnmapMemory(device, bufferMemory);
   return data;
 }
 
@@ -154,7 +155,7 @@ void VulkanFourier::runHanning() {
 
   vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
 
-  vkQueueWaitIdle(queue);
+  // vkQueueWaitIdle(queue);
 }
 
 void VulkanFourier::runTransform() {
