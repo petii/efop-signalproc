@@ -1,0 +1,23 @@
+
+\section{Tervezet}
+
+Az elk\'epzelt jelfeldolgoz\'o rendszer a k\"ovetkez\H ok\'eppen n\'ezne ki. 
+
+\'Altal\'anosan igaz, hogy min\'el magasabb szint\"u egy r\'esz ann\'al k\'enyelmesebb vagy gyorsabb az implement\'aci\'o, ellenben ez a teljes\'itm\'eny rov\'as\'ara mehet. 
+
+\subsection{Jel \'eszlel\'ese} 
+Mivel nagyban f\"ugg a hardvert\H ol vagy oper\'aci\'os rendszert\H ol, \'igy el\'eg alacsony szint\H u is \'altal\'aban. 
+\'Epp ez\'ert c\'elszer\H unek tartom a feladat\'at minimaliz\'alni.
+A digit\'alis jel diszkr\'et volta miatt, meg kell tal\'alni az egyens\'ulyt, hogy mekkora "darabokban" akarjuk \'erz\'ekelni a vil\'agot. P\'eld\'aul mozg\'ast \'erz\'ekelni egy \'all\'ok\'epen neh\'ez, \'es k\"onnyebb lesz min\'el t\"obb k\'ep\"unk van, ellenben ha kis k\'es\'essel szeretn\'enk jelezni a mozg\'ast, nem v\'arhatunk m\'asodperceken kereszt\"ul a sok k\'ep be\'erkez\'es\'eig.
+
+\subsection{Jel \'atalak\'it\'asa}
+Miut\'an a jelet \'eszlelt\"uk nyers bitfolyamk\'ent, azt ut\'ana k\"ul\"onb\"oz\H o transzform\'aci\'o(k)nak al\'avetve sz\'amunkra kedvez\H o form\'ara kell hozni. Ez sok mindent jelenthet, a c\'elt\'ol f\"ugg\H oen. Lehet hogy egyszer\H u elemi m\H uveletek, vagy  megfelel\H o tudom\'any\'ag m\'erf\"oldk\"ovei k\"oz\"ott megtal\'alhat\'o bonyolult m\'odszerek, algoritmusok kever\'eke.
+Ezekb\H ol tetsz\H oleges mennyis\'eg\H u haszn\'alhat\'o, de \'erdemes a legsz\"uks\'egesebbeket haszn\'alni, \'es r\'eszenk\'ent optimaliz\'alt megold\'ast v\'alasztani. 
+C\'elszer\H u lehet tov\'abba min\'el kor\'abban sz\H ur\'est alkalmazni, hogy az esetleges k\"olt\'eges oper\'atorokat min\'el kevesebb adaton kelljen v\'egrehajtani.
+
+\subsection{Visszajelz\'es}
+Miut\'an a k\'iv\'ant form\'ara hoztuk az adatainkat, min\'el kisebb overhead-del szeretn\'enk valamilyen visszajelz\'est is kapni fel\H ole. 
+Ez egy\'eb ember \'altal \'erz\'ekelhet\H o jelek k\'esz\'it\'es\'et jelenti, \'altal\'aban k\'ep, esetleg hang, vagy ak\'ar haptikus jelz\'esek ad\'asa.
+ 
+\subsection{Hol cs\"okkents\"uk a k\'es\'est?}
+

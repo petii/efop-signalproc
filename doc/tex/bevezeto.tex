@@ -2,6 +2,13 @@
 \section{Bevezet\H o}
 Inform\'aci\'o minden\"utt jelen van k\"or\"ul\"ott\"unk. A technol\'ogia fejl\H od\'es\'evel egyre t\"obbet \'es t\"obbet tudtunk bel\H ole digitaliz\'alni. Ez\'altal az adat rendelkez\'esre \'all, a k\'erd\'es az marad, hogy ezt hogyan tudjuk felhaszn\'alni.
 
+\subsection{Kiterjesztett val\'os\'ag}
+AR alkalmaz\'asokban a megfelel\H o felhaszn\'al\'oi \'elm\'enyhez elengedhetetlen, hogy kis k\'es\'essel t\"ort\'enjen a felhaszn\'al\'o el\'e az inform\'aci\'o prezent\'al\'asa. 
+
+P\'eld\'aul egy j\"ov\H obeli aut\'o AR sz\'elv\'ed\H oj\'en lehet a m\'asodperc t\"ored\'ek\'en m\'ulik egy \'elet, hogy megjelenjen valamilyen figyelmeztet\'es a s\"of\H ornek egy k\"ozelg\H o gyalogosr\'ol, akit a vezet\H o a szem\'evel nem l\'at, de az aut\'o szenzorai \'erz\'ekelnek.
+
+\subsection{Sz\'am\'it\'asi kapacit\'as}
+
 Az ut\'obbi id\H oben a mesters\'eges neur\'alis h\'al\'ozatok \'ujb\'oli fellend\"ul\'es\'enek k\"osz\"onhet\H oen jobban el\H ot\'erbe ker\"ult a vide\'ok\'arty\'ak nem csak j\'at\'ekokban val\'o kihaszn\'al\'asa, hanem nagym\'ert\'ekben t\"obbsz\'alas\'ithat\'o probl\'em\'ak nagy bemenetre val\'o felhaszn\'al\'asa, hiszen ezeknek a tan\'it\'asa rengeteg sz\'am\'it\'asi kapacit\'ast ig\'enyel.
 
 Ugyanakkor a nagyobb sz\'am\'it\'asi kapacit\'as nem sokat \'er, ha a programoz\'o nem tudja kihaszn\'alni.
@@ -14,12 +21,6 @@ Az OpenGL-\'ert felel\H os Khronos Group a 2015-\"os \href{http://www.gdconf.com
 %\footnote{\url{https://www.gamestar.hu/hir/star-citizen-directx-12-vulkan-api-226130.html}}
 
 \subsection{Vulkan}
-\begin{figure}[h]
-	\includegraphics[width=\textwidth]{img/vulkan/vulkanpromo}
-	\centering
-	\caption{Prom\'oci\'o az \'uj API-nak.
-		\cite{vulkan1.1launchpres} }
-\end{figure}
 Maga az API az \href{https://www.amd.com/en-us/innovations/software-technologies/mantle}{AMD Mantle} egyfajta folytat\'asak\'ent is tekinthet\H o. Az elgondol\'as az, hogy pr\'ob\'aljunk min\'el jobb teljes\'itm\'enyt kinyerni a hardverb\H ol, CPU-GPU a terhel\'es jobb eloszt\'as\'aval.
 
 A legjobb eredm\'enyhez az vezet, ha optimaliz\'aci\'os lehet\H os\'eget adunk azok kez\'ebe, akik jobban ismerik az adott alkalmaz\'ast: a fejleszt\H ok.
@@ -27,16 +28,6 @@ Ez\'altal nagyobb kontrollja van a fejleszt\H onek a program m\H uk\"od\'ese fel
 
 Cser\'ebe mivel t\"obb feladatk\"or h\'arul az alkalmaz\'as k\'esz\'it\H o(i)re, maga a fejleszt\'esi folyamat lehet hosszadalmasabb.
 
-\subsection{Kiterjesztett val\'os\'ag}
-AR alkalmaz\'asokban a megfelel\H o felhaszn\'al\'oi \'elm\'enyhez elengedhetetlen, hogy kis k\'es\'essel t\"ort\'enjen a felhaszn\'al\'o el\'e az inform\'aci\'o prezent\'al\'asa. 
-
-P\'eld\'aul egy j\"ov\H obeli aut\'o AR sz\'elv\'ed\H oj\'en lehet a m\'asodperc t\"ored\'ek\'en m\'ulik egy \'elet, hogy megjelenjen valamilyen figyelmeztet\'es a s\"of\H ornek egy k\"ozelg\H o gyalogosr\'ol, akit a vezet\H o a szem\'evel nem l\'at, de az aut\'o szenzorai \'erz\'ekelnek.
 
 Tov\'abb\'a a Vulkan \'ig\'erete, hogy a driverek \'ir\'asa egyszer\H ubb lesz, \'igy ebben az esetben lehets\'eges az is, hogy az aut\'o be\'agyazott rendszer\'ere t\"ort\'en\H o fejleszt\'esi id\H o ler\"ovid\"ul, hiszen a fejleszt\H oknek nem kell valamilyen speci\'alisan arra a hardverre fejlesztett k\"ornyezettel megismerkedni\"uk. 
 
-\subsection{Motiv\'aci\'o}
-Szerettem volna jobban megismerkedni ezzel az \'uj technol\'ogi\'aval \'es ezt egy dem\'o alkalmaz\'as keretein bel\"ul gondoltam v\'eghez vinni. Maga a hangfeldolgoz\'as mindig is \'erdekelt, k\"oz\'episkol\'aban is akartam egy audiovizualiz\'aci\'os alkalmaz\'ast k\'esz\'iteni, \'es akkoriban az \'eppen kiadott HTML5 \'es JavaScript rajzol\'asi k\'epess\'egeit pr\'ob\'altam k\"or\"ulj\'arni. Az az alkalmaz\'as csak v\'eletlenszer\H u rajzol\'ast val\'os\'itott meg, mindenf\'ele heurisztik\'at n\'elk\"ul\"ozve. Az \href{http://users.atw.hu/bypetii/visual.html}{al\'abbi linken} m\'eg most is el\'erhet\H o \'es megtekinthet\H o.
-
-Az alkalmaz\'asnak van j\"ov\H ok\'epe is. Zen\'esz ismer\H oseimnek felkeltette az \'erdekl\H od\'es\'et, hogy fell\'ep\'esek alkalm\'aval tov\'abb emeln\'e a hangulatot, ha a m\"og\"ott\"uk l\'ev\H o megjelen\'t\H on a zen\'ehez ill\H o vizualiz\'aci\'o menne.
-
-Tov\'abba sz\'o volt arr\'ol is, hogy a t\'emavezet\H omnek, Gera Zolt\'annak a \href{https://github.com/gerazo/zamt}{"Z" Automatic Music Transcription Library and Testbed} projektj\'ebe is beleker\"ul vizualiz\'aci\'os modulk\'ent.

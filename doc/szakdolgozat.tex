@@ -1,22 +1,20 @@
-\documentclass[twoside, a4paper, 12pt]{article}
-\usepackage{thesis-style}
+\documentclass[a4paper, twocolumn]{article}
+
+\usepackage[magyar]{babel}
 
 \usepackage{hyperref}
 \usepackage{xcolor}
 
 \usepackage{graphics}
-\graphicspath{ {uml/png/} }
+\graphicspath{img}
 
 \usepackage{amsmath}
 %\usepackage{mathbbol}
 \usepackage{amsfonts}
 \usepackage{amssymb}
 
-\input{tex/adatok}
-
-\title{\CIM}
-\author{\SZERZO}
-\date{\VEDESEVE}
+\title{C\'im helye}
+\author{Vida P\'eter}
 
 \renewcommand{\href}[2]{#2\footnote{\url{#1}}}
 
@@ -38,20 +36,12 @@
 \setcounter{secnumdepth}{4}
 
 \begin{document}
-\pagestyle{empty}
 
-% belső fedőlap
-\include{tex/fedolap}
-\cleardoublepage
+\maketitle
 
-% a belső fedőlap utáni lap a témabejelentő
-
-% tartalomjegyzék
-\tableofcontents
-\cleardoublepage
-
-\pagestyle{plain}
-\setcounter{page}{1}
+\begin{abstract}
+	Az absztrakt
+\end{abstract}
 
 % tartalom
 \input{tex/tartalom}
