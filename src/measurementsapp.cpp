@@ -37,10 +37,10 @@ void MeasurementsApp::doMeasurements() {
   //   auto pulseAudioResults =
   //       runAudioMeasurements(std::make_unique<PulseAudioHandler>());
 
-  std::clog << "running vulkan\n";
-  auto vulkanFourierResults =
-      runFourierMeasurements(std::make_unique<VulkanFourier>());
-  std::clog << "end of vulkan\n";
+  // std::clog << "running vulkan\n";
+  // auto vulkanFourierResults =
+  //     runFourierMeasurements(std::make_unique<VulkanFourier>());
+  // std::clog << "end of vulkan\n";
   std::clog << "running fftw++\n";
   auto fftwFourierResults =
       runFourierMeasurements(std::make_unique<FFTWFourier>());
@@ -49,7 +49,7 @@ void MeasurementsApp::doMeasurements() {
   auto arrlessFourierResults =
       runFourierMeasurements(std::make_unique<ArraylessFFTW>());
   std::clog << "end of fftw++ arrayless\n";
-  exportResults("vulkan", vulkanFourierResults);
+  // exportResults("vulkan", vulkanFourierResults);
   exportResults("fftwpp", fftwFourierResults);
   exportResults("arrless", arrlessFourierResults);
   // std::clog << "vulkan\t" << vulkanFourierResults.size() << std::endl;
@@ -75,8 +75,8 @@ std::vector<std::vector<Measurement>> MeasurementsApp::runFourierMeasurements(
 
   std::vector<std::vector<Measurement>> measurements;
 
-    std::vector<Measurement> cmeasurements;
-    std::vector<Measurement> rmeasurements;
+  std::vector<Measurement> cmeasurements;
+  std::vector<Measurement> rmeasurements;
   for (int size = range.first; size <= range.second; ++size) {
     auto dataSize = baseWindowSize * size;
     std::clog << dataSize << "\t";
@@ -90,14 +90,15 @@ std::vector<std::vector<Measurement>> MeasurementsApp::runFourierMeasurements(
         data.push_back(dist(generator));
       }
     }
+    fourierHandler->addInput(randomData.front());
     fourierHandler->setWindowSize(dataSize);
     auto start = std::chrono::high_resolution_clock::now();
     for (auto &data : randomData) {
       copyMeasurement.add();
-      fourierHandler->addInput(data);
+      // fourierHandler->addInput(data);
       copyMeasurement.end();
       runMeasurement.add();
-      // fourierHandler->runTransform();
+      fourierHandler->runTransform();
       runMeasurement.end();
     }
     auto end = std::chrono::high_resolution_clock::now();
