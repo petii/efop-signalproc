@@ -45,8 +45,13 @@ void MeasurementsApp::doMeasurements() {
   auto fftwFourierResults =
       runFourierMeasurements(std::make_unique<FFTWFourier>());
   std::clog << "end of fftw++\n";
+  std::clog << "running fftw++ arrayless\n";
+  auto arrlessFourierResults =
+      runFourierMeasurements(std::make_unique<ArraylessFFTW>());
+  std::clog << "end of fftw++ arrayless\n";
   exportResults("vulkan", vulkanFourierResults);
   exportResults("fftwpp", fftwFourierResults);
+  exportResults("arrless", arrlessFourierResults);
   // std::clog << "vulkan\t" << vulkanFourierResults.size() << std::endl;
   // for (int i = 0; i < vulkanFourierResults.size(); ++i) {
   //   for (auto &i : vulkanFourierResults[i]) {

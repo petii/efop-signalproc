@@ -8,7 +8,8 @@ Az elk\'epzelt jelfeldolgoz\'o rendszer a k\"ovetkez\H ok\'eppen n\'ezne ki.
 \subsection{Jel \'eszlel\'ese} 
 Mivel nagyban f\"ugg a hardvert\H ol vagy oper\'aci\'os rendszert\H ol, \'igy el\'eg alacsony szint\H u is \'altal\'aban. 
 \'Epp ez\'ert c\'elszer\H unek tartom a feladat\'at minimaliz\'alni.
-A digit\'alis jel diszkr\'et volta miatt, meg kell tal\'alni az egyens\'ulyt, hogy mekkora "darabokban" akarjuk \'erz\'ekelni a vil\'agot. P\'eld\'aul mozg\'ast \'erz\'ekelni egy \'all\'ok\'epen neh\'ez, \'es k\"onnyebb lesz min\'el t\"obb k\'ep\"unk van, ellenben ha kis k\'es\'essel szeretn\'enk jelezni a mozg\'ast, nem v\'arhatunk m\'asodperceken kereszt\"ul a sok k\'ep be\'erkez\'es\'eig.
+A digit\'alis jel diszkr\'et volta miatt, meg kell tal\'alni az egyens\'ulyt, hogy mekkora "darabokban" akarjuk \'erz\'ekelni a vil\'agot. P\'eld\'aul mozg\'ast \'erz\'ekelni egy \'all\'ok\'epen neh\'ez, \'es k\"onnyebb lesz min\'el t\"obb k\'ep\"unk van, ellenben ha kis k\'es\'essel szeretn\'enk jelezni a mozg\'ast, nem v\'arhatunk m\'asodperceken kereszt\"ul a sok k\'ep be\'erkez\'es\'eig. 
+Erre szolg\'altathat megold\'ast, ha valamennyi \'atfed\'est adunk meg, hiszen akkor a kor\'abban feldolgozottak v\'eg\'enek egy r\'esz\'ehez kell csak \'ujabb adatot szerezni, hogy t\"obb inform\'aci\'ob\'ol dolgozhassunk, ellenben ezt is finomhangolni kell, hiszen ha gyorsabban j\"on \'uj jel, mint ahogy azt feldolgozzuk, akkor id\H ovel jelent\H os k\'es\'es halmoz\'odik fel.
 
 \subsection{Jel \'atalak\'it\'asa}
 Miut\'an a jelet \'eszlelt\"uk nyers bitfolyamk\'ent, azt ut\'ana k\"ul\"onb\"oz\H o transzform\'aci\'o(k)nak al\'avetve sz\'amunkra kedvez\H o form\'ara kell hozni. Ez sok mindent jelenthet, a c\'elt\'ol f\"ugg\H oen. Lehet hogy egyszer\H u elemi m\H uveletek, vagy  megfelel\H o tudom\'any\'ag m\'erf\"oldk\"ovei k\"oz\"ott megtal\'alhat\'o bonyolult m\'odszerek, algoritmusok kever\'eke.
@@ -20,4 +21,6 @@ Miut\'an a k\'iv\'ant form\'ara hoztuk az adatainkat, min\'el kisebb overhead-de
 Ez egy\'eb ember \'altal \'erz\'ekelhet\H o jelek k\'esz\'it\'es\'et jelenti, \'altal\'aban k\'ep, esetleg hang, vagy ak\'ar haptikus jelz\'esek ad\'asa.
  
 \subsection{Hol cs\"okkents\"uk a k\'es\'est?}
+Adja mag\'at, hogy az egyes r\'eszek m\H uk\"od\'es\'et c\'elszer\H u optimaliz\'alni a min\'el kisebb k\'es\'es el\'er\'es\'ehez.
+Azonban az \ref{ramspeed} elgondol\'asai miatt az implement\'aci\'okor figyelembe kell venni a mem\'oria haszn\'alat\'at. Adja mag\'at, \'es k\'enyelmes, ha l\'ep\'esr\H ol l\'ep\'esre mindenki a saj\'at maga \'altal lem\'asolt adatain dolgozik, de mennyit lehet jav\'itani a teljes\'itm\'enyen, ha csak akkor ny\'ulunk mem\'ori\'ahoz amikor kell?
 

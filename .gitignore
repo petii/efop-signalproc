@@ -50,3 +50,6 @@ lib/*
 
 .vscode/
 .Rproj.user
+csvs/.RData
+csvs/.Rhistory
+doc/szakdolgozat.synctex.gz
