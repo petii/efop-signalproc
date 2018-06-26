@@ -9,6 +9,7 @@ trns.arless <- read.csv("arrlesstransformation.csv")
 c.f.means <- colMeans(copy.fftwpp)
 c.v.means <- colMeans(copy.vulkan)
 t.f.means <- colMeans(trns.fftwpp)
+t.v.means <- colMeans(trns.vulkan)
 t.v.means <- colMeans(trns.vulkan)/1000
 
 c.a.means <- colMeans(copy.arless)
@@ -24,27 +25,28 @@ m2 <- lm(c.a.means~t)
 m3 <- lm(c.v.means~t)
 
 
-xs <- c(20:150)
+xss <- c(10:50)
+xs <- c(10:200)
 text <- c('FFTW++ Array','FFTW++ [ ]','Vulkan')
 plot(xs,c.f.means,type='l',
      xlab = 'Sample size (x256)', 
      ylab = 'Time (nanosecs)', 
      main = 'Copy')
 lines(xs,c.a.means,col=3)
-lines(xs,c.v.means,col=2)
+lines(xss,c.v.means,col=2)
 legend(x = "topleft",legend = text, col=c(1,3,2), lty=c(1,1,1))
 
 #plot(m1$fitted.value
 
-xs <- c(20:150)
-xs <- c(1:100)
+xss <- c(10:50)
+xs <- c(10:200)
 text <- c('FFTW++ Array','FFTW++ [ ]','Vulkan (microseconds)')
 plot(xs,t.f.means,type='l',
      xlab = 'Sample size (x256)', 
      ylab = 'Time (nanosecs)', 
-     main = 'Copy')
+     main = 'Transform')
 lines(xs,t.a.means,col=3)
-lines(c(1:30),t.v.means,col=2)
+lines(xss,t.v.means,col=2)
 legend(x="bottomright",legend = text, col=c(1,3,2), lty=c(1,1,1))
 
 #plot(m1$fitted.values, col=6, type='l')
