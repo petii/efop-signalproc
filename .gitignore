@@ -52,4 +52,4 @@ lib/*
 .Rproj.user
 csvs/.RData
 csvs/.Rhistory
-doc/szakdolgozat.synctex.gz
+doc/paper.synctex.gz
