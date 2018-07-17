@@ -5,6 +5,8 @@
 #include <memory>
 #include <random>
 
+#include <unistd.h>
+
 MeasurementsApp::MeasurementsApp(std::pair<int, int> range, int runs)
     : range(range), runs(runs) {}
 MeasurementsApp::~MeasurementsApp() {}
@@ -32,26 +34,28 @@ void MeasurementsApp::exportResults(
 
 void MeasurementsApp::doMeasurements() {
   std::clog << range.first << '-' << range.second << std::endl;
-  //   auto portAudioResults =
-  //       runAudioMeasurements(std::make_unique<PortAudioHandler>());
+  std::clog << "portaudio" << std::endl;
+  auto portAudioResults =
+      runAudioMeasurements(std::make_unique<PortAudioHandler>());
+  std::clog << "end of portaudio" << std::endl;
   //   auto pulseAudioResults =
   //       runAudioMeasurements(std::make_unique<PulseAudioHandler>());
 
-  std::clog << "running vulkan\n";
-  auto vulkanFourierResults =
-      runFourierMeasurements(std::make_unique<VulkanFourier>());
-  std::clog << "end of vulkan\n";
-  std::clog << "running fftw++\n";
-  auto fftwFourierResults =
-      runFourierMeasurements(std::make_unique<FFTWFourier>());
-  std::clog << "end of fftw++\n";
-  std::clog << "running fftw++ arrayless\n";
-  auto arrlessFourierResults =
-      runFourierMeasurements(std::make_unique<ArraylessFFTW>());
-  std::clog << "end of fftw++ arrayless\n";
-  exportResults("vulkan", vulkanFourierResults);
-  exportResults("fftwpp", fftwFourierResults);
-  exportResults("arrless", arrlessFourierResults);
+  // std::clog << "running vulkan\n";
+  // auto vulkanFourierResults =
+  //     runFourierMeasurements(std::make_unique<VulkanFourier>());
+  // std::clog << "end of vulkan\n";
+  // std::clog << "running fftw++\n";
+  // auto fftwFourierResults =
+  //     runFourierMeasurements(std::make_unique<FFTWFourier>());
+  // std::clog << "end of fftw++\n";
+  // std::clog << "running fftw++ arrayless\n";
+  // auto arrlessFourierResults =
+  //     runFourierMeasurements(std::make_unique<ArraylessFFTW>());
+  // std::clog << "end of fftw++ arrayless\n";
+  // exportResults("vulkan", vulkanFourierResults);
+  // exportResults("fftwpp", fftwFourierResults);
+  // exportResults("arrless", arrlessFourierResults);
   // std::clog << "vulkan\t" << vulkanFourierResults.size() << std::endl;
   // for (int i = 0; i < vulkanFourierResults.size(); ++i) {
   //   for (auto &i : vulkanFourierResults[i]) {
@@ -65,7 +69,21 @@ void MeasurementsApp::doMeasurements() {
 }
 
 std::vector<Measurement> MeasurementsApp::runAudioMeasurements(
-    std::unique_ptr<AudioHandler> audioHandler) {}
+    std::unique_ptr<AudioHandler> audioHandler) {
+  for (int r = range.first; r <= range.second; ++r) {
+    std::clog << r << std::endl;
+    // std::cin.get();
+    for (int i = 0; i < runs; ++i) {
+      auto data = audioHandler->getAudio(r * baseWindowSize);
+      for (auto &a : data) {
+        std::clog << a << " ";
+      }
+      // usleep(100);
+      // std::clog << std::endl;
+    }
+  }
+  return {};
+}
 
 std::vector<std::vector<Measurement>> MeasurementsApp::runFourierMeasurements(
     std::unique_ptr<FourierHandler> fourierHandler) {
@@ -98,7 +116,7 @@ std::vector<std::vector<Measurement>> MeasurementsApp::runFourierMeasurements(
       fourierHandler->addInput(data);
       copyMeasurement.end();
       runMeasurement.add();
-      //fourierHandler->runTransform();
+      // fourierHandler->runTransform();
       runMeasurement.end();
     }
     auto end = std::chrono::high_resolution_clock::now();
