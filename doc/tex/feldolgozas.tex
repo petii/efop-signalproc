@@ -20,7 +20,7 @@ Mivel egy Vulkan sz\'am\'it\'asi h\'iv\'as aszinkron m\H uk\"odik, a fair \"ossz
 \subsubsection{K\"ornyezet}
 A tesztel\H o program megtal\'alhat\'o \href{https://github.com/petii/efop-signalproc}{GitHub-on}. 
 A program param\'eterezhet\H o, hogy mekkora alap ablakm\'eret szorz\'okkal futtasson m\'er\'eseket, illetve egyes m\'er\'eseket h\'anyszor ism\'etelje meg. 
-Ezeket az adatokat \code{.csv} f\'ajlokba export\'alja. Az adatokat egy egyszer\H u \code{R} szkript seg\'tis\'eg\'evel elemezhetj\"uk.
+Ezeket az adatokat \code{.csv} f\'ajlokba export\'alja. Az adatokat egy egyszer\H u \code{R} szkript seg\'its\'eg\'evel elemezhetj\"uk.
 
 A teszt bemeneti adatok \href{https://en.cppreference.com/w/cpp/numeric/random/normal_distribution}{pszeudov\'eletlen sz\'amok a standard norm\'alis eloszl\'asb\'ol}.
 
@@ -61,7 +61,7 @@ A k\'et f\H o m\H uvelet ami m\'er\'esre ker\"ult az adatok m\'asol\'asa illetve
 
 A m\'er\'esi eredm\'enyeket tartalmaz\'o \'abta $100$ futtat\'as eredm\'enyeinek \'atlag\'at mutatja.
 
-A bemenet \'atm\'asol\'as\'ara ir\'anyul\'o m\'er\'esek olyan szempontb\'ol nem meglep\H oek, hogy nagyj\'ab\'ol line\'aris a bemenet m\'eret\'evel.
+A bemenet \'atm\'asol\'as\'ara ir\'anyul\'o m\'er\'esek olyan szempontb\'ol nem meglep\H oek, hogy nagyj\'ab\'ol line\'aris a bemenet m\'eret\'evel. Az sz\'amomra viszont meglepet\'esk\'ent szolg\'alt, hogy a GPU mem\'ori\'aj\'aba mennyivel gyorsabban ker\"ultek \'at az adatok. Term\'eszetesen ha az implement\'aci\'o lehet\H ov\'e teszi, hogy ne kelljen lem\'asolni az adatokat az biztosan gyorsabb lesz.
 
 \paragraph{Transzform\'aci\'o}
 
@@ -78,3 +78,4 @@ Minden mintasz\'amhoz tartoz\'o \'ert\'ek 100 fut\'as \'atlag\'ab\'ol sz\'armazi
 
 A processzoron FFTW-tel v\'egzett transzform\'aci\'o transzform\'aci\'o a minta m\'eret\'enek n\"oveked\'es\'evel ebben az esetben is line\'arisnak mondhat\'o, ami a transzform\'aci\'o $\ordo{n^2}$ vagy a gyors Fourier transzform\'aci\'o eset\'eben is $\ordo{n\log{n}}$-es m\H uveletig\'eny\'et figyelembe v\'eve meglep\H o lehet.
 
+A v\'arakoz\'asom viszont az volt, hogy a vide\'ok\'artya a p\'arhuzamos futtat\'as miatt szint\'en line\'arisan fog n\H oni, ellenben val\'osz\'in\H uleg a sz\'am\'it\'asi egys\'egek limit\'alt sz\'ama miatt a v\'art parabol\'at ($\ordo{n^2}$) l\'athatjuk kibontakozni.
