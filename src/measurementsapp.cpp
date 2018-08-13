@@ -4,8 +4,7 @@
 #include <fstream>
 #include <memory>
 #include <random>
-
-#include <unistd.h>
+#include <thread>
 
 MeasurementsApp::MeasurementsApp(std::pair<int, int> range, int runs)
     : range(range), runs(runs) {}
@@ -72,15 +71,20 @@ std::vector<Measurement> MeasurementsApp::runAudioMeasurements(
     std::unique_ptr<AudioHandler> audioHandler) {
   for (int r = range.first; r <= range.second; ++r) {
     std::clog << r << std::endl;
+    audioHandler->setChunkSize(r * baseWindowSize);
+    int runNum = 0;
+    std::vector<double> data;
+    audioHandler->setCallback([&runNum,&data](auto audio) {
+      data.insert(data.end(),audio.begin(),audio.end()); //TODO: move semantics?
+      ++runNum;
+    });
     // std::cin.get();
-    for (int i = 0; i < runs; ++i) {
-      auto data = audioHandler->getAudio(r * baseWindowSize);
-      for (auto &a : data) {
-        std::clog << a << " ";
-      }
-      // usleep(100);
-      // std::clog << std::endl;
-    }
+    //assert
+    (audioHandler->startRecording());
+    while (runNum < runs);
+    //assert
+    (audioHandler->stopRecording());
+    auto results = audioHandler->getMeasurements();
   }
   return {};
 }

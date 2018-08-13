@@ -1,43 +1,74 @@
 #pragma once
 
-#include <deque>
-#include <random>
-#include <vector>
-
-#include <algorithm>
-
-#include <fstream>
-#include <iostream>
-
-#include <limits>
-
-#include <cassert>
-
-#include <cmath>
-
-#include <mutex>
+#include <atomic>
 #include <portaudio.h>
+#include <thread>
 
 #include "audiohandler.h"
 
 class PortAudioHandler : public AudioHandler {
-  int overlap;
-  std::deque<float> micInput;
-
-  // TODO: use rate in file reading if needed
-  int sampleRate;
-  const int framesPerBuffer = 512;
-  PaStreamParameters inputParams;
   PaStream *stream;
 
-  std::mutex micMutex;
+  static int recordCallback(const void *input, void *output,
+                            unsigned long frameCount,
+                            const PaStreamCallbackTimeInfo *timeInfo,
+                            PaStreamCallbackFlags flags, void *data) {
+    auto tp = std::chrono::high_resolution_clock::now();
+    PortAudioHandler *ah = reinterpret_cast<PortAudioHandler *>(data);
+    const double *dInput = static_cast<const double *>(input);
+    if (input == nullptr) {
+      ah->micInput->insert(ah->micInput->end(), frameCount, 0.0f);
+    } else {
+      ah->micInput->insert(ah->micInput->end(), dInput, dInput + frameCount);
+    }
+    if (!ah->measuring) {
+      ah->startTime = tp;
+      ah->measuring = true;
+    }
+    if (ah->micInput->size() >= ah->chunkSize) {
+      std::thread([&ah](){ah->handler();});
+    }
+    return 0;
+  }
 
 public:
-  PortAudioHandler(int rate = 44100, int channels = 1) : sampleRate(rate) {
+  const int framesPerBuffer = 256;
+  size_t chunkSize;
+  std::atomic<bool> measuring;
+  std::chrono::high_resolution_clock::time_point startTime;
+  std::chrono::high_resolution_clock::time_point endTime;
+  std::vector<std::chrono::high_resolution_clock::duration> times;
+  std::vector<double> buffer1;
+  std::vector<double> buffer2;
+  std::vector<double> *micInput;
+  std::vector<double> *reserve;
+  CallbackType subscriber;
+
+  void handler() {
+    // buffer pointed by micinput filled up
+    auto tp = std::chrono::high_resolution_clock::now();
+    auto *const tmp = micInput;
+    micInput = reserve;
+    reserve = tmp;
+    subscriber(*reserve);
+    reserve->clear();
+    reserve->reserve(chunkSize);
+    if (measuring) {
+      endTime = tp;
+      measuring = false;
+      times.push_back(endTime-startTime);
+    }
+  }
+
+  PortAudioHandler(CallbackType callback = CallbackType{},
+                   unsigned channels = 1, unsigned sampleRate = 44100)
+      : chunkSize(framesPerBuffer), measuring(false), buffer1(chunkSize),
+        buffer2(chunkSize), micInput(&buffer1), reserve(&buffer2),
+        subscriber(callback) {
     if (Pa_Initialize() != paNoError) {
       throw std::runtime_error("Failed to initialize PortAudio!");
     }
-
+    PaStreamParameters inputParams = {};
     if ((inputParams.device = Pa_GetDefaultInputDevice()) == paNoDevice) {
       throw std::runtime_error("Could not get default input device!");
     }
@@ -48,13 +79,10 @@ public:
     inputParams.hostApiSpecificStreamInfo = nullptr;
 
     if (Pa_OpenStream(&stream, &inputParams, nullptr, sampleRate,
-                      framesPerBuffer, paClipOff, recordCallback,
-                      this) != paNoError) {
+                      framesPerBuffer, paClipOff,
+                      PortAudioHandler::recordCallback, this) != paNoError) {
       throw std::runtime_error("Failed to open stream!");
     }
-    std::clog << "starting recording" << std::endl;
-    startRecording();
-    std::clog << "recording started" << std::endl;
   }
 
   ~PortAudioHandler() {
@@ -64,50 +92,24 @@ public:
     Pa_Terminate();
   }
 
-  void startRecording() {
+  bool startRecording() {
     if (Pa_StartStream(stream) != paNoError) {
-      throw std::runtime_error("Failed to start recording audio!");
+      return false;
     }
+    return true;
   }
 
-  std::mutex micSizeMutex;
-  int micInputSize;
-
-  static int recordCallback(const void *input, void *output,
-                            unsigned long frameCount,
-                            const PaStreamCallbackTimeInfo *timeInfo,
-                            PaStreamCallbackFlags flags, void *data) {
-    PortAudioHandler *ah = reinterpret_cast<PortAudioHandler *>(data);
-    const double *dInput = static_cast<const double *>(input);
-    std::lock_guard<std::mutex> lock(ah->micMutex);
-    // std::clog << "hooray\n";
-    if (input == nullptr) {
-      ah->micInput.insert(ah->micInput.end(), frameCount, 0.0f);
-    } else {
-      ah->micInput.insert(ah->micInput.end(), dInput, dInput + frameCount);
+  bool stopRecording() {
+    if (Pa_IsStreamActive(stream) && Pa_StopStream(stream) == paNoError) {
+      return true;
     }
-    if (ah->micSizeMutex.try_lock()) {
-      ah->micInputSize = ah->micInput.size();
-      ah->micSizeMutex.unlock();
-    }
-    ah->runs.push_back(std::chrono::high_resolution_clock::now());
-    return 0;
+    return false;
   }
 
-  int shift = 0;
+  void setChunkSize(size_t newSize) { chunkSize = newSize; }
+  void setCallback(CallbackType newCallback) { subscriber = newCallback; }
 
-  std::vector<double> getAudio(int items) {
-    std::vector<double> buffer(items);
-    while (micSizeMutex.try_lock() && micInputSize-shift < 2*items) {
-      micSizeMutex.unlock();
-      std::clog << "waiting";
-      // usleep(10);
-    }
-    // std::lock_guard<std::mutex> lock(micMutex);
-    std::cout << "hurray\n";
-    buffer.assign(micInput.begin()+shift, micInput.begin()+shift + items);
-    // micInput.erase(micInput.begin(), micInput.begin() + (items - overlap));
-    shift+=items;
-    return buffer;
+  const std::vector<std::chrono::high_resolution_clock::duration>& getMeasurements() {
+    return times;
   }
 };
