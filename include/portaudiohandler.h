@@ -32,7 +32,7 @@ class PortAudioHandler : public AudioHandler {
   }
 
 public:
-  const int framesPerBuffer = 256;
+  const int framesPerBuffer = 512;
   size_t chunkSize;
   std::atomic<bool> measuring;
   std::chrono::high_resolution_clock::time_point startTime;
@@ -60,6 +60,8 @@ public:
     }
   }
 
+  PaStreamParameters inputParams;
+
   PortAudioHandler(CallbackType callback = CallbackType{},
                    unsigned channels = 1, unsigned sampleRate = 44100)
       : chunkSize(framesPerBuffer), measuring(false), buffer1(chunkSize),
@@ -68,7 +70,6 @@ public:
     if (Pa_Initialize() != paNoError) {
       throw std::runtime_error("Failed to initialize PortAudio!");
     }
-    PaStreamParameters inputParams = {};
     if ((inputParams.device = Pa_GetDefaultInputDevice()) == paNoDevice) {
       throw std::runtime_error("Could not get default input device!");
     }
@@ -80,7 +81,7 @@ public:
 
     if (Pa_OpenStream(&stream, &inputParams, nullptr, sampleRate,
                       framesPerBuffer, paClipOff,
-                      PortAudioHandler::recordCallback, this) != paNoError) {
+                      &PortAudioHandler::recordCallback, this) != paNoError) {
       throw std::runtime_error("Failed to open stream!");
     }
   }

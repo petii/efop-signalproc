@@ -80,7 +80,7 @@ std::vector<Measurement> MeasurementsApp::runAudioMeasurements(
     });
     // std::cin.get();
     //assert
-    (audioHandler->startRecording());
+    std::clog << std::boolalpha << "start record successful: " << (audioHandler->startRecording()) << std::endl;
     while (runNum < runs);
     //assert
     (audioHandler->stopRecording());
