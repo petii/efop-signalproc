@@ -6,6 +6,8 @@
 #include <random>
 #include <thread>
 
+#include "pacpphandler.h"
+
 MeasurementsApp::MeasurementsApp(std::pair<int, int> range, int runs)
     : range(range), runs(runs) {}
 MeasurementsApp::~MeasurementsApp() {}
@@ -35,8 +37,12 @@ void MeasurementsApp::doMeasurements() {
   std::clog << range.first << '-' << range.second << std::endl;
   std::clog << "portaudio" << std::endl;
   auto portAudioResults =
-      runAudioMeasurements(std::make_unique<PortAudioHandler>());
+      runAudioMeasurements(std::make_unique<PACppHandler>());
   std::clog << "end of portaudio" << std::endl;
+  // std::clog << "pulseaudio" << std::endl;
+  // auto portAudioResults =
+  //     runAudioMeasurements(std::make_unique<PortAudioHandler>());
+  // std::clog << "end of pulseaudio" << std::endl;
   //   auto pulseAudioResults =
   //       runAudioMeasurements(std::make_unique<PulseAudioHandler>());
 
@@ -72,7 +78,7 @@ std::vector<Measurement> MeasurementsApp::runAudioMeasurements(
   for (int r = range.first; r <= range.second; ++r) {
     std::clog << r << std::endl;
     audioHandler->setChunkSize(r * baseWindowSize);
-    int runNum = 0;
+    std::atomic<int> runNum = 0;
     std::vector<double> data;
     audioHandler->setCallback([&runNum,&data](auto audio) {
       data.insert(data.end(),audio.begin(),audio.end()); //TODO: move semantics?
@@ -80,11 +86,16 @@ std::vector<Measurement> MeasurementsApp::runAudioMeasurements(
     });
     // std::cin.get();
     //assert
-    std::clog << std::boolalpha << "start record successful: " << (audioHandler->startRecording()) << std::endl;
+    std::clog << std::boolalpha << "start record successful: " 
+              << (audioHandler->startRecording()) << std::endl;
     while (runNum < runs);
     //assert
-    (audioHandler->stopRecording());
+    std::clog << "stop record successful: " 
+              << (audioHandler->stopRecording()) << std::endl; 
     auto results = audioHandler->getMeasurements();
+    for (auto r : results) {
+      std::clog << std::chrono::duration_cast<std::chrono::milliseconds>(r).count() << std::endl; 
+    }
   }
   return {};
 }

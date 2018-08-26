@@ -9,9 +9,10 @@ OUTPUT_NAME := a.out
 FFTWPP_PATH := /home/petii/.local/fftw++-2.05
 
 SOURCES := $(shell find $(SRCDIR) -type f -name *.cpp) ${FFTWPP_PATH}/fftw++.cc
-CFLAGS := -std=c++17 -fopenmp 
-LDFLAGS := -L${VULKAN_SDK}/lib `pkg-config --static --libs glfw3` -lvulkan -lportaudio -lfftw3 -lfftw3_omp
-INCLUDE := -Iinclude -I${VULKAN_SDK}/include -I${FFTWPP_PATH} 
+DEFINES := -D_REENTRANT
+CFLAGS := -std=c++17 -fopenmp
+LDFLAGS := -L${VULKAN_SDK}/lib -L/usr/local/lib `pkg-config --static --libs glfw3` -lvulkan -pthread -lportaudiocpp -lm -lpthread -lportaudio -lfftw3 -lfftw3_omp -lpulse
+INCLUDE := -Iinclude -I${VULKAN_SDK}/include -I${FFTWPP_PATH} -I/usr/local/include 
 
 all:
 	make shaders
@@ -20,7 +21,7 @@ all:
 	make clean
 
 debug:
-	$(COMPILER) -o $(OUTPUT_NAME) $(SOURCES) $(CFLAGS) $(INCLUDE) $(LDFLAGS) -DDEBUG -g -ggdb 
+	$(COMPILER) -o $(OUTPUT_NAME) $(SOURCES) $(CFLAGS) $(INCLUDE) $(LDFLAGS) $(DEFINES) -DDEBUG -g -ggdb 
 
 release:
 	$(COMPILER) -o $(OUTPUT_NAME) $(SOURCES) $(CFLAGS) $(INCLUDE) $(LDFLAGS) -DNDEBUG -O3
