@@ -35,16 +35,14 @@ void MeasurementsApp::exportResults(
 
 void MeasurementsApp::doMeasurements() {
   std::clog << range.first << '-' << range.second << std::endl;
-  std::clog << "portaudio" << std::endl;
-  auto portAudioResults =
-      runAudioMeasurements(std::make_unique<PACppHandler>());
-  std::clog << "end of portaudio" << std::endl;
-  // std::clog << "pulseaudio" << std::endl;
-  // auto portAudioResults =
-  //     runAudioMeasurements(std::make_unique<PortAudioHandler>());
-  // std::clog << "end of pulseaudio" << std::endl;
-  //   auto pulseAudioResults =
-  //       runAudioMeasurements(std::make_unique<PulseAudioHandler>());
+
+  std::clog << "portaudiocpp" << std::endl;
+  auto pacppResults = runAudioMeasurements(std::make_unique<PACppHandler>());
+  std::clog << "end of portaudiocpp" << std::endl;
+  std::clog << "pulseaudio" << std::endl;
+  auto pulseAudioResults =
+      runAudioMeasurements(std::make_unique<PulseAudioHandler>());
+  std::clog << "end of pulseaudio" << std::endl;
 
   // std::clog << "running vulkan\n";
   // auto vulkanFourierResults =
@@ -73,31 +71,39 @@ void MeasurementsApp::doMeasurements() {
   // }
 }
 
-std::vector<Measurement> MeasurementsApp::runAudioMeasurements(
+std::vector<std::vector<std::chrono::high_resolution_clock::duration>>
+MeasurementsApp::runAudioMeasurements(
     std::unique_ptr<AudioHandler> audioHandler) {
+  std::vector<std::vector<std::chrono::high_resolution_clock::duration>>
+      results;
   for (int r = range.first; r <= range.second; ++r) {
     std::clog << r << std::endl;
     audioHandler->setChunkSize(r * baseWindowSize);
     std::atomic<int> runNum = 0;
     std::vector<double> data;
-    audioHandler->setCallback([&runNum,&data](auto audio) {
-      data.insert(data.end(),audio.begin(),audio.end()); //TODO: move semantics?
+    audioHandler->setCallback([&runNum, &data](auto audio) {
+      data.insert(data.end(), audio.begin(),
+                  audio.end()); // TODO: move semantics?
       ++runNum;
     });
     // std::cin.get();
-    //assert
-    std::clog << std::boolalpha << "start record successful: " 
-              << (audioHandler->startRecording()) << std::endl;
-    while (runNum < runs);
-    //assert
-    std::clog << "stop record successful: " 
-              << (audioHandler->stopRecording()) << std::endl; 
-    auto results = audioHandler->getMeasurements();
-    for (auto r : results) {
-      std::clog << std::chrono::duration_cast<std::chrono::milliseconds>(r).count() << std::endl; 
-    }
+    // assert
+    std::clog << std::boolalpha
+              << "start record successful: " << (audioHandler->startRecording())
+              << std::endl;
+    while (runNum < runs)
+      ;
+    // assert
+    std::clog << "stop record successful: " << (audioHandler->stopRecording())
+              << std::endl;
+    results.push_back(audioHandler->getMeasurements());
+    // for (auto r : results) {
+    //   std::clog <<
+    //   std::chrono::duration_cast<std::chrono::milliseconds>(r).count() <<
+    //   std::endl;
+    // }
   }
-  return {};
+  return results;
 }
 
 std::vector<std::vector<Measurement>> MeasurementsApp::runFourierMeasurements(

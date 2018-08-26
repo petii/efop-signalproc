@@ -101,6 +101,7 @@ public:
   }
 
   bool stopRecording() {
+    
     if (Pa_IsStreamActive(stream) && Pa_StopStream(stream) == paNoError) {
       return true;
     }
